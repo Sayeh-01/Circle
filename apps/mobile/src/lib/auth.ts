@@ -1,4 +1,4 @@
-import { emailOTPClient } from 'better-auth/client/plugins';
+import { emailOTPClient, phoneNumberClient } from 'better-auth/client/plugins';
 import { createAuthClient } from 'better-auth/react';
 import { Platform } from 'react-native';
 import { platformAuthPlugins } from './auth-plugins';
@@ -7,7 +7,7 @@ import { API_URL } from './config';
 export const authClient = createAuthClient({
   baseURL: API_URL,
   basePath: '/api/auth',
-  plugins: [emailOTPClient(), ...(platformAuthPlugins as unknown as [])],
+  plugins: [emailOTPClient(), phoneNumberClient(), ...(platformAuthPlugins as unknown as [])],
   fetchOptions: Platform.OS === 'web' ? { credentials: 'include' } : undefined,
 });
 

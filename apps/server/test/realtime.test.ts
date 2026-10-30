@@ -100,3 +100,17 @@ describe('realtime', () => {
     sc.ws.close();
   });
 });
+
+describe('realtime after creating a group', () => {
+  it('the creator’s already-open socket hears the new group', async () => {
+    const a = await signIn('creator@example.com');
+    const sa = socket((await a.call('POST', '/ws-ticket')).ticket);
+    await sa.next((m) => m.type === 'ready');
+    const g = await a.call('POST', '/groups', { templateId: 'work', name: 'Fresh', lang: 'en' });
+    await sa.next((m) => m.type === 'membership' && m.groupId === g.group.id);
+    await new Promise((r) => setTimeout(r, 100));
+    await a.call('POST', `/groups/${g.group.id}/tasks`, { title: 'First' });
+    await sa.next((m) => m.type === 'invalidate' && m.groupId === g.group.id);
+    sa.ws.close();
+  });
+});

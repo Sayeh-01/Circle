@@ -1,10 +1,12 @@
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
+import { useQuery } from '@tanstack/react-query';
+import * as Clipboard from 'expo-clipboard';
 import { useEffect, useState } from 'react';
 import { Platform, Share, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Avatar, Button, Card, Field, Screen, Section, Segmented } from '@/components/ui';
-import { del, get, imageSource, patch, uploadProfilePhoto } from '@/lib/api';
+import { Avatar, Button, Card, Field, Muted, Screen, Section, Segmented, Txt } from '@/components/ui';
+import { del, get, imageSource, patch, post, uploadProfilePhoto } from '@/lib/api';
 import { authClient } from '@/lib/auth';
 import { confirmAsk, notifyError, useMe } from '@/lib/hooks';
 import { usePrefs, type Digits, type Lang } from '@/lib/prefs';
@@ -16,6 +18,8 @@ export default function Me() {
   const { lang, digits, tz, setPrefs } = usePrefs();
   const [name, setName] = useState('');
   const [zone, setZone] = useState(tz);
+  const feed = useQuery({ queryKey: ['calendar-feed'], queryFn: () => get('/me/calendar-feed') });
+  const [feedCopied, setFeedCopied] = useState(false);
   useEffect(() => {
     if (me.data) setName(me.data.name);
   }, [me.data?.name]);
@@ -90,6 +94,18 @@ export default function Me() {
           }}
         />
       </Card>
+      <Section title={t('reach.calendarFeed')}>
+        <Card testID="calendar-feed">
+          <Muted>{t('reach.calendarHint')}</Muted>
+          <Txt style={{ marginVertical: 8, fontSize: 12, writingDirection: 'ltr' }} numberOfLines={2}>
+            {feed.data?.url ?? '…'}
+          </Txt>
+          <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap' }}>
+            <Button small kind="secondary" title={feedCopied ? t('common.copied') : t('common.copy')} onPress={async () => (await Clipboard.setStringAsync(feed.data.url), setFeedCopied(true))} disabled={!feed.data} />
+            <Button small kind="ghost" title={t('reach.newFeed')} onPress={async () => (await post('/me/calendar-feed/rotate'), feed.refetch())} />
+          </View>
+        </Card>
+      </Section>
       <Button
         kind="secondary"
         title={t('me.export')}

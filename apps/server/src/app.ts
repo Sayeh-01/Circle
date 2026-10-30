@@ -13,6 +13,8 @@ import { createDevMailer, type Mailer } from './mailer';
 import { createMemoryPushSender, type PushSender } from './push';
 import { attachRealtime, signTicket } from './realtime';
 import { registerChatRoutes } from './routes/chat';
+import { registerGuestRoutes } from './routes/guest';
+import { registerIcsRoutes, registerWellKnown } from './routes/ics';
 import { registerEventRoutes } from './routes/events';
 import { registerExpenseRoutes } from './routes/expenses';
 import { registerGroupRoutes } from './routes/groups';
@@ -21,6 +23,7 @@ import { registerMeRoutes } from './routes/me';
 import { registerMiscRoutes } from './routes/misc';
 import { registerPollRoutes } from './routes/polls';
 import { registerTaskRoutes } from './routes/tasks';
+import { createDevSms, type SmsSender } from './sms';
 import { createMemoryStorage, type FileStorage } from './storage';
 import { envFromProcess } from './deps';
 
@@ -30,6 +33,7 @@ export interface AppOptions {
   mailer?: Mailer;
   clock?: () => Date;
   push?: PushSender;
+  sms?: SmsSender;
   storage?: FileStorage;
   /** Serve the exported Expo web build (E2E and simple deployments). */
   staticDir?: string;
@@ -50,6 +54,10 @@ export const features: FeatureModule[] = [
   (r, d) => registerChatRoutes(r, d),
   (r, d) => registerMiscRoutes(r, d),
   (r, d) => registerMeRoutes(r, d),
+  // v1.1 Reach
+  (r, d, root) => registerGuestRoutes(r, d, root),
+  (r, d, root) => registerIcsRoutes(r, d, root),
+  (_r, d, root) => registerWellKnown(d, root),
 ];
 
 export function createApp(opts: AppOptions) {
@@ -63,8 +71,9 @@ export function createApp(opts: AppOptions) {
     bus: new Bus(),
     storage: opts.storage ?? createMemoryStorage(),
     push: opts.push ?? createMemoryPushSender(),
+    sms: opts.sms ?? createDevSms(env.nodeEnv !== 'test'),
   };
-  const auth: Auth = createAuth(opts.db, env, mailer);
+  const auth: Auth = createAuth(opts.db, env, mailer, deps.sms);
   const router = createRouter(deps, auth);
   const app = new Hono();
 
@@ -79,7 +88,7 @@ export function createApp(opts: AppOptions) {
   app.on(['GET', 'POST'], '/api/auth/*', (c) => auth.handler(c.req.raw));
   app.get('/api/health', (c) => c.json({ ok: true }));
   app.get('/api/config', (c) =>
-    c.json({ google: !!env.google, apple: !!env.apple, ai: !!env.anthropicApiKey, linkDomain: env.linkDomain }),
+    c.json({ google: !!env.google, apple: !!env.apple, phone: true, ai: !!env.anthropicApiKey, linkDomain: env.linkDomain }),
   );
   app.post('/api/ws-ticket', router.requireUser as any, (c: any) =>
     c.json({ ticket: signTicket(env.authSecret, c.get('user').id, deps.clock().getTime() + 60_000) }),
@@ -89,6 +98,10 @@ export function createApp(opts: AppOptions) {
   if (env.nodeEnv !== 'production') {
     app.get('/api/test/otp', (c) => {
       const code = mailer.lastOtp?.(c.req.query('email') ?? '');
+      return code ? c.json({ code }) : c.json({ error: 'not_found' }, 404);
+    });
+    app.get('/api/test/sms', (c) => {
+      const code = deps.sms.lastCode?.(c.req.query('phone') ?? '');
       return code ? c.json({ code }) : c.json({ error: 'not_found' }, 404);
     });
   }

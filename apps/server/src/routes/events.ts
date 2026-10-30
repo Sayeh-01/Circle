@@ -89,13 +89,14 @@ export function registerEventRoutes(r: Router, deps: Deps) {
     const groupId = c.get('group').id;
     const ev = await getEvent(db, groupId, c.req.param('eventId')!);
     const rsvps = await db
-      .select({ userId: eventRsvps.userId, status: eventRsvps.status, waitlistPos: eventRsvps.waitlistPos, displayName: groupMembers.displayName })
+      .select({ userId: eventRsvps.userId, status: eventRsvps.status, waitlistPos: eventRsvps.waitlistPos, displayName: groupMembers.displayName, guestName: eventRsvps.guestName })
       .from(eventRsvps)
       .leftJoin(groupMembers, and(eq(groupMembers.groupId, eventRsvps.groupId), eq(groupMembers.userId, eventRsvps.userId)))
       .where(and(eq(eventRsvps.eventId, ev.id), eq(eventRsvps.groupId, groupId)))
       .orderBy(asc(eventRsvps.waitlistPos), asc(eventRsvps.updatedAt));
     const [{ members }] = await db.select({ members: count() }).from(groupMembers).where(eq(groupMembers.groupId, groupId));
-    return { event: ev, rsvps, memberCount: members, myStatus: rsvps.find((x) => x.userId === c.get('user').id)?.status ?? null };
+    const named = rsvps.map((x) => ({ ...x, displayName: x.displayName ?? (x.guestName ? `${x.guestName} (guest)` : null), guest: x.userId.startsWith('guest:') }));
+    return { event: ev, rsvps: named, memberCount: members, myStatus: rsvps.find((x) => x.userId === c.get('user').id)?.status ?? null };
   });
 
   r.patch(`${base}/:eventId`, { ...mod, perm: 'items.create', summary: 'Edit an event', body: schemas.eventUpdate }, async (c, { body }) => {

@@ -36,7 +36,8 @@ export interface NotifyInput {
 
 /** Inbox rows + a push job, inside the caller's transaction. The actor is never notified about their own action. */
 export async function notify(tx: DbOrTx, n: NotifyInput & { exclude?: string | null }) {
-  const userIds = [...new Set(n.userIds)].filter((u) => u && u !== n.exclude);
+  // guests (guest links) have no account, inbox or push token
+  const userIds = [...new Set(n.userIds)].filter((u) => u && u !== n.exclude && !u.startsWith('guest:'));
   if (userIds.length === 0) return [];
   const rows = userIds.map((userId) => ({
     id: newId(),

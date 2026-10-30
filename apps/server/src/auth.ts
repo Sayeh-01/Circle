@@ -1,13 +1,14 @@
 import { expo } from '@better-auth/expo';
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
-import { emailOTP } from 'better-auth/plugins';
+import { emailOTP, phoneNumber } from 'better-auth/plugins';
 import * as schema from './db/schema';
 import type { DB } from './db/client';
 import type { Env } from './deps';
 import type { Mailer } from './mailer';
+import type { SmsSender } from './sms';
 
-export function createAuth(db: DB, env: Env, mailer: Mailer) {
+export function createAuth(db: DB, env: Env, mailer: Mailer, sms: SmsSender) {
   return betterAuth({
     database: drizzleAdapter(db, {
       provider: 'pg',
@@ -37,6 +38,19 @@ export function createAuth(db: DB, env: Env, mailer: Mailer) {
         expiresIn: 600,
         async sendVerificationOTP({ email, otp }) {
           await mailer.sendOtp(email, otp);
+        },
+      }),
+      // v1.1 phone OTP through the SMS adapter (dev driver logs the code). Phone sign-up gets a placeholder email.
+      phoneNumber({
+        otpLength: 6,
+        expiresIn: 600,
+        phoneNumberValidator: (p) => /^\+[1-9]\d{7,14}$/.test(p),
+        async sendOTP({ phoneNumber: phone, code }) {
+          await sms.send(phone, `Circle code: ${code}`, code);
+        },
+        signUpOnVerification: {
+          getTempEmail: (phone) => `${phone.replace(/\D/g, '')}@phone.circle.invalid`,
+          getTempName: () => '',
         },
       }),
       expo(),

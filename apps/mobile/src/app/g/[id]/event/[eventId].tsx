@@ -2,6 +2,7 @@ import { parseMajorToMinor } from '@circle/shared';
 import { useQuery } from '@tanstack/react-query';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
+import * as Clipboard from 'expo-clipboard';
 import { Linking, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Button, Card, Chip, ErrorView, Field, Loading, Muted, Row, Screen, Section, Sheet, Txt, colors, useSheet } from '@/components/ui';
@@ -20,6 +21,7 @@ export default function EventDetail() {
   const split = useSheet();
   const [amount, setAmount] = useState('');
   const [nudged, setNudged] = useState<number | null>(null);
+  const [copied, setCopied] = useState(false);
   if (q.isLoading) return <Screen title="" back><Loading /></Screen>;
   if (q.error) return <Screen title="" back><ErrorView error={q.error} /></Screen>;
   const { event: e, rsvps, myStatus } = q.data;
@@ -29,7 +31,8 @@ export default function EventDetail() {
   const myPos = waitlist.find((r: any) => r.userId === g.me?.userId)?.waitlistPos;
   const tz = e.tz;
   const need = e.capacity ? Math.max(0, e.capacity - going.length) : 0;
-  const shareText = t('events.shareCard', { emoji: g.group?.emoji ?? '', title: e.title, time: fmt.dateTime(e.startsAt, tz), going: e.capacity ? `${going.length}/${e.capacity}` : going.length, link: `circleapp://g/${id}/event/${e.id}` });
+  const shareText = (link: string) => t('events.shareCard', { emoji: g.group?.emoji ?? '', title: e.title, time: fmt.dateTime(e.startsAt, tz), going: e.capacity ? `${going.length}/${e.capacity}` : going.length, link });
+  const guestLink = async () => (await post(`/groups/${id}/guest-links`, { entity: 'event', entityId: e.id })).url as string;
 
   return (
     <Screen title={g.v('event')} back accent={g.group?.color} testID="event-detail">
@@ -95,7 +98,20 @@ export default function EventDetail() {
             }}
           />
         ) : null}
-        <Button kind="secondary" title={t('common.whatsapp')} onPress={() => Linking.openURL(`https://wa.me/?text=${encodeURIComponent(shareText)}`)} testID="event-whatsapp" />
+        <Button kind="secondary" title={t('common.whatsapp')} onPress={() => run(async () => Linking.openURL(`https://wa.me/?text=${encodeURIComponent(shareText(await guestLink()))}`))} testID="event-whatsapp" />
+        {g.can('items.create') && (
+          <Button
+            kind="secondary"
+            title={copied ? t('reach.linkCopied') : t('reach.copyLink')}
+            testID="event-guest-link"
+            onPress={() =>
+              run(async () => {
+                await Clipboard.setStringAsync(await guestLink());
+                setCopied(true);
+              })
+            }
+          />
+        )}
         {(e.createdBy === g.me?.userId || g.can('items.manage')) && (
           <Button
             kind="ghost"

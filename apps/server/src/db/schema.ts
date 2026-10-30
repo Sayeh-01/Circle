@@ -228,6 +228,8 @@ export const eventRsvps = pgTable(
     /** going | maybe | no | waitlist */
     status: text('status').notNull(),
     waitlistPos: integer('waitlist_pos'),
+    /** v1.1: RSVPs from guest links (userId = `guest:<id>`) carry the name the guest typed. */
+    guestName: text('guest_name'),
     updatedAt: ts('updated_at').notNull().defaultNow(),
   },
   (t) => [primaryKey({ columns: [t.eventId, t.userId] })],
@@ -478,3 +480,29 @@ export const jobs = pgTable(
   },
   (t) => [index('jobs_due_idx').on(t.status, t.runAt)],
 );
+
+// ── v1.1 Reach ────────────────────────────────────────────────────────────────
+/** A web link that lets someone without the app act on exactly one item (B6: guests pass the same guard, narrower scope). */
+export const guestLinks = pgTable('guest_links', {
+  id: text('id').primaryKey(),
+  groupId: text('group_id')
+    .notNull()
+    .references(() => groups.id, { onDelete: 'cascade' }),
+  token: text('token').notNull().unique(),
+  entity: text('entity').notNull(),
+  entityId: text('entity_id').notNull(),
+  createdBy: text('created_by').notNull(),
+  createdAt: createdAt(),
+  revokedAt: ts('revoked_at'),
+});
+
+/** Secret per-user URL for the read-only ICS calendar feed. */
+export const calendarTokens = pgTable('calendar_tokens', {
+  id: text('id').primaryKey(),
+  userId: text('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  token: text('token').notNull().unique(),
+  createdAt: createdAt(),
+  revokedAt: ts('revoked_at'),
+});

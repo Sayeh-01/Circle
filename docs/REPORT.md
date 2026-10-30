@@ -50,6 +50,14 @@ Make a development build first (Expo Go can't do remote push on Android, B7 #6):
 9. **Time zone:** set the phone to another zone; a group's weekly 21:00 match should still show 21:00 group time.
 10. **QR invite:** scan the QR on the invite screen with the phone camera → opens the join link (needs the domain for https links).
 
+11. **v1.1 universal links (after the domain is set):** tap `https://<domain>/join/<CODE>` and `https://<domain>/p/<token>` in
+    WhatsApp → the app opens (not the browser). Verify Apple's CDN fetched `/.well-known/apple-app-site-association`.
+12. **v1.1 phone OTP:** with a real SMS driver, sign in with an Egyptian number; the code arrives by SMS.
+13. **v1.1 Google/Apple sign-in:** with client ids set, the buttons appear and complete the round trip back into the app.
+14. **v1.1 WhatsApp share card:** share a match from the event screen → WhatsApp shows the title/description preview
+    (needs the public domain; WhatsApp can't fetch localhost).
+15. **v1.1 calendar feed:** add the ICS URL to Google Calendar and Apple Calendar; events appear and update.
+
 (Later versions add their own device checks in their sections below.)
 
 ## Accounts and keys needed (priority order)
@@ -61,7 +69,11 @@ Make a development build first (Expo Go can't do remote push on Android, B7 #6):
 | 3 | A domain | Universal links, hosted guest pages | `LINK_DOMAIN`, `PUBLIC_URL`; update `associatedDomains` / `intentFilters` in `apps/mobile/app.json` |
 | 4 | Managed Postgres (e.g. Neon) + a VPS/Fly.io + Cloudflare R2 | Production | `DATABASE_URL`, storage keys (R2 driver to add) |
 
-(Later versions append rows: SMS, Google/Apple OAuth, Anthropic, RevenueCat, payment gateway.)
+| 5 | SMS provider (Twilio / Vonage / an Egyptian gateway) | Real phone OTP (v1.1) | add a driver in `apps/server/src/sms.ts` + its keys |
+| 6 | Google OAuth client (Web + iOS + Android) | Google sign-in (v1.1) | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` |
+| 7 | Apple "Sign in with Apple" service id + key (required once Google is offered) | Apple sign-in (v1.1) | `APPLE_CLIENT_ID`, `APPLE_CLIENT_SECRET` |
+
+(Later versions append rows: Anthropic, RevenueCat, payment gateway.)
 
 ## Defects or contradictions found in the brief
 
@@ -137,3 +149,35 @@ WebSocket route registered after the catch-all) before the fixes.
 fixed — Arabic plural forms (`_two`, `_few`, …) were missing, so "2 members" fell back to English.
 
 **Device checks:** items 1–10 of the owner's checklist.
+
+## v1.1 Reach — [x] done
+
+**Built:** guest links for one event or one list (token-scoped JSON API under `/api/guest/:token/...` + server-rendered,
+Arabic/English pages at `/p/:token` with Open Graph tags; guests RSVP with just a name, capacity/waitlist apply; install
+prompt from the third visit), guest-link management (reuse, list, revoke), WhatsApp share from an event (card text +
+guest link), list sharing, ICS feed per user (`/ics/<token>.ics`, rotate to revoke; folded/escaped RFC 5545), universal-link
+files (`/.well-known/apple-app-site-association`, `/.well-known/assetlinks.json`) from the placeholder `LINK_DOMAIN`, app
+config for associated domains/intent filters, `circleapp://p/<token>` opens the item for members.
+
+**Faked:** phone OTP (Better Auth phone-number plugin → `SmsSender` dev driver that logs codes; test-only `/api/test/sms`);
+Google and Apple sign-in wired from env vars (buttons hidden when unset; tested that Better Auth returns the Google
+authorize URL with a fake client id).
+
+**Skipped:** domain verification (needs a domain).
+
+**`pnpm check`:** shared 20/20 · server 71/71 (9 files) · E2E 5/5 (`v1.0-mvp.spec.ts`, `v1.1-reach.spec.ts`).
+
+| B9 v1.1 check | Evidence |
+|---|---|
+| A guest link page lets a non-user RSVP and it shows in the app | `apps/server/test/reach.test.ts` (form post + JSON, waitlist + promotion for guests); E2E `v1.1-reach.spec.ts` — guest RSVPs in a cookie-less browser and A's open event screen shows "Mostafa (guest)" via realtime, no reload |
+| The token only opens its own item (other id → 404) | `reach.test.ts` "the token only opens its own item" (other event, other list, list token on event route, other group's item) |
+| A revoked token stops working | `reach.test.ts` "a revoked token stops working" (API + HTML page) |
+| ICS parses and contains only that user's events | `reach.test.ts` "ICS feed" — in-test RFC 5545 reader (CRLF, ≤75-octet folding, escaping), excludes other groups' and declined events |
+
+**Global gates:** route sweep now covers 60 group routes (new `guest-links` routes included automatically); cross-group test for
+guest links (`reach.test.ts`). Arabic screenshots: `apps/mobile/e2e/screenshots/v1.1/` (guest page, Me with calendar feed,
+group settings with guest links, phone sign-in) — reviewed by eye; fixed a web-only RTL defect (switch thumb drawn outside
+its track). Seen red: `reach.test.ts` (broken assertion → 1 failed → restored); `v1.1-reach.spec.ts` failed for real first
+(the creator's open socket didn't subscribe to a group it had just created — fixed + real-socket test added).
+
+**Device checks:** owner checklist items 11–15.

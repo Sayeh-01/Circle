@@ -1,12 +1,13 @@
 import type { Role } from '@circle/shared';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
+import { useQuery } from '@tanstack/react-query';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Avatar, Button, Card, Chip, Field, HScroll, Loading, Muted, Row, Screen, Section, Toggle } from '@/components/ui';
-import { authHeaders, del, fileUrl, patch, post, put, uploadFile } from '@/lib/api';
+import { authHeaders, del, fileUrl, get, patch, post, put, uploadFile } from '@/lib/api';
 import { confirmAsk, useAct, useGroup } from '@/lib/hooks';
 import { availableModules } from '@/lib/modules';
 
@@ -18,6 +19,7 @@ export default function GroupSettings() {
   const { run } = useAct(id);
   const [name, setName] = useState('');
   const [myName, setMyName] = useState('');
+  const links = useQuery({ queryKey: ['group', id, 'guest-links'], queryFn: () => get(`/groups/${id}/guest-links`), enabled: g.can('items.create') });
   useEffect(() => {
     if (g.group) setName(g.group.name);
     if (g.me) setMyName(g.me.displayName);
@@ -86,6 +88,15 @@ export default function GroupSettings() {
           ))}
         </Card>
       </Section>
+      {links.data?.length > 0 && (
+        <Section title={t('reach.guestLinks')}>
+          <Card style={{ paddingVertical: 4 }} testID="guest-links">
+            {links.data.map((l: any) => (
+              <Row key={l.id} title={l.entity === 'event' ? `📅 ${g.v('event')}` : `📝 ${g.v('list')}`} subtitle={l.url} right={<Button small kind="ghost" title={t('reach.revoke')} onPress={() => run(() => del(`/groups/${id}/guest-links/${l.id}`))} testID={`revoke-${l.id}`} />} />
+            ))}
+          </Card>
+        </Section>
+      )}
       <View style={{ gap: 10 }}>
         <Button kind="secondary" title={t('group.invite')} onPress={() => router.push(`/g/${id}/invite`)} />
         {!owner && (

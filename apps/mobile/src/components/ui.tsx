@@ -223,7 +223,10 @@ export function Toggle({ label, value, onChange, testID }: { label: string; valu
   return (
     <View style={[styles.row, { paddingHorizontal: 0 }]}>
       <Txt style={{ flex: 1 }}>{label}</Txt>
-      <Switch value={value} onValueChange={onChange} testID={testID} accessibilityLabel={label} trackColor={{ true: colors.primary }} />
+      {/* react-native-web draws the thumb outside the track under dir=rtl; native switches mirror on their own */}
+      <View style={{ direction: 'ltr' }}>
+        <Switch value={value} onValueChange={onChange} testID={testID} accessibilityLabel={label} trackColor={{ true: colors.primary }} />
+      </View>
     </View>
   );
 }

@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Linking, Pressable, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Check } from '@/components/Check';
 import { Button, Card, ErrorView, Field, Loading, Row, Screen, colors } from '@/components/ui';
@@ -36,6 +36,19 @@ export default function ListDetail() {
           </View>
           <Button small title="+" onPress={add} testID="item-add" color={g.group?.color} />
         </View>
+      )}
+      {g.can('items.create') && (
+        <Button
+          small
+          kind="ghost"
+          title={`🔗 ${t('reach.shareList')}`}
+          onPress={() =>
+            run(async () => {
+              const link = await post(`/groups/${id}/guest-links`, { entity: 'list', entityId: listId });
+              await Linking.openURL(`https://wa.me/?text=${encodeURIComponent(`${q.data.list.title}: ${link.url}`)}`);
+            })
+          }
+        />
       )}
       <Card style={{ paddingVertical: 4 }}>
         {q.data.items.map((it: any) => (

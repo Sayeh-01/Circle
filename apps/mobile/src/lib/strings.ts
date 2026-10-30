@@ -88,6 +88,11 @@ export const en = {
     rejected: 'rejected a payment', reversed: 'reversed', cancelled: 'cancelled', transferred: 'transferred ownership',
   },
   roles: { title: 'Role' },
+  reach: {
+    guestLink: 'Guest link (no app needed)', copyLink: 'Copy guest link', linkCopied: 'Guest link copied', guestLinks: 'Guest links', revoke: 'Turn off',
+    calendarFeed: 'Calendar feed (ICS)', calendarHint: 'Subscribe in Google Calendar or Apple Calendar. Read-only.', newFeed: 'New feed URL',
+    guest: 'guest', sharedItem: 'Shared item', askInvite: 'Ask a member for an invite code to join this group.', shareList: 'Share list',
+  },
 };
 
 // Arabic adds plural forms (_zero/_two/_few/_many) that English doesn't have.
@@ -181,4 +186,9 @@ export const ar: Shape<typeof en> = {
     rejected: 'رفض دفعة', reversed: 'عكس', cancelled: 'ألغى', transferred: 'نقل الملكية',
   },
   roles: { title: 'الدور' },
+  reach: {
+    guestLink: 'رابط ضيف (بدون تطبيق)', copyLink: 'نسخ رابط الضيف', linkCopied: 'تم نسخ رابط الضيف', guestLinks: 'روابط الضيوف', revoke: 'إيقاف',
+    calendarFeed: 'رابط التقويم (ICS)', calendarHint: 'اشترك فيه من تقويم جوجل أو أبل. للقراءة فقط.', newFeed: 'رابط جديد',
+    guest: 'ضيف', sharedItem: 'عنصر مشترك', askInvite: 'اطلب من أحد الأعضاء كود دعوة للانضمام لهذه المجموعة.', shareList: 'مشاركة القائمة',
+  },
 };

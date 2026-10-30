@@ -106,6 +106,8 @@ export function registerGroupRoutes(r: Router, deps: Deps) {
       return invite;
     });
     const [group] = await db.select().from(groups).where(eq(groups.id, id));
+    // the creator's open sockets start listening to the new group
+    emitUser(c, user.id, { type: 'membership', groupId: id });
     return { group, invite: inviteLinks(deps, result.code) };
   });
 

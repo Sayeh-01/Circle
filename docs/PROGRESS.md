@@ -4,7 +4,7 @@ Source of truth for where the build is (SPEC B1). One line per version in B5.
 `[ ]` not started · `[~]` in progress · `[x]` done · `[-]` blocked (reason)
 
 - [x] v1.0 MVP
-- [ ] v1.1 Reach
+- [x] v1.1 Reach
 - [ ] v1.2 Motivation
 - [ ] v1.3 Sport & Study
 - [ ] v1.4 Life + AI
@@ -24,4 +24,4 @@ Source of truth for where the build is (SPEC B1). One line per version in B5.
 - [ ] v7.0 Cross-group AI assistant
 
 ## Current
-v1.0 done (commit `v1.0: …`). Next: v1.1 Reach.
+v1.1 done. Next: v1.2 Motivation.

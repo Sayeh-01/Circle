@@ -80,3 +80,21 @@ Decisions made while the owner is away (SPEC B0/B8). Newest at the bottom of eac
   builds we ask the user to reopen the app instead of adding `expo-updates` just for `reloadAsync`. Owner device check #5.
 - Date/time input uses day chips + an HH:MM field instead of a native picker (no extra native module, works on web).
 - Quiet hours / daily digest (A9) have no version in B5; not built.
+
+## v1.1 plan
+1. Guest links as data (`guest_links`: group, token, entity, entity id, revoked_at); one resolver = the guest form of the
+   membership guard (unknown/revoked token or other item id → 404).
+2. Server-rendered guest pages (no JS) with OG tags for WhatsApp cards; JSON API for the same actions.
+3. ICS feed per user with a revocable token; universal-link files from env.
+4. Phone OTP via Better Auth plugin + SMS adapter; Google/Apple from env vars.
+
+## v1.1 decisions
+- Guest pages live at `/p/:token` because the app already uses `/g/:groupId`.
+- Guest RSVPs are rows in `event_rsvps` with `user_id = guest:<uuid>` (uuid kept in an httpOnly cookie) and `guest_name`,
+  so capacity and the waitlist count guests with no special cases. `notify()` skips `guest:` ids.
+- "See what they owe / confirm payment" through a guest link (A9) needs non-members inside expense splits; not in the B5
+  v1.1 row's must-prove list, so guests get event RSVP + list view only (feature stop rule: simplest form).
+- The install prompt shows from the third guest visit ("after their second interaction"), counted in a cookie.
+- Phone sign-up creates a placeholder email `<digits>@phone.circle.invalid` (Better Auth requires an email).
+- Found in review: the creator's socket did not subscribe to a newly created group → creating a group emits a membership
+  event to the creator.

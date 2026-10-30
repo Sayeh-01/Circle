@@ -2,6 +2,7 @@ import type { Bus } from './bus';
 import type { DB } from './db/client';
 import type { Mailer } from './mailer';
 import type { PushSender } from './push';
+import type { SmsSender } from './sms';
 import type { FileStorage } from './storage';
 
 export interface Env {
@@ -29,6 +30,7 @@ export interface Deps {
   bus: Bus;
   storage: FileStorage;
   push: PushSender;
+  sms: SmsSender;
 }
 
 export function envFromProcess(overrides: Partial<Env> = {}): Env {

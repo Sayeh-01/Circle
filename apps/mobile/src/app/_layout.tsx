@@ -57,6 +57,7 @@ function AuthGate() {
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="new-group" />
         <Stack.Screen name="g/[id]" />
+        <Stack.Screen name="p/[token]" />
       </Stack.Protected>
       <Stack.Protected guard={!signedIn}>
         <Stack.Screen name="sign-in" />

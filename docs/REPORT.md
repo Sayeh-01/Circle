@@ -5,16 +5,11 @@ Nothing here has been run on a phone: everything was verified on the Expo **web*
 
 ## Where the code is (read this first)
 
-This session was attached to `Sayeh-01/High_level_calc`, not `Sayeh-01/Circle`, and it was not allowed to push to Circle.
-The work is on branch **`claude/circle-mobile-app-zm3gcj`** of `Sayeh-01/High_level_calc`. That branch starts from
-Circle's `main` commit `1d6fcc4` ("Create SPEC.md"), so it has the same history as `Sayeh-01/Circle` and moves over cleanly:
+The project lives in **`Sayeh-01/Circle`**, branch **`claude/circle-mobile-app-zm3gcj`**, which starts from Circle's `main`
+commit `1d6fcc4` ("Create SPEC.md"). Merging the pull request into `main` puts the whole project on `main`.
 
-```bash
-git clone https://github.com/Sayeh-01/Circle && cd Circle
-git fetch https://github.com/Sayeh-01/High_level_calc claude/circle-mobile-app-zm3gcj
-git push origin FETCH_HEAD:refs/heads/claude/circle-mobile-app-zm3gcj
-# then open a PR claude/circle-mobile-app-zm3gcj → main on Sayeh-01/Circle
-```
+(It was built in a session attached to `Sayeh-01/High_level_calc`, where the same branch also exists — with a `main` made
+from the same spec commit — because pushing to Circle wasn't allowed at first. Circle is the home from now on.)
 
 ## How to run it locally
 

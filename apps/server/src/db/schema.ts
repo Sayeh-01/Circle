@@ -472,6 +472,8 @@ export const files = pgTable('files', {
   mime: text('mime').notNull(),
   size: integer('size').notNull().default(0),
   uploadedAt: ts('uploaded_at'),
+  /** v1.5: vault files are stored encrypted at rest */
+  encrypted: boolean('encrypted').notNull().default(false),
   createdAt: createdAt(),
 });
 
@@ -736,4 +738,90 @@ export const memories = pgTable(
     createdAt: createdAt(),
   },
   (t) => [index('memories_group_day_idx').on(t.groupId, t.day)],
+);
+
+// ── v1.5 Care & Safety ────────────────────────────────────────────────────────
+export const vaultFolders = pgTable('vault_folders', {
+  id: text('id').primaryKey(),
+  groupId: text('group_id')
+    .notNull()
+    .references(() => groups.id, { onDelete: 'cascade' }),
+  name: text('name').notNull(),
+  /** all = every adult member · admins = owner/admin only · custom = owner/admin + memberIds */
+  access: text('access').notNull().default('all'),
+  memberIds: text('member_ids').array().notNull().default(sql`'{}'::text[]`),
+  createdBy: text('created_by').notNull(),
+  createdAt: createdAt(),
+});
+
+export const vaultDocs = pgTable(
+  'vault_docs',
+  {
+    id: text('id').primaryKey(),
+    groupId: text('group_id')
+      .notNull()
+      .references(() => groups.id, { onDelete: 'cascade' }),
+    folderId: text('folder_id')
+      .notNull()
+      .references(() => vaultFolders.id, { onDelete: 'cascade' }),
+    title: text('title').notNull(),
+    fileId: text('file_id'),
+    /** Local calendar day the document expires (YYYY-MM-DD). */
+    expiresOn: text('expires_on'),
+    /** Encrypted (seal.ts). */
+    notes: text('notes'),
+    ocrText: text('ocr_text'),
+    createdBy: text('created_by').notNull(),
+    createdAt: createdAt(),
+  },
+  (t) => [index('vault_docs_folder_idx').on(t.folderId)],
+);
+
+/** One per member per group; the whole card is one encrypted JSON blob. */
+export const emergencyCards = pgTable(
+  'emergency_cards',
+  {
+    groupId: text('group_id')
+      .notNull()
+      .references(() => groups.id, { onDelete: 'cascade' }),
+    userId: text('user_id').notNull(),
+    data: text('data').notNull(),
+    updatedBy: text('updated_by').notNull(),
+    updatedAt: ts('updated_at').notNull().defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.groupId, t.userId] })],
+);
+
+export const meds = pgTable('meds', {
+  id: text('id').primaryKey(),
+  groupId: text('group_id')
+    .notNull()
+    .references(() => groups.id, { onDelete: 'cascade' }),
+  patientName: text('patient_name').notNull(),
+  name: text('name').notNull(),
+  dose: text('dose').notNull().default(''),
+  /** Local times "HH:MM" in the group timezone. */
+  times: text('times').array().notNull(),
+  startOn: text('start_on').notNull(),
+  endOn: text('end_on'),
+  notes: text('notes'),
+  active: boolean('active').notNull().default(true),
+  createdBy: text('created_by').notNull(),
+  createdAt: createdAt(),
+});
+
+export const medDoses = pgTable(
+  'med_doses',
+  {
+    id: text('id').primaryKey(),
+    medId: text('med_id')
+      .notNull()
+      .references(() => meds.id, { onDelete: 'cascade' }),
+    groupId: text('group_id').notNull(),
+    scheduledAt: ts('scheduled_at').notNull(),
+    givenAt: ts('given_at'),
+    givenBy: text('given_by'),
+    skipped: boolean('skipped').notNull().default(false),
+  },
+  (t) => [uniqueIndex('med_doses_med_time_uq').on(t.medId, t.scheduledAt)],
 );

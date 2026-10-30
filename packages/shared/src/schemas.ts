@@ -160,3 +160,27 @@ export const mealsToList = z.object({ from: z.string().regex(/^\d{4}-\d{2}-\d{2}
 export const memoryCreate = z.object({ day: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), text: z.string().trim().max(4000).default(''), photoFileIds: z.array(id).max(10).default([]) });
 export const aiCapture = z.object({ text: z.string().trim().min(1).max(500) });
 export const aiQuiz = z.object({ pageId: id.optional(), text: z.string().max(20000).optional(), count: z.number().int().min(1).max(30).default(10) });
+
+const day = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
+export const folderCreate = z.object({ name: z.string().trim().min(1).max(80), access: z.enum(['all', 'admins', 'custom']).default('all'), memberIds: z.array(id).max(100).default([]) });
+export const vaultDocCreate = z.object({ title: z.string().trim().min(1).max(160), fileId: id.optional(), expiresOn: day.nullable().optional(), notes: z.string().max(4000).optional() });
+export const vaultDocUpdate = vaultDocCreate.partial();
+export const emergencyCard = z.object({
+  bloodType: z.string().max(5).optional(),
+  allergies: z.string().max(500).optional(),
+  conditions: z.string().max(500).optional(),
+  medications: z.string().max(500).optional(),
+  doctors: z.string().max(500).optional(),
+  insurance: z.string().max(300).optional(),
+  contacts: z.array(z.object({ name: z.string().max(60), phone: z.string().max(30) })).max(5).default([]),
+});
+export const medCreate = z.object({
+  patientName: z.string().trim().min(1).max(60),
+  name: z.string().trim().min(1).max(120),
+  dose: z.string().max(60).default(''),
+  times: z.array(z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/)).min(1).max(8),
+  startOn: day,
+  endOn: day.nullable().optional(),
+  notes: z.string().max(2000).optional(),
+});
+export const safetyPing = z.object({ note: z.string().max(200).optional() });

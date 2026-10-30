@@ -36,6 +36,13 @@
       "when": 1793349576127,
       "tag": "0004_v1_4_life",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1793350164325,
+      "tag": "0005_v1_5_care_safety",
+      "breakpoints": true
     }
   ]
 }

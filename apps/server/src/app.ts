@@ -14,6 +14,7 @@ import { createDevMailer, type Mailer } from './mailer';
 import { createMemoryPushSender, type PushSender } from './push';
 import { attachRealtime, signTicket } from './realtime';
 import { registerAiRoutes } from './routes/ai';
+import { registerCareRoutes } from './routes/care';
 import { registerChatRoutes } from './routes/chat';
 import { registerLifeRoutes } from './routes/life';
 import { registerChildRoutes } from './routes/children';
@@ -76,6 +77,8 @@ export const features: FeatureModule[] = [
   // v1.4 Life + AI
   (r, d) => registerLifeRoutes(r, d),
   (r, d) => registerAiRoutes(r, d),
+  // v1.5 Care & Safety
+  (r, d) => registerCareRoutes(r, d),
 ];
 
 export function createApp(opts: AppOptions) {

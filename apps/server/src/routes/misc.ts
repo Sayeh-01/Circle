@@ -6,6 +6,7 @@ import type { Deps } from '../deps';
 import { HttpError, badRequest, notFound } from '../errors';
 import type { Router } from '../http';
 import { newId } from '../ids';
+import { dataKey, sealBytes } from '../seal';
 
 const MAX_UPLOAD = 15 * 1024 * 1024;
 const ALLOWED = /^(image\/(jpeg|png|webp|gif|heic)|audio\/(m4a|mp4|mpeg|aac|webm|ogg|x-m4a)|application\/pdf|text\/plain)$/;
@@ -69,14 +70,15 @@ export function registerMiscRoutes(r: Router, deps: Deps) {
     if (!f || f.uploadedAt) throw notFound();
     const data = new Uint8Array(await c.req.arrayBuffer());
     if (data.byteLength > MAX_UPLOAD) throw badRequest('too_large');
-    await deps.storage.put(f.key, data, f.mime);
+    await deps.storage.put(f.key, f.encrypted ? sealBytes(dataKey(deps.env.authSecret), data) : data, f.mime);
     await db.update(files).set({ uploadedAt: deps.clock(), size: data.byteLength }).where(eq(files.id, f.id));
     return { ok: true, fileId: f.id };
   });
 
   r.get('/groups/:groupId/files/:fileId', { perm: 'items.read', tags: ['files'], summary: 'Download a file' }, async (c) => {
     const [f] = await db.select().from(files).where(and(eq(files.id, c.req.param('fileId')!), eq(files.groupId, c.get('group').id)));
-    if (!f || !f.uploadedAt) throw notFound();
+    // vault files are only served through the vault route, which checks folder access
+    if (!f || !f.uploadedAt || f.encrypted) throw notFound();
     const data = await deps.storage.get(f.key);
     if (!data) throw notFound();
     return new Response(Buffer.from(data), { headers: { 'content-type': f.mime, 'cache-control': 'private, max-age=86400' } });

@@ -19,6 +19,9 @@ export const MODULES = {
   notes: { emoji: '📒', name: { en: 'Notes & Wiki', ar: 'الملاحظات' }, phase: '1.3' },
   meals: { emoji: '🍲', name: { en: 'Meal planner', ar: 'خطة الوجبات' }, phase: '1.4' },
   memories: { emoji: '📸', name: { en: 'Memories', ar: 'الذكريات' }, phase: '1.4' },
+  vault: { emoji: '🗄️', name: { en: 'Vault', ar: 'الخزنة' }, phase: '1.5' },
+  meds: { emoji: '💊', name: { en: 'Meds', ar: 'الأدوية' }, phase: '1.5' },
+  safety: { emoji: '🛟', name: { en: 'Safety', ar: 'الأمان' }, phase: '1.5' },
 } as const satisfies Record<string, { emoji: string; name: L10n; phase: string }>;
 
 export type ModuleId = keyof typeof MODULES;
@@ -88,7 +91,7 @@ export const TEMPLATES: Template[] = [
     phase: '1',
     name: { en: 'Home & Family', ar: 'البيت والعائلة' },
     tagline: { en: 'Organize daily life', ar: 'نظّموا حياتكم اليومية' },
-    modules: ['events', 'tasks', 'lists', 'chat', 'expenses', 'polls', 'points', 'meals', 'memories'],
+    modules: ['events', 'tasks', 'lists', 'chat', 'expenses', 'polls', 'points', 'meals', 'memories', 'safety'],
     roles: { owner: { en: 'Parent', ar: 'وليّ الأمر' }, admin: { en: 'Parent', ar: 'وليّ الأمر' }, child: { en: 'Child', ar: 'طفل' } },
     vocab: { task: { en: 'Chore', ar: 'مهمة منزلية' }, tasks: { en: 'Chores', ar: 'المهام المنزلية' } },
     defaults: {},
@@ -174,6 +177,26 @@ export const TEMPLATES: Template[] = [
     starters: {
       events: [{ title: { en: 'Weekly sync', ar: 'اجتماع أسبوعي' }, rrule: 'FREQ=WEEKLY;BYDAY=MO', time: '10:00', durationMin: 30 }],
       tasks: [{ title: { en: 'Share this week’s priorities', ar: 'شارك أولويات الأسبوع' } }],
+    },
+  },
+  {
+    id: 'care',
+    emoji: '❤️',
+    color: '#C9566B',
+    phase: '1.5',
+    name: { en: 'Care Circle', ar: 'دائرة رعاية' },
+    tagline: { en: 'Share care duties, meds and appointments', ar: 'تقاسموا مهام الرعاية والأدوية والمواعيد' },
+    modules: ['events', 'tasks', 'meds', 'vault', 'expenses', 'chat', 'safety'],
+    roles: { owner: { en: 'Coordinator', ar: 'المنسّق' }, admin: { en: 'Coordinator', ar: 'المنسّق' }, member: { en: 'Carer', ar: 'مقدّم رعاية' } },
+    vocab: {
+      event: { en: 'Appointment', ar: 'موعد' },
+      events: { en: 'Appointments', ar: 'المواعيد' },
+      task: { en: 'Care duty', ar: 'مهمة رعاية' },
+      tasks: { en: 'Care duties', ar: 'مهام الرعاية' },
+    },
+    defaults: {},
+    starters: {
+      tasks: [{ title: { en: 'Drive to the doctor', ar: 'التوصيل للدكتور' }, rrule: 'FREQ=WEEKLY;BYDAY=TU', rotation: true }],
     },
   },
   {

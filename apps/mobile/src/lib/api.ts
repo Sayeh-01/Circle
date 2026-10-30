@@ -65,3 +65,12 @@ export async function uploadProfilePhoto(uri: string, mime: string): Promise<str
 export function imageSource(pathOrUrl: string) {
   return { uri: pathOrUrl.startsWith('/') ? `${API_URL}${pathOrUrl}` : pathOrUrl, headers: authHeaders() };
 }
+
+/** Vault uploads are encrypted at rest by the server. */
+export async function uploadVaultFile(groupId: string, uri: string, mime: string): Promise<string> {
+  const blob = await (await fetch(uri)).blob();
+  const start = await post<{ fileId: string; uploadUrl: string }>(`/groups/${groupId}/vault/uploads`, { mime, size: blob.size || 1 });
+  const res = await fetch(`${API_URL}${start.uploadUrl}`, { method: 'PUT', body: blob, headers: { 'content-type': mime } });
+  if (!res.ok) throw new ApiError(res.status, 'upload_failed');
+  return start.fileId;
+}

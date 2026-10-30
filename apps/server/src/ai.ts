@@ -9,7 +9,7 @@ import { z } from 'zod';
 export const PARSE_MODEL = 'claude-haiku-5-5';
 export const ASSISTANT_MODEL = 'claude-sonnet-5-5';
 
-export type AiTask = 'capture' | 'chat_items' | 'catchup' | 'quiz' | 'assistant';
+export type AiTask = 'capture' | 'chat_items' | 'catchup' | 'quiz' | 'assistant' | 'ocr';
 
 export class AiRefusal extends Error {}
 
@@ -18,6 +18,8 @@ export interface AiModel {
   json<S extends z.ZodType>(task: AiTask, a: { system: string; prompt: string; schema: S; maxTokens?: number }): Promise<z.infer<S>>;
   /** Free text (summaries → Sonnet). */
   text(task: AiTask, a: { system: string; prompt: string; maxTokens?: number }): Promise<string>;
+  /** Read the text in an image (vault OCR → Haiku). */
+  readImage(task: AiTask, a: { system: string; image: { mime: string; base64: string } }): Promise<string>;
 }
 
 export function createClaudeModel(apiKey: string): AiModel {
@@ -53,6 +55,29 @@ export function createClaudeModel(apiKey: string): AiModel {
         .join('\n')
         .trim();
     },
+    async readImage(_task, a) {
+      const response = await client.messages.create({
+        model: PARSE_MODEL,
+        max_tokens: 4000,
+        system: a.system,
+        output_config: { effort: 'low' },
+        messages: [
+          {
+            role: 'user',
+            content: [
+              { type: 'image', source: { type: 'base64', media_type: a.image.mime as 'image/jpeg', data: a.image.base64 } },
+              { type: 'text', text: 'Transcribe all readable text in this document.' },
+            ],
+          },
+        ],
+      });
+      if (response.stop_reason === 'refusal') throw new AiRefusal(response.stop_details?.category ?? 'refusal');
+      return response.content
+        .filter((b): b is Anthropic.TextBlock => b.type === 'text')
+        .map((b) => b.text)
+        .join('\n')
+        .trim();
+    },
   };
 }
 
@@ -74,6 +99,12 @@ export function createFakeModel(recorded: Recorded): AiModel & { calls: { task: 
       const fn = recorded[task];
       if (!fn) throw new Error(`no recorded answer for ${task}`);
       return String(fn(a.prompt));
+    },
+    async readImage(task, a) {
+      calls.push({ task, prompt: `[image ${a.image.mime} ${a.image.base64.length}b]` });
+      const fn = recorded[task];
+      if (!fn) throw new Error(`no recorded answer for ${task}`);
+      return String(fn(a.image.base64));
     },
   };
 }
@@ -123,5 +154,6 @@ export function createRuleBasedModel(clock: () => Date = () => new Date()): AiMo
         .slice(0, c.count ?? 10);
       return { cards: sentences.map((s) => ({ front: `${s.split(' ').slice(0, Math.ceil(s.split(' ').length / 2)).join(' ')} …?`, back: s })) };
     },
+    ocr: () => 'Scanned document (demo OCR): Policy No. 0000-DEMO',
   });
 }

@@ -20,6 +20,9 @@ export const MODULE_ROUTES: Record<string, string> = {
   notes: 'notes',
   meals: 'meals',
   memories: 'memories',
+  vault: 'vault',
+  meds: 'meds',
+  safety: 'safety',
 };
 
 const PINNED = 5;

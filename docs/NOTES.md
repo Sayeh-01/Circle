@@ -148,3 +148,19 @@ Decisions made while the owner is away (SPEC B0/B8). Newest at the bottom of eac
 - `@anthropic-ai/sdk` added (server only) — official SDK for Claude (B4 ai module).
 - Grocery merge does not convert between units (500 g + 1 kg stay two lines) — no silent unit maths.
 - Web "yearly book" uses the browser print dialog (expo-print's PDF file + share sheet is native-only).
+
+## v1.5 plan
+1. AES-256-GCM `seal`/`open` helpers (key from `DATA_KEY`); vault files flagged `encrypted` are sealed on upload.
+2. Vault folders with an ACL function used by every vault route; no access = 404.
+3. Expiry alerts as three dedupe-keyed jobs per (doc, threshold, date); meds as one self-re-arming job per dose time.
+4. Emergency card as one sealed JSON blob per member; arrived/SOS as notifications only (no location).
+
+## v1.5 decisions
+- Sensitive data at rest: vault file bytes, vault notes + OCR text, emergency cards, med notes. Group names, titles and dates
+  stay plaintext (needed for lists/sorting). Search decrypts the group's documents in memory (fine at family scale).
+- Owner/Admin always see every vault folder (they manage access); "everyone" means adult members (managers/members), not
+  Children (the permission matrix already gives Children no vault access).
+- Expiry alerts go out at 09:00 group time on the threshold day; the 60-day alert creates the "Renew" task (A8), due 30
+  days before expiry.
+- "Arrived safely" sends no location (A6 "no continuous tracking").
+- Dates typed as YYYY-MM-DD in forms for now (no native date picker); shown through Intl.

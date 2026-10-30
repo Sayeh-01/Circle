@@ -119,6 +119,15 @@ export const en = {
     noMeals: 'No meals planned', ai: '✨', smart: '✨ Smart capture', suggest: '✨ Suggest items from chat', missed: '✨ What did I miss?', makeCards: '✨ Make flashcards',
     draft: 'Draft — check it, then save', addAll: 'Add all', added: 'Added', nothingNew: 'Nothing new since you last read', pickDeck: 'Add to deck',
   },
+  care: {
+    vault: 'Vault', newFolder: 'New folder', folderName: 'Folder name', access: 'Who can open it', accessAll: 'Everyone (adults)', accessAdmins: 'Admins only', accessCustom: 'Chosen people',
+    docs_one: '{{count}} document', docs_other: '{{count}} documents', addDoc: 'Add document', docTitle: 'Title', expires: 'Expires on (YYYY-MM-DD)', notes: 'Notes (encrypted)',
+    attach: 'Attach photo or scan', expiresIn: 'Expires {{date}}', search: 'Search documents (also text inside scans)', open: 'Open', scanText: 'Text in scan',
+    safety: 'Safety', arrived: '✅ I arrived safely', sos: '🆘 SOS', arrivedSent: 'Your group was told', card: 'Emergency card', myCard: 'My emergency card',
+    blood: 'Blood type', allergies: 'Allergies', conditions: 'Conditions', medications: 'Medications', doctors: 'Doctors', insurance: 'Insurance', contacts: 'Emergency contact (name, phone)',
+    meds: 'Meds', addMed: 'Add medication', patient: 'For', medName: 'Medicine', dose: 'Dose', times: 'Times (e.g. 08:00, 20:00)', start: 'Start (YYYY-MM-DD)', given: 'Given',
+    givenBy: 'Given by {{name}}', due: 'Due', sosConfirm: 'Send an SOS to everyone in this group?',
+  },
   kids: {
     title: 'Kids', add: 'Add a child', name: "Child's name", pin: 'PIN (4–6 digits)', onDevice: 'Kids on this device', switchTo: 'Switch to {{name}}',
     enterPin: 'Enter PIN', wrongPin: 'Wrong PIN', locked: 'Too many tries. Wait 15 minutes.', resetPin: 'New PIN', hint: 'Kids sign in with a PIN on this phone. No email, no money, no links outside the family.',
@@ -250,6 +259,16 @@ export const ar: Shape<typeof en> = {
     openList: 'افتح القائمة', memories: 'الذكريات', addMemory: 'أضف ذكرى', memoryText: 'إيه اللي حصل؟', addPhotos: 'أضف صور', book: '📖 كتاب سنة {{year}}',
     noMeals: 'مفيش وجبات متخططة', ai: '✨', smart: '✨ إضافة ذكية', suggest: '✨ اقترح عناصر من الدردشة', missed: '✨ إيه اللي فاتني؟', makeCards: '✨ اعمل بطاقات مراجعة',
     draft: 'مسودة — راجعها وبعدين احفظ', addAll: 'أضف الكل', added: 'اتضاف', nothingNew: 'مفيش جديد من آخر مرة', pickDeck: 'أضف إلى مجموعة',
+  },
+  care: {
+    vault: 'الخزنة', newFolder: 'مجلد جديد', folderName: 'اسم المجلد', access: 'مين يقدر يفتحه', accessAll: 'الكل (الكبار)', accessAdmins: 'المشرفين فقط', accessCustom: 'أشخاص محددين',
+    docs_zero: 'لا مستندات', docs_one: 'مستند واحد', docs_two: 'مستندان', docs_few: '{{count}} مستندات', docs_many: '{{count}} مستندًا', docs_other: '{{count}} مستند',
+    addDoc: 'أضف مستندًا', docTitle: 'العنوان', expires: 'ينتهي في (YYYY-MM-DD)', notes: 'ملاحظات (مشفّرة)', attach: 'أرفق صورة أو مسح ضوئي', expiresIn: 'ينتهي {{date}}',
+    search: 'ابحث في المستندات (وكمان النص داخل الصور)', open: 'فتح', scanText: 'النص في الصورة',
+    safety: 'الأمان', arrived: '✅ وصلت بالسلامة', sos: '🆘 استغاثة', arrivedSent: 'تم إبلاغ المجموعة', card: 'بطاقة الطوارئ', myCard: 'بطاقة الطوارئ بتاعتي',
+    blood: 'فصيلة الدم', allergies: 'الحساسية', conditions: 'الأمراض', medications: 'الأدوية', doctors: 'الأطباء', insurance: 'التأمين', contacts: 'رقم طوارئ (الاسم، الرقم)',
+    meds: 'الأدوية', addMed: 'أضف دواء', patient: 'لمين', medName: 'الدواء', dose: 'الجرعة', times: 'المواعيد (مثلًا 08:00، 20:00)', start: 'البداية (YYYY-MM-DD)', given: 'اتاخد',
+    givenBy: 'إداه {{name}}', due: 'موعده', sosConfirm: 'تبعت استغاثة لكل اللي في المجموعة؟',
   },
   kids: {
     title: 'الأطفال', add: 'إضافة طفل', name: 'اسم الطفل', pin: 'رمز PIN (٤–٦ أرقام)', onDevice: 'الأطفال على هذا الجهاز', switchTo: 'التبديل إلى {{name}}',

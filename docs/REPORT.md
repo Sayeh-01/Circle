@@ -72,6 +72,14 @@ Make a development build first (Expo Go can't do remote push on Android, B7 #6):
 21. **v1.4 live AI (with `ANTHROPIC_API_KEY`):** Add → ✨ Smart capture with "remind the roommates to pay internet Friday"
     → the form fills with the right group, assignee and Friday; nothing is created until Save.
 
+22. **v1.5 vault photos:** add a document with a photo from the camera roll; it opens for a member with folder access; a
+    member without access doesn't see the folder at all.
+23. **v1.5 med reminders:** add a med at a time 2 minutes from now → the push arrives at that local time with "💊 …";
+    tap "Given" → the dose shows who gave it.
+24. **v1.5 "arrived safely" / SOS:** both send a push to the other members; check SOS isn't silenced by quiet mode (iOS
+    critical alerts need an Apple entitlement — owner decision).
+25. **v1.5 emergency card on the lock screen:** needs a widget/Live Activity (native extension) — not built (widgets are a B5 Skip).
+
 (Later versions add their own device checks in their sections below.)
 
 ## Accounts and keys needed (priority order)
@@ -88,6 +96,8 @@ Make a development build first (Expo Go can't do remote push on Android, B7 #6):
 | 7 | Apple "Sign in with Apple" service id + key (required once Google is offered) | Apple sign-in (v1.1) | `APPLE_CLIENT_ID`, `APPLE_CLIENT_SECRET` |
 
 | 8 | Anthropic API key | Live AI (v1.4 quick capture, chat → items, "what did I miss", quiz from notes; later the assistant) | `ANTHROPIC_API_KEY` (server only; never in the app) |
+
+| 9 | A strong `DATA_KEY` secret | Encryption key for vault files, notes, OCR text, emergency cards, med notes (v1.5) | `DATA_KEY` (keep it backed up — losing it loses the encrypted data) |
 
 (Later versions append rows: RevenueCat, payment gateway.)
 
@@ -308,3 +318,37 @@ sentence) — reviewed.
 **Seen red:** `meals.test.ts`, `life.test.ts`.
 
 **Device checks:** owner checklist items 20–21.
+
+## v1.5 Care & Safety — [x] done
+
+**Built:** Vault (module `vault`): folders with access rules (everyone / admins only / chosen people), documents with
+encrypted notes and encrypted files (AES-256-GCM at rest, never served by the generic file route), expiry dates with alerts
+at 60 / 30 / 7 days at 09:00 group time (the 60-day alert also creates a "Renew" task), search over titles, notes and the text
+inside scans (decrypted in memory, only folders you can open). Emergency card (module `safety`): blood type, allergies,
+conditions, medications, doctors, insurance, emergency contact — encrypted, readable by the group, writable by yourself, your
+parent or an admin. "I arrived safely" and SOS (one tap, push to everyone else, no tracking). Meds (module `meds`): schedules
+with several daily times; one reminder job per dose time in the group's timezone, re-armed day by day; dose log with "given by".
+Care Circle template (Coordinator/Carer, Appointments, Care duties with a weekly driving rota). Family template gets `safety`.
+
+**Faked:** vault text search inside images — OCR runs through the AI module (`readImage`, Claude Haiku 5.5 when a key is set;
+recorded answer in tests; demo text under `AI_FAKE=1`).
+
+**Skipped:** nothing (lock-screen access to the emergency card needs a widget — widgets are v1.3's B5 Skip).
+
+**`pnpm check`:** shared 33/33 · server 106/106 (13 files) · E2E 9/9.
+
+| B9 v1.5 check | Evidence |
+|---|---|
+| Expiry alerts fire exactly once each at 60, 30 and 7 days | `apps/server/test/care.test.ts` — checkpoints a minute before / at each 09:00-Cairo alert, jobs run twice per checkpoint: counts 0→1→1→2→3→3; one "Renew" task; every member with access got 3. Changing the date re-schedules and the old jobs stay silent; deleting stops them |
+| A member without folder access gets 404 | `care.test.ts` — custom folder (B listed, C not): C gets 404 on folder, doc patch, file download, adding a doc, delete; the folder isn't listed; search returns nothing even for OCR text; admins-only folder 404 for members |
+| Med reminders fire in the group's timezone | `care.test.ts` — Cairo group 08:00/20:00 → jobs at 06:00Z/18:00Z (winter), nothing at 05:59, one reminder at 06:00, next day re-armed; Dubai group 08:00 → 04:00Z; Cairo in May (summer time) 08:00 → 05:00Z |
+
+**Also tested:** encryption at rest (DB values start `v1:`, stored file bytes differ from the upload, the generic file route
+404s vault files), emergency card write rules, arrived-safely/SOS fan-out, Care template content, cross-group 404s.
+
+**Arabic screenshots:** `apps/mobile/e2e/screenshots/v1.5/` (vault, meds, safety) — reviewed; fixed a bidi defect where a raw
+`2027-03-31` inside Arabic text read as `31-03-2027` (dates now go through `Intl`).
+
+**Seen red:** `care.test.ts`.
+
+**Device checks:** owner checklist items 22–25.

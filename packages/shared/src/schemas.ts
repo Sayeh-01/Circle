@@ -260,3 +260,13 @@ export const shiftCreate = z.object({ userId: id.nullable(), startsAt: isoDate, 
 export const shiftSwapCreate = z.object({ toUserId: id.nullable() });
 export const clockPunch = z.object({ code: z.string().regex(/^\d{6}$/) });
 export const clockClose = z.object({ outAt: isoDate });
+
+// v3.6 operations
+export const inventoryCreate = z.object({ name: z.string().trim().min(1).max(80), unit: z.string().trim().max(20).default(''), quantity: z.number().int().min(0).max(1_000_000).default(0), lowAt: z.number().int().min(0).max(1_000_000).default(0), vendorUserId: id.nullable().optional(), vendorContactId: id.nullable().optional() });
+export const inventoryMove = z.object({ delta: z.number().int().min(-1_000_000).max(1_000_000).refine((d) => d !== 0), reason: z.string().trim().max(120).optional() });
+export const inventoryCount = z.object({ quantity: z.number().int().min(0).max(1_000_000) });
+export const reorder = z.object({ quantity: z.number().int().positive().max(1_000_000) });
+export const assetCreate = z.object({ name: z.string().trim().min(1).max(80), location: z.string().trim().max(80).default(''), serial: z.string().trim().max(80).default(''), serviceEveryDays: z.number().int().min(1).max(3650).nullable().default(null), lastServiceDay: day.nullable().optional(), vendorContactId: id.nullable().optional() });
+export const assetService = z.object({ note: z.string().trim().max(500).default(''), costMinor: minor.nonnegative().default(0), day: day.optional() });
+export const spendRequest = z.object({ title: z.string().trim().min(1).max(120), amount: minor.positive(), category: z.string().trim().max(40).default(''), note: z.string().max(500).optional() });
+export const approvalLimits = z.object({ limits: z.record(z.string().regex(/^[a-z0-9_-]{1,40}$/), minor.nonnegative()) });

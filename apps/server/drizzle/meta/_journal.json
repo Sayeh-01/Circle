@@ -99,6 +99,13 @@
       "when": 1793359114350,
       "tag": "0013_v3_4_shifts",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1793360059092,
+      "tag": "0014_v3_6_operations",
+      "breakpoints": true
     }
   ]
 }

@@ -352,3 +352,24 @@ per group, shown as a QR by managers, typed or opened from the QR link by staff)
 - Volunteer / NGO also gets Shifts (A5).
 - No new dependencies.
 
+## v3.6 plan
+Inventory (one locked path for every stock change, a `low` flag that makes the alert fire once per crossing, move history,
+reorder → task for the vendor), assets (service every N days, a due-date job that creates one task, service log moves the
+date on), spend requests with limits per role (custom role limit first, then base role; owner unlimited), vendors = Contacts.
+
+## v3.6 decisions
+- Low stock: alert when the quantity goes from above the threshold to at/below it; while it stays low there's no repeat;
+  a restock above the threshold re-arms it (B9). Stock can't go below zero (409); concurrent uses are serialized by a row
+  lock, so the last item can't be used twice.
+- Approval limits live in group settings (`approvalLimits`), keyed by base role or custom role id, in minor units. A request
+  within the requester's own limit is approved at once (`decidedBy: 'auto'`); otherwise only someone with `approve` whose own
+  limit covers the amount can approve; nobody approves their own request. Members see only their own requests.
+- Spend requests use `/spend-requests` paths because `GET /groups/:id/approvals` is the v1.2 chore approvals list — the
+  duplicate-route guard in the sweep test would have failed.
+- Company template gets Inventory, Approvals, Assets and Contacts (shown as "Vendors").
+- No new dependencies.
+
+## Paused after v3.6
+The owner asked (mid-run) to finish one more task, then push and open a pull request. v3.6 was that task; v3.8 and later are
+not started.
+

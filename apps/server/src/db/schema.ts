@@ -1311,3 +1311,81 @@ export const timeEntries = pgTable(
   },
   (t) => [index('time_entries_group_idx').on(t.groupId, t.inAt)],
 );
+
+// ── v3.6 inventory, assets, spend approvals ──────────────────────────────────
+export const inventoryItems = pgTable('inventory_items', {
+  id: text('id').primaryKey(),
+  groupId: text('group_id')
+    .notNull()
+    .references(() => groups.id, { onDelete: 'cascade' }),
+  name: text('name').notNull(),
+  unit: text('unit').notNull().default(''),
+  quantity: integer('quantity').notNull().default(0),
+  lowAt: integer('low_at').notNull().default(0),
+  /** at or below lowAt since the last alert (re-armed when restocked above) */
+  low: boolean('low').notNull().default(false),
+  vendorUserId: text('vendor_user_id'),
+  vendorContactId: text('vendor_contact_id'),
+  active: boolean('active').notNull().default(true),
+  createdAt: createdAt(),
+});
+
+export const inventoryMoves = pgTable('inventory_moves', {
+  id: text('id').primaryKey(),
+  itemId: text('item_id')
+    .notNull()
+    .references(() => inventoryItems.id, { onDelete: 'cascade' }),
+  groupId: text('group_id').notNull(),
+  delta: integer('delta').notNull(),
+  after: integer('after').notNull(),
+  reason: text('reason'),
+  userId: text('user_id').notNull(),
+  at: ts('at').notNull(),
+});
+
+export const assets = pgTable('assets', {
+  id: text('id').primaryKey(),
+  groupId: text('group_id')
+    .notNull()
+    .references(() => groups.id, { onDelete: 'cascade' }),
+  name: text('name').notNull(),
+  location: text('location').notNull().default(''),
+  serial: text('serial').notNull().default(''),
+  serviceEveryDays: integer('service_every_days'),
+  lastServiceDay: text('last_service_day'),
+  nextServiceDay: text('next_service_day'),
+  vendorContactId: text('vendor_contact_id'),
+  active: boolean('active').notNull().default(true),
+  createdAt: createdAt(),
+});
+
+export const assetServices = pgTable('asset_services', {
+  id: text('id').primaryKey(),
+  assetId: text('asset_id')
+    .notNull()
+    .references(() => assets.id, { onDelete: 'cascade' }),
+  groupId: text('group_id').notNull(),
+  day: text('day').notNull(),
+  note: text('note').notNull().default(''),
+  costMinor: money('cost_minor').notNull().default(0),
+  userId: text('user_id').notNull(),
+  createdAt: createdAt(),
+});
+
+export const spendRequests = pgTable('spend_requests', {
+  id: text('id').primaryKey(),
+  groupId: text('group_id')
+    .notNull()
+    .references(() => groups.id, { onDelete: 'cascade' }),
+  requesterId: text('requester_id').notNull(),
+  title: text('title').notNull(),
+  amountMinor: money('amount_minor').notNull(),
+  category: text('category').notNull().default(''),
+  note: text('note'),
+  /** pending | approved | rejected */
+  status: text('status').notNull(),
+  /** 'auto' when within the requester's own limit */
+  decidedBy: text('decided_by'),
+  decidedAt: ts('decided_at'),
+  createdAt: createdAt(),
+});

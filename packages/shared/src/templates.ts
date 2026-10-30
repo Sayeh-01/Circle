@@ -35,6 +35,9 @@ export const MODULES = {
   checklists: { emoji: '☑️', name: { en: 'Checklists', ar: 'قوائم المراجعة' }, phase: '3.2' },
   shifts: { emoji: '🗓️', name: { en: 'Shifts', ar: 'الورديات' }, phase: '3.4' },
   clock: { emoji: '⏰', name: { en: 'Time clock', ar: 'الحضور' }, phase: '3.4' },
+  inventory: { emoji: '📦', name: { en: 'Inventory', ar: 'المخزون' }, phase: '3.6' },
+  assets: { emoji: '🛠️', name: { en: 'Assets', ar: 'الأصول والصيانة' }, phase: '3.6' },
+  approvals: { emoji: '✅', name: { en: 'Approvals', ar: 'الموافقات' }, phase: '3.6' },
 } as const satisfies Record<string, { emoji: string; name: L10n; phase: string }>;
 
 export type ModuleId = keyof typeof MODULES;
@@ -304,10 +307,10 @@ export const TEMPLATES: Template[] = [
     phase: '3',
     name: { en: 'Company / Business', ar: 'شركة / بيزنس' },
     tagline: { en: 'Daily operations', ar: 'تشغيل يومي' },
-    modules: ['shifts', 'clock', 'tasks', 'checklists', 'chat', 'leave', 'notes', 'events', 'forms'],
+    modules: ['shifts', 'clock', 'tasks', 'checklists', 'inventory', 'approvals', 'assets', 'contacts', 'chat', 'leave', 'notes', 'events', 'forms'],
     roles: { owner: { en: 'Owner', ar: 'المالك' }, admin: { en: 'Admin', ar: 'مدير النظام' }, manager: { en: 'Manager', ar: 'مدير' }, member: { en: 'Staff', ar: 'موظف' }, vendor: { en: 'Vendor', ar: 'مورّد' } },
     vocab: {},
-    moduleNames: { notes: { en: 'SOP wiki', ar: 'دليل الإجراءات' }, leave: { en: 'Time off', ar: 'الإجازات' } },
+    moduleNames: { notes: { en: 'SOP wiki', ar: 'دليل الإجراءات' }, leave: { en: 'Time off', ar: 'الإجازات' }, contacts: { en: 'Vendors', ar: 'الموردين' } },
     defaults: { leaveApproval: true },
     starters: { tasks: [{ title: { en: 'Set up the opening checklist', ar: 'جهّز قائمة الفتح' } }] },
   },

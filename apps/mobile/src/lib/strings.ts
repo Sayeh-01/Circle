@@ -208,6 +208,14 @@ export const en = {
     enterCode: 'Code from the QR', clockIn: 'Clock in', clockOut: 'Clock out', inSince: 'Clocked in since {{time}}', notIn: 'Not clocked in', recent: 'Recent',
     report: 'Hours this week', total: 'Total', hours: '{{h}} h {{m}} min', stillIn: 'Still clocked in', close: 'Close now',
   },
+  ops: {
+    newItem: 'Add item', name: 'Name', unit: 'Unit (L, kg, pcs…)', quantity: 'Quantity', lowAt: 'Alert at or below', low: 'Low', use: '−', restock: '+', reorder: 'Reorder',
+    reorderQty: 'How many?', vendor: 'Vendor', none: 'None', newAsset: 'Add equipment', location: 'Location', every: 'Service every (days)', last: 'Last service (YYYY-MM-DD)',
+    next: 'Next service {{date}}', service: 'Log service', serviceNote: 'What was done', cost: 'Cost', noSchedule: 'No schedule',
+    newRequest: 'Ask to spend', title: 'What for?', amount: 'Amount', category: 'Category', pending: 'Waiting for approval', approved: 'Approved', rejected: 'Not approved',
+    auto: 'auto, within the limit', approve: 'Approve', reject: 'Decline', myLimit: 'You can approve up to {{amount}}', noLimit: 'You can approve any amount', limits: 'Limits per role',
+    saveLimits: 'Save limits',
+  },
   kids: {
     title: 'Kids', add: 'Add a child', name: "Child's name", pin: 'PIN (4–6 digits)', onDevice: 'Kids on this device', switchTo: 'Switch to {{name}}',
     enterPin: 'Enter PIN', wrongPin: 'Wrong PIN', locked: 'Too many tries. Wait 15 minutes.', resetPin: 'New PIN', hint: 'Kids sign in with a PIN on this phone. No email, no money, no links outside the family.',
@@ -429,6 +437,14 @@ export const ar: Shape<typeof en> = {
     clock: 'الحضور', showCode: 'كود الحضور', codeHint: 'الموظفين بيصوّروا الكود ده بكاميرا الموبايل أو بيكتبوا الـ6 أرقام. بيتغيّر كل 30 ثانية.',
     enterCode: 'الكود من الـQR', clockIn: 'تسجيل حضور', clockOut: 'تسجيل انصراف', inSince: 'حاضر من {{time}}', notIn: 'مش مسجّل حضور', recent: 'آخر مرات',
     report: 'ساعات الأسبوع ده', total: 'الإجمالي', hours: '{{h}} س {{m}} د', stillIn: 'لسه حاضرين', close: 'اقفل دلوقتي',
+  },
+  ops: {
+    newItem: 'أضف صنف', name: 'الاسم', unit: 'الوحدة (لتر، كجم، قطعة…)', quantity: 'الكمية', lowAt: 'نبّه عند أو أقل من', low: 'قليل', use: '−', restock: '+', reorder: 'اطلب تاني',
+    reorderQty: 'كام؟', vendor: 'المورّد', none: 'مفيش', newAsset: 'أضف جهاز', location: 'المكان', every: 'صيانة كل (يوم)', last: 'آخر صيانة (YYYY-MM-DD)',
+    next: 'الصيانة الجاية {{date}}', service: 'سجّل صيانة', serviceNote: 'اتعمل إيه', cost: 'التكلفة', noSchedule: 'مفيش جدول',
+    newRequest: 'اطلب صرف', title: 'على إيه؟', amount: 'المبلغ', category: 'البند', pending: 'في انتظار الموافقة', approved: 'اتوافق', rejected: 'اترفض',
+    auto: 'تلقائي، في حدود الصلاحية', approve: 'موافقة', reject: 'رفض', myLimit: 'تقدر توافق لحد {{amount}}', noLimit: 'تقدر توافق على أي مبلغ', limits: 'الحدود لكل دور',
+    saveLimits: 'احفظ الحدود',
   },
   kids: {
     title: 'الأطفال', add: 'إضافة طفل', name: 'اسم الطفل', pin: 'رمز PIN (4–6 أرقام)', onDevice: 'الأطفال على هذا الجهاز', switchTo: 'التبديل إلى {{name}}',

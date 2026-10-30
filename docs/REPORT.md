@@ -111,6 +111,9 @@ Make a development build first (Expo Go can't do remote push on Android, B7 #6):
     the code filled in → Clock in. Wait over a minute and try an old screenshot of the QR → "code expired".
 37. **v3.4 geofence clock-in:** not built (B5 Skip — device only).
 
+38. **v3.6 low-stock push:** use stock down to its threshold on one phone → the manager's phone gets one "📦 Low stock" push;
+    using more doesn't send another until it's restocked above the threshold.
+
 (Later versions add their own device checks in their sections below.)
 
 ## Accounts and keys needed (priority order)
@@ -653,4 +656,36 @@ reviewed.
 **Seen red:** `packages/shared/test/shifts.test.ts`, `apps/server/test/clock.test.ts`, `apps/server/test/shifts.test.ts`.
 
 **Device checks:** owner checklist items 36–37.
+
+## v3.6 Inventory, assets & approvals — [x] done (part of the v3.0–v3.8 line)
+
+**Built:** inventory (items with unit and threshold, − / + and counts, move history, low items first, one alert per threshold
+crossing, reorder → a task assigned to the vendor), assets & maintenance (service every N days, a task on the due morning,
+service log with cost, next date), spend requests with limits per role (automatic within your own limit, otherwise an approver
+whose limit covers it; owner unlimited; custom roles can have their own limit), vendors as the Contacts module.
+
+**Faked / skipped:** nothing.
+
+**`pnpm check`:** shared 63/63 (16 files) · server 183/183 (23 files) · E2E 18/18.
+
+| B9 v3.x check | Evidence |
+|---|---|
+| A low-stock alert fires once per threshold crossing | `packages/shared/test/ops.test.ts` (crossing rules) + `apps/server/test/ops.test.ts` — 12 → 6 no alert, → 5 one alert, further uses and a +1 while low no alert, count to 20 re-arms, → 4 second alert; four concurrent uses of the last 3 cups → 3 succeed, 1 gets 409, stock 0, one alert. E2E: two "−" taps from 6 → one "Low stock: Milk" in the manager's inbox |
+| Approval limits apply per role | `ops.test.ts` — limits member 50.00 / manager 500.00 / custom Supervisor 200.00: 30.00 auto-approved, 150.00 and 800.00 wait; members can't approve (403); Supervisor and manager can't approve 800.00 (`over_your_limit`), Supervisor approves 150.00, owner approves 800.00; nobody approves their own request. E2E: 30.00 "auto, within the limit", 150.00 waits until Amal approves |
+| Route sweep 404 / cross-group | `sweep.test.ts` covers the 14 new routes (and the duplicate-route guard caught the `/approvals` clash); `ops.test.ts` — another group's stock item (move / reorder / history), asset service and spend request → 404 |
+
+**Also tested:** reorder task assigned to the vendor member (who can open it), asset service task created once on the due date
+(jobs run twice), service log moves the next date by the interval.
+
+**Arabic screenshots:** `apps/mobile/e2e/screenshots/v3.6/` (inventory with low item, assets, approvals) — reviewed.
+
+**Seen red:** `packages/shared/test/ops.test.ts`, `apps/server/test/ops.test.ts`.
+
+**Device checks:** owner checklist item 38.
+
+## Stopped here (owner's request)
+
+After v3.6 the owner asked to finish one more task and then push and open a pull request. Not started: v3.8 (public booking /
+request forms, reports, per-seat billing), v4.x Property, v5.x Community & School, v6.0 Marketplace, v6.3 Open API, v6.6
+Template gallery, v6.9 Manager dashboard, v7.0 Cross-group assistant.
 

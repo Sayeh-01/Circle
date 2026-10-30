@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { formField, signatureInput } from './forms';
 import { isValidRRule } from './recurrence';
 import { isValidTimeZone } from './time';
 
@@ -211,3 +212,21 @@ export const paymentCreate = z.discriminatedUnion('purpose', [
   z.object({ purpose: z.literal('gameya'), targetId: id }),
   z.object({ purpose: z.literal('settlement'), targetId: id, amount: minor.positive() }),
 ]);
+
+// v2.8 challenges + forms
+export const challengeCreate = z.discriminatedUnion('kind', [
+  z.object({ kind: z.literal('split'), title: z.string().trim().min(1).max(80), totalParts: z.number().int().min(1).max(604), partLabel: z.string().trim().min(1).max(30).default('Part'), memberIds: z.array(id).min(1).max(200), autoNext: z.boolean().default(true) }),
+  z.object({ kind: z.literal('tally'), title: z.string().trim().min(1).max(80), target: z.number().int().positive().max(1_000_000), unit: z.string().trim().max(20).default('') }),
+]);
+export const challengeLog = z.object({ value: z.number().int().min(0).max(1_000_000), day: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional() });
+export const partAssign = z.object({ userId: id.nullable() });
+export const formCreate = z.object({
+  title: z.string().trim().min(1).max(120),
+  description: z.string().max(2000).default(''),
+  fields: z.array(formField).max(30),
+  requireSignature: z.boolean().default(false),
+  /** empty = every member */
+  memberIds: z.array(id).max(500).default([]),
+  closesAt: isoDate.nullable().optional(),
+});
+export const formRespond = z.object({ answers: z.record(z.string(), z.unknown()).default({}), signature: signatureInput.optional() });

@@ -1083,3 +1083,93 @@ export const receipts = pgTable('receipts', {
   number: text('number').notNull(),
   issuedAt: ts('issued_at').notNull(),
 });
+
+// ── v2.8 challenges ──────────────────────────────────────────────────────────
+export const challenges = pgTable('challenges', {
+  id: text('id').primaryKey(),
+  groupId: text('group_id')
+    .notNull()
+    .references(() => groups.id, { onDelete: 'cascade' }),
+  title: text('title').notNull(),
+  /** split (khatma, book chapters) | tally (daily target with streaks) */
+  kind: text('kind').notNull(),
+  totalParts: integer('total_parts'),
+  partLabel: text('part_label'),
+  /** split: participants in rotation order */
+  memberIds: text('member_ids').array().notNull().default(sql`'{}'::text[]`),
+  round: integer('round').notNull().default(1),
+  /** start the next round (rotated) as soon as every part is done */
+  autoNext: boolean('auto_next').notNull().default(true),
+  target: integer('target'),
+  unit: text('unit'),
+  /** active | archived */
+  status: text('status').notNull().default('active'),
+  createdBy: text('created_by').notNull(),
+  createdAt: createdAt(),
+});
+
+export const challengeParts = pgTable(
+  'challenge_parts',
+  {
+    challengeId: text('challenge_id')
+      .notNull()
+      .references(() => challenges.id, { onDelete: 'cascade' }),
+    groupId: text('group_id').notNull(),
+    round: integer('round').notNull(),
+    part: integer('part').notNull(),
+    userId: text('user_id'),
+    doneAt: ts('done_at'),
+    doneBy: text('done_by'),
+  },
+  (t) => [primaryKey({ columns: [t.challengeId, t.round, t.part] })],
+);
+
+export const challengeLogs = pgTable(
+  'challenge_logs',
+  {
+    challengeId: text('challenge_id')
+      .notNull()
+      .references(() => challenges.id, { onDelete: 'cascade' }),
+    groupId: text('group_id').notNull(),
+    userId: text('user_id').notNull(),
+    day: text('day').notNull(),
+    value: integer('value').notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.challengeId, t.userId, t.day] })],
+);
+
+// ── v2.8 forms & sign-offs ───────────────────────────────────────────────────
+export const forms = pgTable('forms', {
+  id: text('id').primaryKey(),
+  groupId: text('group_id')
+    .notNull()
+    .references(() => groups.id, { onDelete: 'cascade' }),
+  title: text('title').notNull(),
+  description: text('description').notNull().default(''),
+  fields: jsonb('fields').$type<import('@circle/shared').FormField[]>().notNull(),
+  requireSignature: boolean('require_signature').notNull().default(false),
+  /** empty = every member */
+  memberIds: text('member_ids').array().notNull().default(sql`'{}'::text[]`),
+  closesAt: ts('closes_at'),
+  closedAt: ts('closed_at'),
+  createdBy: text('created_by').notNull(),
+  createdAt: createdAt(),
+});
+
+export const formResponses = pgTable(
+  'form_responses',
+  {
+    id: text('id').primaryKey(),
+    formId: text('form_id')
+      .notNull()
+      .references(() => forms.id, { onDelete: 'cascade' }),
+    groupId: text('group_id').notNull(),
+    userId: text('user_id').notNull(),
+    answers: jsonb('answers').$type<Record<string, string | number | boolean>>().notNull(),
+    /** { path, width, height, name } — strokes in the pad's pixels, plus the typed name */
+    signature: jsonb('signature').$type<import('@circle/shared').Signature | null>(),
+    signedAt: ts('signed_at'),
+    submittedAt: ts('submitted_at').notNull(),
+  },
+  (t) => [uniqueIndex('form_responses_uq').on(t.formId, t.userId)],
+);

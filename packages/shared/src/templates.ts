@@ -27,6 +27,8 @@ export const MODULES = {
   contacts: { emoji: '📇', name: { en: 'Contacts', ar: 'جهات الاتصال' }, phase: '2.0' },
   guests: { emoji: '💌', name: { en: 'Guest list', ar: 'قائمة الضيوف' }, phase: '2.0' },
   gameya: { emoji: '💰', name: { en: 'Gam’eya', ar: 'الجمعية' }, phase: '2.2' },
+  challenges: { emoji: '🏁', name: { en: 'Challenges', ar: 'التحديات' }, phase: '2.8' },
+  forms: { emoji: '🖊️', name: { en: 'Forms', ar: 'النماذج' }, phase: '2.8' },
 } as const satisfies Record<string, { emoji: string; name: L10n; phase: string }>;
 
 export type ModuleId = keyof typeof MODULES;
@@ -61,6 +63,8 @@ export interface Template {
   modules: ModuleId[];
   roles: Partial<Record<Role, L10n>>;
   vocab: Partial<Record<VocabKey, L10n>>;
+  /** rename a module for this template (e.g. Dues → Donations) */
+  moduleNames?: Partial<Record<string, L10n>>;
   defaults: { eventCapacity?: number; waitlist?: boolean; currency?: string };
   starters: { lists?: { title: L10n; items?: L10n[] }[]; events?: StarterEvent[]; tasks?: StarterTask[] };
 }
@@ -246,6 +250,47 @@ export const TEMPLATES: Template[] = [
     starters: {},
   },
   {
+    id: 'faith',
+    emoji: '🕌',
+    color: '#2F7D6D',
+    phase: '2',
+    name: { en: 'Faith & Charity', ar: 'خير وعبادة' },
+    tagline: { en: 'Divide readings, rotate duties, track donations', ar: 'قسّموا القراءة وبدّلوا الأدوار وتابعوا التبرعات' },
+    modules: ['challenges', 'tasks', 'dues', 'events', 'chat'],
+    roles: { owner: { en: 'Organizer', ar: 'المنظّم' }, admin: { en: 'Organizer', ar: 'المنظّم' }, member: { en: 'Member', ar: 'عضو' } },
+    vocab: { tasks: { en: 'Duties', ar: 'الأدوار' }, task: { en: 'Duty', ar: 'دور' } },
+    moduleNames: { dues: { en: 'Donations', ar: 'التبرعات' } },
+    defaults: {},
+    starters: { tasks: [{ title: { en: 'Host iftar', ar: 'استضافة الإفطار' }, rrule: 'FREQ=WEEKLY;BYDAY=FR', rotation: true }] },
+  },
+  {
+    id: 'club',
+    emoji: '🎯',
+    color: '#7A4FB5',
+    phase: '2',
+    name: { en: 'Club & Hobby', ar: 'نادي وهواية' },
+    tagline: { en: 'Meet up, decide, track', ar: 'اتقابلوا وقرّروا وتابعوا' },
+    modules: ['events', 'polls', 'challenges', 'chat', 'lists'],
+    roles: { owner: { en: 'Host', ar: 'المضيف' }, admin: { en: 'Host', ar: 'المضيف' }, member: { en: 'Member', ar: 'عضو' } },
+    vocab: { event: { en: 'Meetup', ar: 'لقاء' }, events: { en: 'Meetups', ar: 'اللقاءات' } },
+    defaults: {},
+    starters: { lists: [{ title: { en: 'Ideas for next time', ar: 'أفكار للمرة الجاية' } }] },
+  },
+  {
+    id: 'volunteer',
+    emoji: '🤝',
+    color: '#C2582B',
+    phase: '2',
+    name: { en: 'Volunteer / NGO', ar: 'تطوع وجمعية أهلية' },
+    tagline: { en: 'Shifts, hours, donations', ar: 'الورديات والساعات والتبرعات' },
+    modules: ['events', 'tasks', 'dues', 'forms', 'chat'],
+    roles: { owner: { en: 'Coordinator', ar: 'المنسّق' }, admin: { en: 'Coordinator', ar: 'المنسّق' }, member: { en: 'Volunteer', ar: 'متطوع' } },
+    vocab: { event: { en: 'Activity', ar: 'نشاط' }, events: { en: 'Activities', ar: 'الأنشطة' } },
+    moduleNames: { dues: { en: 'Donations', ar: 'التبرعات' } },
+    defaults: {},
+    starters: { tasks: [{ title: { en: 'Welcome the new volunteers', ar: 'رحّب بالمتطوعين الجدد' } }] },
+  },
+  {
     id: 'custom',
     emoji: '✨',
     color: '#8A8F98',
@@ -275,6 +320,8 @@ export function vocab(templateId: string, key: VocabKey, lang: Lang): string {
 }
 
 export function moduleName(templateId: string, moduleId: string, lang: Lang): string {
+  const own = getTemplate(templateId).moduleNames?.[moduleId];
+  if (own) return own[lang];
   const plural = (moduleId as VocabKey) in BASE_VOCAB ? (moduleId as VocabKey) : null;
   if (plural) return vocab(templateId, plural, lang);
   const m = (MODULES as Record<string, { name: L10n }>)[moduleId];

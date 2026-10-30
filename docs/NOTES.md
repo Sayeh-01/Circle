@@ -266,3 +266,29 @@ Decisions made while the owner is away (SPEC B0/B8). Newest at the bottom of eac
 - "Dues unpaid → reminder → pay link" (A8): the dues reminder opens the dues screen, which now has "Pay online".
 - No new dependencies (node:crypto).
 
+## v2.8 plan
+1. Shared: `partBlocks` / `assignParts` (contiguous blocks, rotated one block per round), `partRanges`; form field types,
+   `validateAnswers`, a strict signature schema (`M x y L x y …` in pad pixels). Unit tests first.
+2. Server: challenges (split + tally), parts per round, daily logs; forms with an audience, responses with signatures,
+   printable sheet with inline SVG signatures.
+3. App: challenges (presets: khatma 30 juz', split a book, daily target), part grid, forms builder, fill + signature pad.
+4. Templates: Faith & Charity, Club & Hobby, Volunteer / NGO.
+
+## v2.8 decisions
+- Rotation: round r gives member i block (i + r − 1) mod N, so nobody repeats their parts and after N rounds everyone has read
+  every part once. The last part done starts the next round automatically (A6 "automatic reassignment"); a manager can also
+  start it early. More members than parts: the extra members simply have no part that round and the turn moves on.
+- A member who hands a part back frees it; any participant can take a free part; managers (creator or `items.manage`) can
+  reassign. New participants join from the next round (the current split doesn't change under people's feet).
+- Daily targets: one number per member per day (correcting a day replaces it); the streak counts consecutive days at or over
+  the target (yesterday counts until today is logged), reusing `computeStreak`.
+- Forms are created by `approve` (coordinators/admins); a form for chosen people is 404 for everyone else (like vault
+  folders). Answering again replaces your answer until the form closes.
+- Signatures are drawn as strokes and stored as `{ path, width, height, name }` + `signedAt` — the typed full name is shown
+  under the drawing. The path grammar is only `M`/`L` with whole numbers inside the pad, so it can be embedded as inline SVG
+  safely. The phone draws it with rotated Views (no SVG native module → no new dependency; B8).
+- Dues show as "Donations" for Faith and Volunteer (`moduleNames` on the template). Hijri date (Umm al-Qura) on the Faith
+  challenges screen (A14).
+- Volunteer shifts and hours (A6) come with shifts in v3.4.
+- No new dependencies.
+

@@ -13,7 +13,7 @@ Source of truth for where the build is (SPEC B1). One line per version in B5.
 - [x] v2.2 Gam'eya + Savings Circle
 - [x] v2.4 Entitlements, plan limits, paywall (store purchases faked: admin CLI grants plans)
 - [x] v2.6 Payments (gateway faked: FakeProvider; webhooks, signatures, idempotency, receipts real)
-- [ ] v2.8 Challenges, forms; Faith, Club, Volunteer templates
+- [x] v2.8 Challenges, forms; Faith, Club, Volunteer templates
 - [ ] v3.0–v3.8 Work & Business
 - [ ] v4.0–v4.9 Property
 - [ ] v5.0–v5.9 Community & School
@@ -24,4 +24,4 @@ Source of truth for where the build is (SPEC B1). One line per version in B5.
 - [ ] v7.0 Cross-group AI assistant
 
 ## Current
-v2.6 done. Next: v2.8.
+v2.8 done. Next: v3.0–v3.8.

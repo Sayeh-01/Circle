@@ -97,6 +97,10 @@ Make a development build first (Expo Go can't do remote push on Android, B7 #6):
     pay with a sandbox card → coming back to the app shows "Paid ✓" and the receipt opens as a PDF in the share sheet.
     With the fake gateway in a dev build: the browser opens the fake checkout; return to the app manually.
 
+32. **v2.8 signature pad:** sign a form with a finger on iPhone and Android: the stroke follows the finger smoothly, the screen
+    doesn't scroll while signing, and the signature looks the same on another phone and on the printed sheet (PDF).
+33. **v2.8 Hijri date:** the Faith group's Challenges screen shows today's Hijri date matching a local calendar.
+
 (Later versions add their own device checks in their sections below.)
 
 ## Accounts and keys needed (priority order)
@@ -523,4 +527,39 @@ no gateway → 503 and `payments: false`.
 **Seen red:** `packages/shared/test/payments.test.ts`, `apps/server/test/payments.test.ts`.
 
 **Device checks:** owner checklist item 31.
+
+## v2.8 Challenges & Forms — [x] done
+
+**Built:** Challenges module — split a goal into parts (khatma 30 juz' preset, split a book) shared across chosen members in
+contiguous blocks, mark parts done, hand back / take / reassign, the next round starts by itself with the blocks rotated (or
+early by a manager), join from the next round; daily targets with logs and streak leaderboard. Forms & sign-offs — a builder
+(text, yes/no, choice, number, date; required), for everyone or chosen people, answers checked on the server, a signature pad
+(finger or mouse) with the typed full name, answers + signatures shown to the coordinator, a printable sheet (HTML with SVG
+signatures → PDF), close form. Templates: Faith & Charity (khatma, iftar hosting rota, Donations, Hijri date), Club & Hobby
+(meetups, polls, challenges, ideas list), Volunteer / NGO (activities, tasks, Donations, forms).
+
+**Faked:** nothing.
+
+**Skipped:** nothing (volunteer shifts/hours arrive with shifts in v3.4).
+
+**`pnpm check`:** shared 53/53 (12 files) · server 153/153 (18 files) · E2E 14/14.
+
+| B9 v2.8 check | Evidence |
+|---|---|
+| A khatma splits 30 parts across N members | `packages/shared/test/challenges.test.ts` — N = 1…30: block sizes sum to 30 and differ by ≤ 1; 4 members → 8, 8, 7, 7 contiguous; 35 members → each part one reader. `apps/server/test/packs2.test.ts` — 4 members: 30 parts, 8/8/7/7, Amal 1–8, Dina told "Yours: Juz' 24–30" |
+| …and the next round rotates them | shared test — nobody keeps a part in round 2, over 4 rounds each member covers 1–30 exactly once, round 5 = round 1. Server test — finishing all 30 starts round 2 automatically (Amal 9–16, Dina 1–8); rounds 2–4 via "next round" → each member read every part once; a 5th member who joined → 6 parts each. E2E: round 2 moves Amal to 16–30 |
+| Form signatures are stored and displayed | `packs2.test.ts` — signature required, malformed answers listed per field, an injected path refused; the stored signature equals what was drawn (`path`, `width`, `height`, `name`, `signedAt`), shown to the member and the coordinator, embedded as `<path d="…">` in the printable sheet; re-answering replaces. E2E: Bassem draws with the mouse → "Signed ✓ · Signed by Bassem"; Amal sees his signature drawn under his answers |
+| Route sweep 404 | `sweep.test.ts` covers the 16 new group routes |
+| Cross-group per new entity | `packs2.test.ts` — another group's form (view / respond / sheet) and challenge (view / done / reassign) → 404; a form for chosen people → 404 for others |
+
+**Also tested:** only the reader or a manager marks a part, hand back → take → reassign rules, non-participant can't be
+assigned, daily target streaks (3 days, correction drops it to 1), future days refused, template modules/starters, Dues →
+"Donations" naming, closed form → 409, only coordinators create forms and print sheets.
+
+**Arabic screenshots:** `apps/mobile/e2e/screenshots/v2.8/` (form responses with signatures, khatma parts, challenges with
+Hijri date, signed form) — reviewed; the challenge card now shows part ranges ("16–30") instead of 15 numbers.
+
+**Seen red:** `packages/shared/test/challenges.test.ts`, `packages/shared/test/forms.test.ts`, `apps/server/test/packs2.test.ts`.
+
+**Device checks:** owner checklist items 32–33.
 

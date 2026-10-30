@@ -17,6 +17,7 @@ import { registerAiRoutes } from './routes/ai';
 import { registerCareRoutes } from './routes/care';
 import { registerChatRoutes } from './routes/chat';
 import { registerLifeRoutes } from './routes/life';
+import { registerChallengeRoutes } from './routes/challenges';
 import { registerChildRoutes } from './routes/children';
 import { registerMotivationRoutes } from './routes/motivation';
 import { registerSportRoutes } from './routes/sport';
@@ -32,6 +33,7 @@ import { registerMiscRoutes } from './routes/misc';
 import { registerGameyaRoutes } from './routes/gameya';
 import { registerMoney2Routes } from './routes/money2';
 import { registerPaymentRoutes } from './routes/payments';
+import { registerFormRoutes } from './routes/forms';
 import { registerPlanRoutes } from './routes/plans';
 import { registerPollRoutes } from './routes/polls';
 import { registerTaskRoutes } from './routes/tasks';
@@ -94,6 +96,9 @@ export const features: FeatureModule[] = [
   (r, d) => registerPlanRoutes(r, d),
   // v2.6
   (r, d, root) => registerPaymentRoutes(r, d, root),
+  // v2.8
+  (r, d) => registerChallengeRoutes(r, d),
+  (r, d) => registerFormRoutes(r, d),
 ];
 
 export function createApp(opts: AppOptions) {

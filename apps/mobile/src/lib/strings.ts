@@ -165,6 +165,20 @@ export const en = {
     reason_card_declined: 'The card was declined', reason_insufficient_funds: 'Not enough funds', reason_amount_mismatch: 'The amount didn’t match', back: 'Back to the group',
     purpose_due: 'Dues', purpose_settlement: 'Settle up', purpose_gameya: 'Gam’eya share',
   },
+  challenge: {
+    new: 'New challenge', khatma: 'Khatma (30 juz’)', book: 'Split a book', daily: 'Daily target', title: 'Name', parts: 'Number of parts', partLabel: 'Part name',
+    partDefault: 'Part', juz: 'Juz’', chapter: 'Chapter', target: 'Target per day', unit: 'Unit (pages, steps…)', who: 'Who takes part', round: 'Round {{n}}',
+    progress: '{{done}} of {{total}} done', yours: 'Your parts', allParts: 'All parts', done: 'Done', undo: 'Undo', handBack: 'Hand back', take: 'Take it', free: 'Free',
+    nextRound: 'Start next round', join: 'Join (from the next round)', joined: 'You join from the next round', logToday: 'Today', save: 'Save', streak: '{{n}}-day streak',
+    leaderboard: 'Streaks', rounds: '{{n}} rounds completed', none: 'No parts for you this round', autoNext: 'Next round starts by itself when all parts are done',
+  },
+  forms: {
+    new: 'New form', title: 'Title', description: 'What is it about?', signature: 'Ask for a signature', fields: 'Questions', addField: 'Add question', label: 'Question',
+    type_text: 'Text', type_yes_no: 'Yes / No', type_choice: 'Choice', type_number: 'Number', type_date: 'Date', options: 'Options (comma separated)', required: 'Required',
+    yes: 'Yes', no: 'No', sign: 'Sign here', clear: 'Clear', fullName: 'Your full name', submit: 'Submit', signAndSubmit: 'Sign and submit', signed: 'Signed ✓', responded: 'Answered ✓',
+    todo: 'To do', closed: 'Closed', count: '{{n}} of {{total}} answered', missing: 'Not yet: {{names}}', responses: 'Responses', print: 'Print sheet', close: 'Close form',
+    signedBy: 'Signed by {{name}} · {{date}}', update: 'Update my answer', for: 'For', everyone: 'Everyone',
+  },
   kids: {
     title: 'Kids', add: 'Add a child', name: "Child's name", pin: 'PIN (4–6 digits)', onDevice: 'Kids on this device', switchTo: 'Switch to {{name}}',
     enterPin: 'Enter PIN', wrongPin: 'Wrong PIN', locked: 'Too many tries. Wait 15 minutes.', resetPin: 'New PIN', hint: 'Kids sign in with a PIN on this phone. No email, no money, no links outside the family.',
@@ -343,6 +357,20 @@ export const ar: Shape<typeof en> = {
     status: 'الدفعة', created: 'في انتظار بوابة الدفع…', succeeded: 'اتدفع ✓', failed: 'الدفع فشل', receipt: 'الإيصال', receiptNo: 'إيصال {{n}}',
     reason_card_declined: 'الكارت اترفض', reason_insufficient_funds: 'الرصيد مش كفاية', reason_amount_mismatch: 'المبلغ مش مطابق', back: 'ارجع للمجموعة',
     purpose_due: 'اشتراك', purpose_settlement: 'تسوية', purpose_gameya: 'قسط جمعية',
+  },
+  challenge: {
+    new: 'تحدّي جديد', khatma: 'ختمة (30 جزء)', book: 'قسّم كتاب', daily: 'هدف يومي', title: 'الاسم', parts: 'عدد الأجزاء', partLabel: 'اسم الجزء',
+    partDefault: 'جزء', juz: 'الجزء', chapter: 'فصل', target: 'الهدف في اليوم', unit: 'الوحدة (صفحات، خطوات…)', who: 'مين مشارك', round: 'الدورة {{n}}',
+    progress: 'خلص {{done}} من {{total}}', yours: 'أجزاءك', allParts: 'كل الأجزاء', done: 'خلصت', undo: 'تراجع', handBack: 'رجّعه', take: 'خده', free: 'متاح',
+    nextRound: 'ابدأ الدورة الجاية', join: 'انضم (من الدورة الجاية)', joined: 'هتنضم من الدورة الجاية', logToday: 'النهارده', save: 'حفظ', streak: '{{n}} يوم ورا بعض',
+    leaderboard: 'السلاسل', rounds: 'خلصت {{n}} دورات', none: 'مفيش أجزاء ليك الدورة دي', autoNext: 'الدورة الجاية بتبدأ لوحدها لما كل الأجزاء تخلص',
+  },
+  forms: {
+    new: 'نموذج جديد', title: 'العنوان', description: 'عن إيه؟', signature: 'اطلب توقيع', fields: 'الأسئلة', addField: 'أضف سؤال', label: 'السؤال',
+    type_text: 'نص', type_yes_no: 'نعم / لا', type_choice: 'اختيار', type_number: 'رقم', type_date: 'تاريخ', options: 'الاختيارات (افصل بفاصلة)', required: 'إجباري',
+    yes: 'نعم', no: 'لا', sign: 'وقّع هنا', clear: 'امسح', fullName: 'اسمك بالكامل', submit: 'إرسال', signAndSubmit: 'وقّع وابعت', signed: 'اتوقّع ✓', responded: 'اتردّ ✓',
+    todo: 'مطلوب', closed: 'مقفول', count: 'ردّ {{n}} من {{total}}', missing: 'لسه: {{names}}', responses: 'الردود', print: 'اطبع الكشف', close: 'اقفل النموذج',
+    signedBy: 'وقّعه {{name}} · {{date}}', update: 'عدّل ردّي', for: 'لمين', everyone: 'الكل',
   },
   kids: {
     title: 'الأطفال', add: 'إضافة طفل', name: 'اسم الطفل', pin: 'رمز PIN (4–6 أرقام)', onDevice: 'الأطفال على هذا الجهاز', switchTo: 'التبديل إلى {{name}}',

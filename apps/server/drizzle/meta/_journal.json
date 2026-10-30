@@ -71,6 +71,13 @@
       "when": 1793354593141,
       "tag": "0009_v2_6_payments",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1793355671710,
+      "tag": "0010_v2_8_challenges_forms",
+      "breakpoints": true
     }
   ]
 }

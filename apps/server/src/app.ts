@@ -13,6 +13,8 @@ import { createDevMailer, type Mailer } from './mailer';
 import { createMemoryPushSender, type PushSender } from './push';
 import { attachRealtime, signTicket } from './realtime';
 import { registerChatRoutes } from './routes/chat';
+import { registerChildRoutes } from './routes/children';
+import { registerMotivationRoutes } from './routes/motivation';
 import { registerGuestRoutes } from './routes/guest';
 import { registerIcsRoutes, registerWellKnown } from './routes/ics';
 import { registerEventRoutes } from './routes/events';
@@ -58,6 +60,9 @@ export const features: FeatureModule[] = [
   (r, d, root) => registerGuestRoutes(r, d, root),
   (r, d, root) => registerIcsRoutes(r, d, root),
   (_r, d, root) => registerWellKnown(d, root),
+  // v1.2 Motivation
+  (r, d) => registerMotivationRoutes(r, d),
+  (r, d) => registerChildRoutes(r, d),
 ];
 
 export function createApp(opts: AppOptions) {
@@ -73,7 +78,7 @@ export function createApp(opts: AppOptions) {
     push: opts.push ?? createMemoryPushSender(),
     sms: opts.sms ?? createDevSms(env.nodeEnv !== 'test'),
   };
-  const auth: Auth = createAuth(opts.db, env, mailer, deps.sms);
+  const auth: Auth = createAuth(opts.db, env, mailer, deps.sms, deps.clock);
   const router = createRouter(deps, auth);
   const app = new Hono();
 

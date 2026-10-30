@@ -58,6 +58,12 @@ Make a development build first (Expo Go can't do remote push on Android, B7 #6):
     (needs the public domain; WhatsApp can't fetch localhost).
 15. **v1.1 calendar feed:** add the ICS URL to Google Calendar and Apple Calendar; events appear and update.
 
+16. **v1.2 voice notes:** in a group chat tap 🎙️, allow the microphone, record ~5 s, tap ⏹ → the note uploads and plays
+    on another phone and on the web build (web only plays). Check iOS silent mode playback.
+17. **v1.2 Kids mode on a shared phone:** Me → Kids on this device → tap the child → PIN → the app shows Kids home;
+    force-quit and reopen → still the child's session; the "+" tab is hidden; Expenses can't be opened.
+18. **v1.2 haptics:** completing a chore in Kids home gives a success tap.
+
 (Later versions add their own device checks in their sections below.)
 
 ## Accounts and keys needed (priority order)
@@ -181,3 +187,46 @@ its track). Seen red: `reach.test.ts` (broken assertion → 1 failed → restore
 (the creator's open socket didn't subscribe to a group it had just created — fixed + real-socket test added).
 
 **Device checks:** owner checklist items 11–15.
+
+## v1.2 Motivation — [x] done
+
+**Built:** points ledger (chore points on completion; balance = sum of ledger, never stored), rewards shop (approvers add
+rewards; members redeem; fulfil / cancel-with-refund), streaks per member in the group timezone, fairness meter (this
+month's chore points as integer % that sum to exactly 100), hand adjustments, Child accounts (created by a parent, no email,
+PIN sign-in through a Better Auth plugin endpoint, scrypt-hashed PIN, 5 wrong tries → 15-minute lock, parent can reset/
+delete), Kids mode (big chore buttons, points, shop; "+" tab hidden), parent approval of a Child's chores before points,
+Child restrictions (no money via the permission matrix, can't create tasks/groups, can't preview or join other groups,
+can't make guest links, can't delete their account), voice notes (recorded with `expo-audio` on device, uploaded as
+`audio/*` files; web shows the browser's audio player and hides the record button). Points module added to the Family
+template.
+
+**Faked:** nothing. **Skipped:** nothing.
+
+**`pnpm check`:** shared 23/23 (4 files) · server 80/80 (10 files) · E2E 6/6.
+
+| B9 v1.2 check | Evidence |
+|---|---|
+| Two concurrent reward redemptions can't take points below 0 | `apps/server/test/motivation.test.ts` — 2 concurrent redemptions of a 7-pt reward with 9 pts → exactly one 200, one 409, balance 2; then 6 concurrent 1-pt redemptions with 2 pts → exactly 2 succeed, balance 0 (member row locked `FOR UPDATE` before reading the balance) |
+| A Child gets blocked on every money route (sweep) | `motivation.test.ts` — walks every registered route with `money.read`/`money.write` as a signed-in Child → all 403; Child's Today has no money |
+| Fairness meter shares add up to 100% | `packages/shared/test/rotation.test.ts` "fairness meter" + API check in `motivation.test.ts` (25/75) |
+
+**Also tested:** PIN lockout and unlock after 15 min, PIN sign-in refuses adult accounts, chore approval doesn't double-award,
+cancel refunds, adjustments can't go negative, voice-note files must be audio from the same group, cross-group 404s for
+rewards / redemptions / completions. E2E `v1.2-motivation.spec.ts`: parent creates child + reward + chore → a second
+browser ("shared tablet") switches to the child with a wrong then right PIN → Kids home → chore → parent approves →
+child sees 30 pts → redeems → child gets 403 on `/balances`.
+
+**Arabic screenshots:** `apps/mobile/e2e/screenshots/v1.2/` (Points, Me with kids, Kids home) — reviewed; Arabic plural
+forms render ("سلسلة يوم واحد").
+
+**Seen red:** shared `motivation.test.ts` and server `motivation.test.ts` (broken assertions → red → restored). The E2E failed
+for real first and found three app bugs (below).
+
+**Bugs found by this version's E2E (fixed):**
+1. React Compiler (experimental, on by default in the SDK 58 template) evaluated `kid.id` from an event handler during
+   render as a memo dependency → crash when `kid` was null. Turned the compiler off app-wide (`app.json`).
+2. `Row` without `onPress` rendered a disabled Pressable whose `aria-disabled` disabled every button inside it (also for
+   screen readers). Rows without `onPress` are now plain Views.
+3. Kids home only listed dated chores (it used Today's 7-day window); it now lists all of the child's open chores.
+
+**Device checks:** owner checklist items 16–18.

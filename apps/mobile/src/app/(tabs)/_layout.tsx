@@ -2,11 +2,14 @@ import { Tabs } from 'expo-router/tabs';
 import { Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { colors } from '@/components/ui';
+import { authClient } from '@/lib/auth';
 
 const icon = (glyph: string) => ({ focused }: { focused: boolean }) => <Text style={{ fontSize: 20, opacity: focused ? 1 : 0.55 }}>{glyph}</Text>;
 
 export default function TabsLayout() {
   const { t } = useTranslation();
+  const { data: session } = authClient.useSession();
+  const child = !!(session?.user as { isChild?: boolean } | undefined)?.isChild;
   return (
     <Tabs screenOptions={{ headerShown: false, tabBarActiveTintColor: colors.primary, tabBarStyle: { minHeight: 60 }, tabBarLabelStyle: { fontSize: 12, fontWeight: '600' } }}>
       <Tabs.Screen name="index" options={{ title: t('tabs.today'), tabBarIcon: icon('☀️'), tabBarButtonTestID: 'tab-today' }} />
@@ -14,6 +17,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="capture"
         options={{
+          href: child ? null : undefined,
           title: t('tabs.capture'),
           tabBarButtonTestID: 'tab-capture',
           tabBarIcon: () => (

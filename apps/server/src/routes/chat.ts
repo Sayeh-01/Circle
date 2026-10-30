@@ -25,7 +25,11 @@ export function registerChatRoutes(r: Router, deps: Deps) {
   r.post(base, { ...mod, perm: 'chat', summary: 'Send a message (text, image, reply, @mentions)', body: schemas.messageCreate }, async (c, { body }) => {
     const group = c.get('group');
     const user = c.get('user');
-    if (!body.body.trim() && !body.imageFileId) throw badRequest('empty_message');
+    if (!body.body.trim() && !body.imageFileId && !body.audioFileId) throw badRequest('empty_message');
+    if (body.audioFileId) {
+      const [f] = await db.select().from(files).where(and(eq(files.id, body.audioFileId), eq(files.groupId, group.id)));
+      if (!f || !f.mime.startsWith('audio/')) throw badRequest('bad_file');
+    }
     if (body.pinned && !actorCan(c, 'announce')) throw forbidden();
     if (body.imageFileId) {
       const [f] = await db.select().from(files).where(and(eq(files.id, body.imageFileId), eq(files.groupId, group.id)));
@@ -48,6 +52,8 @@ export function registerChatRoutes(r: Router, deps: Deps) {
           userId: user.id,
           body: body.body,
           imageFileId: body.imageFileId ?? null,
+          audioFileId: body.audioFileId ?? null,
+          audioMs: body.audioMs ?? null,
           replyToId: body.replyToId ?? null,
           mentions: mentions.length ? mentions : null,
           pinned: !!body.pinned,

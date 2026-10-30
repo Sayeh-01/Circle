@@ -6,6 +6,8 @@ import { useState } from 'react';
 import { FlatList, Pressable, Text, TextInput, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { GroupScreen } from '@/components/GroupNav';
+import { VoiceNote } from '@/components/VoiceNote';
+import { VoiceRecorder } from '@/components/VoiceRecorder';
 import { Button, Chip, HScroll, Muted, Sheet, Txt, colors, styles, useSheet } from '@/components/ui';
 import { authHeaders, fileUrl, get, post } from '@/lib/api';
 import { useAct, useGroup } from '@/lib/hooks';
@@ -77,6 +79,15 @@ export default function Chat() {
               }}>
               <Text style={{ fontSize: 22 }}>📷</Text>
             </Pressable>
+            <VoiceRecorder
+              label={t('chat.voice')}
+              onDone={(uri, ms) =>
+                run(async () => {
+                  const audioFileId = await (await import('@/lib/api')).uploadFile(id, uri, 'audio/m4a');
+                  await post(`/groups/${id}/messages`, { body: '', audioFileId, audioMs: ms, replyToId: replyTo?.id });
+                })
+              }
+            />
             <TextInput value={text} onChangeText={setText} placeholder={t('chat.placeholder')} placeholderTextColor={colors.faint} multiline style={[styles.input, { flex: 1, maxHeight: 120, paddingTop: 12 }]} testID="chat-input" accessibilityLabel={t('chat.placeholder')} />
             <Button small title={t('common.send')} onPress={() => send(false)} loading={pending} disabled={!text.trim() && !image} testID="chat-send" color={color} />
           </View>
@@ -106,6 +117,7 @@ export default function Chat() {
                   </View>
                 )}
                 {m.imageFileId ? <Image source={{ uri: fileUrl(id, m.imageFileId), headers: authHeaders() }} style={{ width: 200, height: 200, borderRadius: 10, marginBottom: 4 }} contentFit="cover" /> : null}
+                {m.audioFileId ? <VoiceNote uri={fileUrl(id, m.audioFileId)} ms={m.audioMs} color={mine ? '#fff' : colors.text} /> : null}
                 {m.body ? <Text style={{ color: mine ? '#fff' : colors.text, fontSize: 15, textAlign: 'auto' }}>{m.body}</Text> : null}
                 <Text style={{ color: mine ? 'rgba(255,255,255,0.8)' : colors.faint, fontSize: 11, marginTop: 2 }}>{fmt.time(m.createdAt)}</Text>
               </View>

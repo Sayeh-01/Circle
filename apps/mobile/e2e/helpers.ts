@@ -4,7 +4,7 @@ import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 
 let counter = 0;
-export const uniqueEmail = (name: string) => `${name.toLowerCase()}-${Date.now()}-${counter++}@example.com`;
+export const uniqueEmail = (name: string) => `${name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${Date.now()}-${counter++}@example.com`;
 
 /** Signs in through the real Email OTP flow; the code comes from the test-only route (absent in production). */
 export async function signIn(page: Page, name: string, email = uniqueEmail(name)) {

@@ -7,8 +7,9 @@ import type { DB } from './db/client';
 import type { Env } from './deps';
 import type { Mailer } from './mailer';
 import type { SmsSender } from './sms';
+import { childPinPlugin } from './routes/children';
 
-export function createAuth(db: DB, env: Env, mailer: Mailer, sms: SmsSender) {
+export function createAuth(db: DB, env: Env, mailer: Mailer, sms: SmsSender, clock: () => Date = () => new Date()) {
   return betterAuth({
     database: drizzleAdapter(db, {
       provider: 'pg',
@@ -26,6 +27,7 @@ export function createAuth(db: DB, env: Env, mailer: Mailer, sms: SmsSender) {
         language: { type: 'string', defaultValue: 'en', input: false },
         digits: { type: 'string', defaultValue: 'latn', input: false },
         timezone: { type: 'string', defaultValue: 'Africa/Cairo', input: false },
+        isChild: { type: 'boolean', defaultValue: false, input: false },
       },
     },
     socialProviders: {
@@ -53,6 +55,7 @@ export function createAuth(db: DB, env: Env, mailer: Mailer, sms: SmsSender) {
           getTempName: () => '',
         },
       }),
+      childPinPlugin(db, clock),
       expo(),
     ],
   });

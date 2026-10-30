@@ -11,7 +11,9 @@
       "icon": "./assets/expo.icon",
       "bundleIdentifier": "app.circle.mobile",
       "supportsTablet": true,
-      "associatedDomains": ["applinks:circle.example.com"],
+      "associatedDomains": [
+        "applinks:circle.example.com"
+      ],
       "infoPlist": {
         "NSCameraUsageDescription": "Circle uses the camera for photo proof, receipts and scanning QR codes.",
         "NSPhotoLibraryUsageDescription": "Circle lets you share photos with your groups.",
@@ -32,8 +34,17 @@
         {
           "action": "VIEW",
           "autoVerify": true,
-          "data": [{ "scheme": "https", "host": "circle.example.com", "pathPrefix": "/join" }],
-          "category": ["BROWSABLE", "DEFAULT"]
+          "data": [
+            {
+              "scheme": "https",
+              "host": "circle.example.com",
+              "pathPrefix": "/join"
+            }
+          ],
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
         }
       ]
     },
@@ -58,12 +69,16 @@
       "expo-notifications",
       [
         "expo-image-picker",
-        { "photosPermission": "Circle lets you share photos with your groups.", "cameraPermission": "Circle uses the camera for photo proof and receipts." }
-      ]
+        {
+          "photosPermission": "Circle lets you share photos with your groups.",
+          "cameraPermission": "Circle uses the camera for photo proof and receipts."
+        }
+      ],
+      "expo-audio"
     ],
     "experiments": {
       "typedRoutes": false,
-      "reactCompiler": true
+      "reactCompiler": false
     }
   }
 }

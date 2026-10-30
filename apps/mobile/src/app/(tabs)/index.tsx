@@ -4,11 +4,20 @@ import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Button, Card, Chip, Empty, ErrorView, GroupTag, Loading, Muted, Row, Screen, Section, Txt, colors } from '@/components/ui';
 import { Check } from '@/components/Check';
+import { KidsHome } from '@/components/KidsHome';
+import { authClient } from '@/lib/auth';
 import { get, post } from '@/lib/api';
 import { useAct } from '@/lib/hooks';
 import { useFormat } from '@/lib/prefs';
 
-export default function Today() {
+export default function TodayTab() {
+  const { data: session } = authClient.useSession();
+  const user = session?.user as { isChild?: boolean; name?: string } | undefined;
+  if (user?.isChild) return <KidsHome name={user.name ?? ''} />;
+  return <Today />;
+}
+
+function Today() {
   const { t } = useTranslation();
   const fmt = useFormat();
   const router = useRouter();

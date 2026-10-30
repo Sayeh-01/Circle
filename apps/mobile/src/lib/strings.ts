@@ -66,7 +66,7 @@ export const en = {
     deadline: 'Closes in (hours, optional)', vote: 'Vote', votes_one: '{{count}} vote', votes_other: '{{count}} votes', closed: 'Closed', close: 'Close poll',
     voters_one: '{{count}} person voted', voters_other: '{{count}} people voted', makeEvent: 'Make it an event',
   },
-  chat: { placeholder: 'Message', reply: 'Reply', replyingTo: 'Replying to {{name}}', pin: 'Pin as announcement', unpin: 'Unpin', announcement: 'Announcement', photo: 'Photo', mention: 'Mention', makeTask: 'Make this a task', announce: 'Post as announcement' },
+  chat: { voice: 'Record a voice note', placeholder: 'Message', reply: 'Reply', replyingTo: 'Replying to {{name}}', pin: 'Pin as announcement', unpin: 'Unpin', announcement: 'Announcement', photo: 'Photo', mention: 'Mention', makeTask: 'Make this a task', announce: 'Post as announcement' },
   settings: {
     title: 'Group settings', name: 'Name', emoji: 'Emoji', modules: 'Modules', members: 'Members', makeAdmin: 'Make admin', makeMember: 'Make member',
     remove: 'Remove', leave: 'Leave group', delete: 'Delete group', deleteConfirm: 'Delete this group for everyone? This cannot be undone.',
@@ -92,6 +92,16 @@ export const en = {
     guestLink: 'Guest link (no app needed)', copyLink: 'Copy guest link', linkCopied: 'Guest link copied', guestLinks: 'Guest links', revoke: 'Turn off',
     calendarFeed: 'Calendar feed (ICS)', calendarHint: 'Subscribe in Google Calendar or Apple Calendar. Read-only.', newFeed: 'New feed URL',
     guest: 'guest', sharedItem: 'Shared item', askInvite: 'Ask a member for an invite code to join this group.', shareList: 'Share list',
+  },
+  points: {
+    title: 'Points', myPoints: 'My points', streak_one: '{{count}}-day streak 🔥', streak_other: '{{count}}-day streak 🔥', noStreak: 'Finish a chore today to start a streak',
+    fairness: 'Who carried the load this month', shop: 'Rewards shop', redeem: 'Get it', cost: '{{count}} pts', notEnough: 'Not enough points', newReward: 'New reward',
+    rewardTitle: 'Reward', approvals: 'Waiting for approval', approve: 'Approve', reject: 'Not yet', redemptions: 'Rewards to give', given: 'Given', myRewards: 'My rewards',
+    pending: 'Waiting', adjust: 'Give points', kidsHello: 'Hi {{name}}!', myChores: 'My chores', allDone: 'All done! 🎉', waitingParent: 'Waiting for a parent ✓',
+  },
+  kids: {
+    title: 'Kids', add: 'Add a child', name: "Child's name", pin: 'PIN (4–6 digits)', onDevice: 'Kids on this device', switchTo: 'Switch to {{name}}',
+    enterPin: 'Enter PIN', wrongPin: 'Wrong PIN', locked: 'Too many tries. Wait 15 minutes.', resetPin: 'New PIN', hint: 'Kids sign in with a PIN on this phone. No email, no money, no links outside the family.',
   },
 };
 
@@ -164,7 +174,7 @@ export const ar: Shape<typeof en> = {
     deadline: 'يُغلق بعد (ساعات، اختياري)', vote: 'صوّت', votes_zero: 'لا أصوات', votes_one: 'صوت واحد', votes_two: 'صوتان', votes_few: '{{count}} أصوات', votes_many: '{{count}} صوتًا', votes_other: '{{count}} صوت', closed: 'مغلق', close: 'إغلاق التصويت',
     voters_zero: 'لم يصوّت أحد', voters_one: 'صوّت شخص واحد', voters_two: 'صوّت شخصان', voters_few: 'صوّت {{count}} أشخاص', voters_many: 'صوّت {{count}} شخصًا', voters_other: 'صوّت {{count}} شخص', makeEvent: 'حوّله لموعد',
   },
-  chat: { placeholder: 'رسالة', reply: 'رد', replyingTo: 'رد على {{name}}', pin: 'ثبّت كإعلان', unpin: 'إلغاء التثبيت', announcement: 'إعلان', photo: 'صورة', mention: 'إشارة', makeTask: 'حوّلها لمهمة', announce: 'انشر كإعلان' },
+  chat: { voice: 'سجّل رسالة صوتية', placeholder: 'رسالة', reply: 'رد', replyingTo: 'رد على {{name}}', pin: 'ثبّت كإعلان', unpin: 'إلغاء التثبيت', announcement: 'إعلان', photo: 'صورة', mention: 'إشارة', makeTask: 'حوّلها لمهمة', announce: 'انشر كإعلان' },
   settings: {
     title: 'إعدادات المجموعة', name: 'الاسم', emoji: 'الإيموجي', modules: 'الأدوات', members: 'الأعضاء', makeAdmin: 'اجعله مشرفًا', makeMember: 'اجعله عضوًا',
     remove: 'إزالة', leave: 'مغادرة المجموعة', delete: 'حذف المجموعة', deleteConfirm: 'حذف المجموعة للجميع؟ لا يمكن التراجع.',
@@ -190,5 +200,16 @@ export const ar: Shape<typeof en> = {
     guestLink: 'رابط ضيف (بدون تطبيق)', copyLink: 'نسخ رابط الضيف', linkCopied: 'تم نسخ رابط الضيف', guestLinks: 'روابط الضيوف', revoke: 'إيقاف',
     calendarFeed: 'رابط التقويم (ICS)', calendarHint: 'اشترك فيه من تقويم جوجل أو أبل. للقراءة فقط.', newFeed: 'رابط جديد',
     guest: 'ضيف', sharedItem: 'عنصر مشترك', askInvite: 'اطلب من أحد الأعضاء كود دعوة للانضمام لهذه المجموعة.', shareList: 'مشاركة القائمة',
+  },
+  points: {
+    title: 'النقاط', myPoints: 'نقاطي', streak_zero: 'لا توجد سلسلة', streak_one: 'سلسلة يوم واحد 🔥', streak_two: 'سلسلة يومين 🔥', streak_few: 'سلسلة {{count}} أيام 🔥', streak_many: 'سلسلة {{count}} يومًا 🔥', streak_other: 'سلسلة {{count}} يوم 🔥',
+    noStreak: 'خلّص مهمة النهارده عشان تبدأ سلسلة', fairness: 'مين شال الحمل الشهر ده', shop: 'متجر المكافآت', redeem: 'خُدها', cost: '{{count}} نقطة',
+    notEnough: 'النقاط مش كفاية', newReward: 'مكافأة جديدة', rewardTitle: 'المكافأة', approvals: 'في انتظار الموافقة', approve: 'موافقة', reject: 'لسه',
+    redemptions: 'مكافآت لازم تتسلّم', given: 'اتسلّمت', myRewards: 'مكافآتي', pending: 'في الانتظار', adjust: 'إعطاء نقاط', kidsHello: 'أهلًا يا {{name}}!',
+    myChores: 'مهامي', allDone: 'خلّصت كله! 🎉', waitingParent: 'في انتظار موافقة بابا أو ماما ✓',
+  },
+  kids: {
+    title: 'الأطفال', add: 'إضافة طفل', name: 'اسم الطفل', pin: 'رمز PIN (٤–٦ أرقام)', onDevice: 'الأطفال على هذا الجهاز', switchTo: 'التبديل إلى {{name}}',
+    enterPin: 'أدخل الرمز', wrongPin: 'رمز خاطئ', locked: 'محاولات كثيرة. انتظر ١٥ دقيقة.', resetPin: 'رمز جديد', hint: 'يدخل الأطفال برمز PIN على هذا الموبايل. بدون بريد ولا فلوس ولا روابط خارج العائلة.',
   },
 };

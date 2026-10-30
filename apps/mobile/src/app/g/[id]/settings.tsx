@@ -6,7 +6,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Avatar, Button, Card, Chip, Field, HScroll, Loading, Muted, Row, Screen, Section, Toggle } from '@/components/ui';
+import { Avatar, Button, Card, Chip, Field, HScroll, Loading, Muted, Row, Screen, Section, Sheet, Toggle, useSheet } from '@/components/ui';
 import { authHeaders, del, fileUrl, get, patch, post, put, uploadFile } from '@/lib/api';
 import { confirmAsk, useAct, useGroup } from '@/lib/hooks';
 import { availableModules } from '@/lib/modules';
@@ -19,6 +19,8 @@ export default function GroupSettings() {
   const { run } = useAct(id);
   const [name, setName] = useState('');
   const [myName, setMyName] = useState('');
+  const kidSheet = useSheet();
+  const [kid, setKid] = useState({ name: '', pin: '' });
   const links = useQuery({ queryKey: ['group', id, 'guest-links'], queryFn: () => get(`/groups/${id}/guest-links`), enabled: g.can('items.create') });
   useEffect(() => {
     if (g.group) setName(g.group.name);
@@ -98,6 +100,7 @@ export default function GroupSettings() {
         </Section>
       )}
       <View style={{ gap: 10 }}>
+        {admin && <Button kind="secondary" title={`🧒 ${t('kids.add')}`} onPress={kidSheet.show} testID="add-child" />}
         <Button kind="secondary" title={t('group.invite')} onPress={() => router.push(`/g/${id}/invite`)} />
         {!owner && (
           <Button
@@ -124,6 +127,21 @@ export default function GroupSettings() {
         )}
       </View>
       <Muted style={{ marginTop: 16, textAlign: 'center' }}>{g.group.type}</Muted>
+      <Sheet visible={kidSheet.open} onClose={kidSheet.hide} title={t('kids.add')}>
+        <Muted style={{ marginBottom: 12 }}>{t('kids.hint')}</Muted>
+        <Field label={t('kids.name')} value={kid.name} onChangeText={(s) => setKid({ ...kid, name: s })} testID="child-name" />
+        <Field label={t('kids.pin')} value={kid.pin} onChangeText={(s) => setKid({ ...kid, pin: s.replace(/\D/g, '').slice(0, 6) })} inputMode="numeric" secureTextEntry testID="child-pin" />
+        <Button
+          title={t('common.create')}
+          disabled={!kid.name.trim() || kid.pin.length < 4}
+          testID="child-save"
+          onPress={async () => {
+            await run(() => post(`/groups/${id}/children`, { name: kid.name.trim(), pin: kid.pin }));
+            setKid({ name: '', pin: '' });
+            kidSheet.hide();
+          }}
+        />
+      </Sheet>
     </Screen>
   );
 }

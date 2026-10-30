@@ -5,6 +5,7 @@ import * as Clipboard from 'expo-clipboard';
 import { useEffect, useState } from 'react';
 import { Platform, Share, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { KidsSwitcher } from '@/components/KidsSwitcher';
 import { Avatar, Button, Card, Field, Muted, Screen, Section, Segmented, Txt } from '@/components/ui';
 import { del, get, imageSource, patch, post, uploadProfilePhoto } from '@/lib/api';
 import { authClient } from '@/lib/auth';
@@ -94,6 +95,7 @@ export default function Me() {
           }}
         />
       </Card>
+      <KidsSwitcher />
       <Section title={t('reach.calendarFeed')}>
         <Card testID="calendar-feed">
           <Muted>{t('reach.calendarHint')}</Muted>
@@ -132,7 +134,7 @@ export default function Me() {
           await clearCache();
         }}
       />
-      <Button
+      {!me.data?.isChild && <Button
         kind="danger"
         title={t('me.deleteAccount')}
         testID="delete-account"
@@ -142,7 +144,7 @@ export default function Me() {
           await authClient.signOut().catch(() => {});
           await clearCache();
         }}
-      />
+      />}
     </Screen>
   );
 }

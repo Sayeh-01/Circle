@@ -30,6 +30,7 @@ describe('tasks & chores', () => {
     const done1 = await A.post(`/api/groups/${gid}/tasks/${task.body.id}/complete`);
     expect(done1.body).toMatchObject({ assigneeId: B.user.id, status: 'open', dueAt: '2026-11-03T16:00:00.000Z' });
     await C.patch(`/api/groups/${gid}/members/${C.user.id}`, { away: true });
+    t.advance(1000);
     const done2 = await B.post(`/api/groups/${gid}/tasks/${task.body.id}/complete`);
     expect(done2.body.assigneeId).toBe(A.user.id);
     await C.patch(`/api/groups/${gid}/members/${C.user.id}`, { away: false });

@@ -12,6 +12,7 @@ export const MODULES = {
   expenses: { emoji: '💸', name: { en: 'Expenses', ar: 'المصاريف' }, phase: '1.0' },
   polls: { emoji: '📊', name: { en: 'Polls', ar: 'التصويتات' }, phase: '1.0' },
   chat: { emoji: '💬', name: { en: 'Chat', ar: 'الدردشة' }, phase: '1.0' },
+  points: { emoji: '⭐', name: { en: 'Points & Rewards', ar: 'النقاط والمكافآت' }, phase: '1.2' },
 } as const satisfies Record<string, { emoji: string; name: L10n; phase: string }>;
 
 export type ModuleId = keyof typeof MODULES;
@@ -81,7 +82,7 @@ export const TEMPLATES: Template[] = [
     phase: '1',
     name: { en: 'Home & Family', ar: 'البيت والعائلة' },
     tagline: { en: 'Organize daily life', ar: 'نظّموا حياتكم اليومية' },
-    modules: ['events', 'tasks', 'lists', 'chat', 'expenses', 'polls'],
+    modules: ['events', 'tasks', 'lists', 'chat', 'expenses', 'polls', 'points'],
     roles: { owner: { en: 'Parent', ar: 'وليّ الأمر' }, admin: { en: 'Parent', ar: 'وليّ الأمر' }, child: { en: 'Child', ar: 'طفل' } },
     vocab: { task: { en: 'Chore', ar: 'مهمة منزلية' }, tasks: { en: 'Chores', ar: 'المهام المنزلية' } },
     defaults: {},

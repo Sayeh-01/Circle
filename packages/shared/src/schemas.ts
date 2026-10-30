@@ -120,6 +120,8 @@ export const pollVote = z.object({ optionIds: z.array(id).min(1).max(20) });
 export const messageCreate = z.object({
   body: z.string().max(4000).default(''),
   imageFileId: id.optional(),
+  audioFileId: id.optional(),
+  audioMs: z.number().int().min(0).max(15 * 60_000).optional(),
   replyToId: id.optional(),
   mentions: z.array(id).max(50).optional(),
   pinned: z.boolean().optional(),
@@ -132,3 +134,8 @@ export type TaskCreate = z.infer<typeof taskCreate>;
 export type EventCreate = z.infer<typeof eventCreate>;
 export type ExpenseCreate = z.infer<typeof expenseCreate>;
 export type PollCreate = z.infer<typeof pollCreate>;
+
+export const rewardCreate = z.object({ title: z.string().trim().min(1).max(120), cost: z.number().int().min(1).max(100000), emoji: z.string().max(16).optional() });
+export const pointsAdjust = z.object({ userId: id, delta: z.number().int().min(-100000).max(100000), note: z.string().max(200).optional() });
+export const childCreate = z.object({ name: z.string().trim().min(1).max(60), pin: z.string().regex(/^\d{4,6}$/) });
+export const childPin = z.object({ pin: z.string().regex(/^\d{4,6}$/) });

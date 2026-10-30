@@ -144,8 +144,8 @@ export function Row({
   chevron?: boolean;
   strike?: boolean;
 }) {
-  return (
-    <Pressable onPress={onPress} disabled={!onPress} testID={testID} accessibilityRole={onPress ? 'button' : undefined} style={({ pressed }) => [styles.row, pressed && onPress ? { backgroundColor: '#F0EFEA' } : null]}>
+  const content = (
+    <>
       {left}
       <View style={{ flex: 1, minWidth: 0 }}>
         <Txt style={[styles.rowTitle, strike ? { textDecorationLine: 'line-through', color: colors.faint } : null]} numberOfLines={2}>
@@ -159,6 +159,19 @@ export function Row({
       </View>
       {right}
       {chevron ? <Chevron /> : null}
+    </>
+  );
+  // A row without onPress must not be a disabled pressable: aria-disabled would also disable the buttons inside it.
+  if (!onPress) {
+    return (
+      <View testID={testID} style={styles.row}>
+        {content}
+      </View>
+    );
+  }
+  return (
+    <Pressable onPress={onPress} testID={testID} accessibilityRole="button" style={({ pressed }) => [styles.row, pressed ? { backgroundColor: '#F0EFEA' } : null]}>
+      {content}
     </Pressable>
   );
 }

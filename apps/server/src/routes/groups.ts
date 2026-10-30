@@ -80,6 +80,7 @@ export function registerGroupRoutes(r: Router, deps: Deps) {
 
   r.post('/groups', { summary: 'Create a group from a template', body: schemas.groupCreate, tags: ['groups'] }, async (c, { body }) => {
     const user = c.get('user');
+    if (user.isChild) throw forbidden('child_account');
     const t = getTemplate(body.templateId);
     const lang = body.lang as Lang;
     const id = newId();
@@ -310,6 +311,7 @@ export function registerGroupRoutes(r: Router, deps: Deps) {
   }
 
   r.get('/invites/:code', { summary: 'Preview a group before joining', tags: ['groups'] }, async (c) => {
+    if (c.get('user').isChild) throw forbidden('child_account');
     const { invite, group } = await findInvite(c.req.param('code')!);
     const [inviter] = await db.select({ name: groupMembers.displayName }).from(groupMembers).where(and(eq(groupMembers.groupId, group.id), eq(groupMembers.userId, invite.createdBy)));
     const [{ n }] = await db.select({ n: count() }).from(groupMembers).where(eq(groupMembers.groupId, group.id));
@@ -319,6 +321,7 @@ export function registerGroupRoutes(r: Router, deps: Deps) {
 
   r.post('/invites/:code/join', { summary: 'Join with a code', body: z.object({ displayName: z.string().trim().max(60).optional() }), tags: ['groups'] }, async (c, { body }) => {
     const user = c.get('user');
+    if (user.isChild) throw forbidden('child_account');
     const { invite, group } = await findInvite(c.req.param('code')!);
     const [mine] = await db.select().from(groupMembers).where(and(eq(groupMembers.groupId, group.id), eq(groupMembers.userId, user.id)));
     if (mine) return { groupId: group.id, alreadyMember: true };

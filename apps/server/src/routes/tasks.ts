@@ -142,7 +142,7 @@ export function registerTaskRoutes(r: Router, deps: Deps) {
         if (!f) throw badRequest('bad_file');
       }
       const completionId = newId();
-      await tx.insert(taskCompletions).values({ id: completionId, taskId: task.id, groupId: group.id, userId: user.id, photoFileId: body.photoFileId ?? null, points: task.points, dueAt: task.dueAt });
+      await tx.insert(taskCompletions).values({ id: completionId, taskId: task.id, groupId: group.id, userId: user.id, photoFileId: body.photoFileId ?? null, points: task.points, dueAt: task.dueAt, completedAt: deps.clock() });
       let next: Partial<TaskRow>;
       const nextDue = task.rrule && task.dueAt ? nextOccurrence(task.rrule, task.dueAt.getTime(), group.timezone, Math.max(task.dueAt.getTime(), deps.clock().getTime())) : null;
       if (nextDue) {

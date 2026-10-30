@@ -31,6 +31,12 @@ export const users = pgTable('users', {
   timezone: text('timezone').notNull().default('Africa/Cairo'),
   phoneNumber: text('phone_number').unique(),
   phoneNumberVerified: boolean('phone_number_verified'),
+  /** v1.2 Child accounts: no email, PIN login on a shared device, managed by a parent. */
+  isChild: boolean('is_child').notNull().default(false),
+  managedBy: text('managed_by'),
+  pinHash: text('pin_hash'),
+  pinFailed: integer('pin_failed').notNull().default(0),
+  pinLockedUntil: ts('pin_locked_until'),
 });
 
 export const sessions = pgTable('sessions', {
@@ -170,6 +176,9 @@ export const taskCompletions = pgTable('task_completions', {
   points: integer('points').notNull().default(0),
   dueAt: ts('due_at'),
   completedAt: ts('completed_at').notNull().defaultNow(),
+  /** v1.2: a Child's chore waits for a parent's approval before points are awarded. approved | pending | rejected */
+  status: text('status').notNull().default('approved'),
+  reviewedBy: text('reviewed_by'),
 });
 
 /** Threads on any item (task comments now; any entity later). */
@@ -381,6 +390,9 @@ export const messages = pgTable(
     userId: text('user_id').notNull(),
     body: text('body').notNull().default(''),
     imageFileId: text('image_file_id'),
+    /** v1.2 voice notes */
+    audioFileId: text('audio_file_id'),
+    audioMs: integer('audio_ms'),
     replyToId: text('reply_to_id'),
     mentions: text('mentions').array(),
     pinned: boolean('pinned').notNull().default(false),
@@ -505,4 +517,53 @@ export const calendarTokens = pgTable('calendar_tokens', {
   token: text('token').notNull().unique(),
   createdAt: createdAt(),
   revokedAt: ts('revoked_at'),
+});
+
+// ── v1.2 Motivation ───────────────────────────────────────────────────────────
+/** Points are a ledger: balance = sum(delta). Never a stored running total. */
+export const pointsLedger = pgTable(
+  'points_ledger',
+  {
+    id: text('id').primaryKey(),
+    groupId: text('group_id')
+      .notNull()
+      .references(() => groups.id, { onDelete: 'cascade' }),
+    userId: text('user_id').notNull(),
+    delta: integer('delta').notNull(),
+    /** task | redeem | refund | adjust */
+    reason: text('reason').notNull(),
+    refId: text('ref_id'),
+    createdAt: createdAt(),
+  },
+  (t) => [index('points_ledger_member_idx').on(t.groupId, t.userId)],
+);
+
+export const rewards = pgTable('rewards', {
+  id: text('id').primaryKey(),
+  groupId: text('group_id')
+    .notNull()
+    .references(() => groups.id, { onDelete: 'cascade' }),
+  title: text('title').notNull(),
+  emoji: text('emoji').notNull().default('🎁'),
+  cost: integer('cost').notNull(),
+  active: boolean('active').notNull().default(true),
+  createdBy: text('created_by').notNull(),
+  createdAt: createdAt(),
+});
+
+export const redemptions = pgTable('redemptions', {
+  id: text('id').primaryKey(),
+  groupId: text('group_id')
+    .notNull()
+    .references(() => groups.id, { onDelete: 'cascade' }),
+  rewardId: text('reward_id')
+    .notNull()
+    .references(() => rewards.id, { onDelete: 'cascade' }),
+  userId: text('user_id').notNull(),
+  cost: integer('cost').notNull(),
+  /** pending | fulfilled | cancelled */
+  status: text('status').notNull().default('pending'),
+  createdAt: createdAt(),
+  resolvedAt: ts('resolved_at'),
+  resolvedBy: text('resolved_by'),
 });

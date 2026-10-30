@@ -5,6 +5,7 @@ import type { DbOrTx } from '../db/client';
 import { announcementReads, groupMembers, groups, messages, notifications, pushTokens, settlements, tasks, users } from '../db/schema';
 import type { Deps } from '../deps';
 import { logActivity } from '../effects';
+import { HttpError } from '../errors';
 import { emitUser, type Router } from '../http';
 import { newId } from '../ids';
 import { ensureMaterialized } from '../services/events';
@@ -60,6 +61,7 @@ export function registerMeRoutes(r: Router, deps: Deps) {
   });
 
   r.delete('/me', { tags: ['me'], summary: 'Delete my account' }, async (c) => {
+    if (c.get('user').isChild) throw new HttpError(403, 'ask_a_parent');
     const userId = c.get('user').id;
     const gs = await myGroups(db, userId);
     await db.transaction((tx) => deleteAccount(tx, userId));

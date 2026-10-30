@@ -19,6 +19,7 @@ export interface SessionUser {
   language?: string;
   digits?: string;
   timezone?: string;
+  isChild?: boolean;
 }
 
 /** Who is calling a group route. Users are members; later versions add guest tokens, vendors and API keys. */

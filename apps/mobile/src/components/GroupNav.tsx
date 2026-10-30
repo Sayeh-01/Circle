@@ -13,6 +13,7 @@ export const MODULE_ROUTES: Record<string, string> = {
   expenses: 'expenses',
   polls: 'polls',
   chat: 'chat',
+  points: 'points',
 };
 
 const PINNED = 5;

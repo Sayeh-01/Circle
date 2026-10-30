@@ -98,3 +98,23 @@ Decisions made while the owner is away (SPEC B0/B8). Newest at the bottom of eac
 - Phone sign-up creates a placeholder email `<digits>@phone.circle.invalid` (Better Auth requires an email).
 - Found in review: the creator's socket did not subscribe to a newly created group → creating a group emits a membership
   event to the creator.
+
+## v1.2 plan
+1. Points as a ledger table (task / redeem / refund / adjust), balance = SUM; redemption locks the member row first.
+2. Streaks and fairness as pure functions in shared (group timezone), tested there.
+3. Child accounts = real users with `is_child`, `managed_by`, PIN hash; sign-in via a Better Auth plugin endpoint so the
+   session cookie is Better Auth's own (works with the Expo plugin on native).
+4. Chore approval for Children (setting `childApproval`, default on).
+5. Voice notes: `expo-audio` recorder on native, `<audio>` on web; messages get `audio_file_id`, `audio_ms`.
+
+## v1.2 decisions
+- A Child's completion is `pending` until an approver approves; points are added on approval (A6 "parent approval").
+- "No links outside the family" is enforced server-side: Children can't create groups, preview/join invites or create guest
+  links. AI is not built yet; when it is (v1.4), Child accounts get no AI routes.
+- **React Compiler turned off** (`experiments.reactCompiler: false`). It was on in the SDK 58 template; it produced a
+  render-time crash (reads `obj.prop` used only inside an event handler). Stability over a small render optimisation.
+- Kids home lists every open chore assigned to the child (dated or not), unlike adult Today (7-day window per spec).
+- The fairness meter counts chore points earned this calendar month (group timezone); the spec doesn't define the window
+  beyond "this month".
+- `expo-audio` — voice notes record/play (v1.2, B3 Expo SDK module).
+- `expo-haptics` — success haptic on completing a chore (A13 design).

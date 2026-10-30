@@ -230,3 +230,10 @@ export const formCreate = z.object({
   closesAt: isoDate.nullable().optional(),
 });
 export const formRespond = z.object({ answers: z.record(z.string(), z.unknown()).default({}), signature: signatureInput.optional() });
+
+// v3.0 work pack
+export const taskStage = z.object({ stage: z.enum(['todo', 'doing']) });
+export const standupAnswer = z.object({ yesterday: z.string().trim().max(1000).default(''), today: z.string().trim().min(1).max(1000), blockers: z.string().trim().max(1000).default('') });
+export const meetingCreate = z.object({ title: z.string().trim().min(1).max(120), day, notes: z.string().max(20000).default('') });
+export const meetingUpdate = z.object({ title: z.string().trim().min(1).max(120).optional(), notes: z.string().max(20000).optional() });
+export const leaveCreate = z.object({ startDay: day, endDay: day, kind: z.enum(['vacation', 'sick', 'other']).default('vacation'), note: z.string().max(300).optional() });

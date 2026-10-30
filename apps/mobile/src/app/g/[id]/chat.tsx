@@ -119,7 +119,7 @@ export default function Chat() {
           return (
             <Pressable onLongPress={() => (setSelected(m), actions.show())} delayLongPress={300} style={{ alignSelf: mine ? 'flex-end' : 'flex-start', maxWidth: '82%' }} testID={`msg-${m.id}`}>
               <View style={{ backgroundColor: mine ? color : colors.card, borderRadius: 14, padding: 10, borderWidth: m.pinned ? 2 : 0, borderColor: '#E0B000' }}>
-                {!mine && <Text style={{ fontWeight: '700', color, marginBottom: 2, fontSize: 13 }}>{g.memberName(m.userId)}</Text>}
+                {!mine && <Text style={{ fontWeight: '700', color, marginBottom: 2, fontSize: 13 }}>{m.userId === 'system' ? '🤖 Circle' : g.memberName(m.userId)}</Text>}
                 {parent && (
                   <View style={{ borderStartWidth: 3, borderStartColor: mine ? '#fff' : color, paddingStart: 6, marginBottom: 4, opacity: 0.8 }}>
                     <Text style={{ color: mine ? '#fff' : colors.muted, fontSize: 12 }} numberOfLines={2}>{parent.body}</Text>

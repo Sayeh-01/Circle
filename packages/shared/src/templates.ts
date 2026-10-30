@@ -29,6 +29,9 @@ export const MODULES = {
   gameya: { emoji: '💰', name: { en: 'Gam’eya', ar: 'الجمعية' }, phase: '2.2' },
   challenges: { emoji: '🏁', name: { en: 'Challenges', ar: 'التحديات' }, phase: '2.8' },
   forms: { emoji: '🖊️', name: { en: 'Forms', ar: 'النماذج' }, phase: '2.8' },
+  standups: { emoji: '☀️', name: { en: 'Stand-ups', ar: 'الاجتماع اليومي' }, phase: '3.0' },
+  meetings: { emoji: '🗒️', name: { en: 'Meeting notes', ar: 'محاضر الاجتماعات' }, phase: '3.0' },
+  leave: { emoji: '🌴', name: { en: 'Leave', ar: 'الإجازات' }, phase: '3.0' },
 } as const satisfies Record<string, { emoji: string; name: L10n; phase: string }>;
 
 export type ModuleId = keyof typeof MODULES;
@@ -179,7 +182,7 @@ export const TEMPLATES: Template[] = [
     phase: '1',
     name: { en: 'Work Team', ar: 'فريق عمل' },
     tagline: { en: 'Coordinate tasks and meetings', ar: 'نسّقوا المهام والاجتماعات' },
-    modules: ['tasks', 'events', 'chat', 'polls', 'notes'],
+    modules: ['tasks', 'events', 'chat', 'standups', 'meetings', 'leave', 'polls', 'notes'],
     roles: { owner: { en: 'Lead', ar: 'القائد' }, admin: { en: 'Lead', ar: 'القائد' } },
     vocab: { event: { en: 'Meeting', ar: 'اجتماع' }, events: { en: 'Meetings', ar: 'الاجتماعات' } },
     defaults: {},

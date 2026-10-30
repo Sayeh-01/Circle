@@ -179,6 +179,15 @@ export const en = {
     todo: 'To do', closed: 'Closed', count: '{{n}} of {{total}} answered', missing: 'Not yet: {{names}}', responses: 'Responses', print: 'Print sheet', close: 'Close form',
     signedBy: 'Signed by {{name}} · {{date}}', update: 'Update my answer', for: 'For', everyone: 'Everyone',
   },
+  work: {
+    board: 'Board', todo: 'To do', doing: 'Doing', done: 'Done', start: 'Start', back: 'Back to to-do', finish: 'Done',
+    standup: 'Stand-up', yesterday: 'What did you do yesterday?', today: 'What will you do today?', blockers: 'Anything blocking you?', post: 'Post my update',
+    answered: 'Answered', missing: 'Not in yet', off: 'Off today', notWorkDay: 'Not a work day', edit: 'Edit my answer',
+    meetings: 'Meeting notes', newMeeting: 'New notes', meetingTitle: 'Meeting', notes: 'Notes', notesHint: 'Lines like "- [ ] Send the deck @Name by 2026-11-12" become action items',
+    actionItems: 'Action items', makeTasks: 'Create tasks', taskMade: 'task created', noItems: 'No action items',
+    leave: 'Leave', bookLeave: 'Book time off', from: 'From (YYYY-MM-DD)', to: 'To (YYYY-MM-DD)', kind_vacation: 'Vacation', kind_sick: 'Sick', kind_other: 'Other',
+    pending: 'Waiting for approval', approve: 'Approve', reject: 'Decline', offThisWeek: 'Off this week', upcoming: 'Coming up', nobodyOff: 'Everyone is in this week',
+  },
   kids: {
     title: 'Kids', add: 'Add a child', name: "Child's name", pin: 'PIN (4–6 digits)', onDevice: 'Kids on this device', switchTo: 'Switch to {{name}}',
     enterPin: 'Enter PIN', wrongPin: 'Wrong PIN', locked: 'Too many tries. Wait 15 minutes.', resetPin: 'New PIN', hint: 'Kids sign in with a PIN on this phone. No email, no money, no links outside the family.',
@@ -371,6 +380,15 @@ export const ar: Shape<typeof en> = {
     yes: 'نعم', no: 'لا', sign: 'وقّع هنا', clear: 'امسح', fullName: 'اسمك بالكامل', submit: 'إرسال', signAndSubmit: 'وقّع وابعت', signed: 'اتوقّع ✓', responded: 'اتردّ ✓',
     todo: 'مطلوب', closed: 'مقفول', count: 'ردّ {{n}} من {{total}}', missing: 'لسه: {{names}}', responses: 'الردود', print: 'اطبع الكشف', close: 'اقفل النموذج',
     signedBy: 'وقّعه {{name}} · {{date}}', update: 'عدّل ردّي', for: 'لمين', everyone: 'الكل',
+  },
+  work: {
+    board: 'اللوحة', todo: 'مطلوب', doing: 'شغّال', done: 'خلص', start: 'ابدأ', back: 'رجّعه للمطلوب', finish: 'خلص',
+    standup: 'الاجتماع اليومي', yesterday: 'عملت إيه امبارح؟', today: 'هتعمل إيه النهارده؟', blockers: 'في حاجة معطّلاك؟', post: 'ابعت تحديثي',
+    answered: 'ردّوا', missing: 'لسه ماردّوش', off: 'إجازة النهارده', notWorkDay: 'مش يوم شغل', edit: 'عدّل ردّي',
+    meetings: 'محاضر الاجتماعات', newMeeting: 'محضر جديد', meetingTitle: 'الاجتماع', notes: 'الملاحظات', notesHint: 'السطور زي "- [ ] ابعت العرض @الاسم by 2026-11-12" بتبقى مهام',
+    actionItems: 'المهام المطلوبة', makeTasks: 'اعمل المهام', taskMade: 'اتعملت مهمة', noItems: 'مفيش مهام',
+    leave: 'الإجازات', bookLeave: 'احجز إجازة', from: 'من (YYYY-MM-DD)', to: 'إلى (YYYY-MM-DD)', kind_vacation: 'إجازة', kind_sick: 'مرضي', kind_other: 'أخرى',
+    pending: 'في انتظار الموافقة', approve: 'موافقة', reject: 'رفض', offThisWeek: 'في إجازة الأسبوع ده', upcoming: 'الجاي', nobodyOff: 'الكل موجود الأسبوع ده',
   },
   kids: {
     title: 'الأطفال', add: 'إضافة طفل', name: 'اسم الطفل', pin: 'رمز PIN (4–6 أرقام)', onDevice: 'الأطفال على هذا الجهاز', switchTo: 'التبديل إلى {{name}}',

@@ -29,6 +29,12 @@ export function groupRoutes(app: TestApp['app']) {
 }
 
 describe('route sweep', () => {
+  it('no two routes share a method and path (the first one would silently win)', () => {
+    const seen = new Map<string, number>();
+    for (const r of t.router.registry) seen.set(`${r.method} ${r.path}`, (seen.get(`${r.method} ${r.path}`) ?? 0) + 1);
+    expect([...seen].filter(([, n]) => n > 1).map(([k]) => k)).toEqual([]);
+  });
+
   it('finds the group routes', () => {
     expect(groupRoutes(t.app).length).toBeGreaterThan(40);
   });

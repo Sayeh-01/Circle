@@ -50,6 +50,7 @@ export default function Tasks() {
 
   return (
     <GroupScreen id={id} active="tasks">
+      <Button small kind="secondary" title={`▦ ${t('work.board')}`} onPress={() => router.push(`/g/${id}/board`)} testID="open-board" style={{ alignSelf: 'flex-start', marginBottom: 8 }} />
       <Segmented
         value={tab}
         onChange={setTab}

@@ -30,6 +30,9 @@ export const MODULE_ROUTES: Record<string, string> = {
   gameya: 'gameya',
   challenges: 'challenges',
   forms: 'forms',
+  standups: 'standups',
+  meetings: 'meetings',
+  leave: 'leave',
 };
 
 const PINNED = 5;

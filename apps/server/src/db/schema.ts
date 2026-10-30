@@ -158,6 +158,8 @@ export const tasks = pgTable(
     rrule: text('rrule'),
     points: integer('points').notNull().default(0),
     status: text('status').notNull().default('open'),
+    /** v3.0 board column for open tasks: todo | doing */
+    stage: text('stage').notNull().default('todo'),
     completedAt: ts('completed_at'),
     completedBy: text('completed_by'),
     createdBy: text('created_by').notNull(),
@@ -1173,3 +1175,51 @@ export const formResponses = pgTable(
   },
   (t) => [uniqueIndex('form_responses_uq').on(t.formId, t.userId)],
 );
+
+// ── v3.0 work pack ───────────────────────────────────────────────────────────
+export const standups = pgTable(
+  'standups',
+  {
+    groupId: text('group_id')
+      .notNull()
+      .references(() => groups.id, { onDelete: 'cascade' }),
+    userId: text('user_id').notNull(),
+    day: text('day').notNull(),
+    yesterday: text('yesterday').notNull().default(''),
+    today: text('today').notNull(),
+    blockers: text('blockers').notNull().default(''),
+    answeredAt: ts('answered_at').notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.groupId, t.userId, t.day] })],
+);
+
+export const meetings = pgTable('meetings', {
+  id: text('id').primaryKey(),
+  groupId: text('group_id')
+    .notNull()
+    .references(() => groups.id, { onDelete: 'cascade' }),
+  title: text('title').notNull(),
+  day: text('day').notNull(),
+  notes: text('notes').notNull().default(''),
+  /** parsed from the notes; taskId once turned into a task */
+  actionItems: jsonb('action_items').$type<{ title: string; assigneeId: string | null; dueDay: string | null; taskId: string | null }[]>().notNull(),
+  createdBy: text('created_by').notNull(),
+  createdAt: createdAt(),
+});
+
+export const leaves = pgTable('leaves', {
+  id: text('id').primaryKey(),
+  groupId: text('group_id')
+    .notNull()
+    .references(() => groups.id, { onDelete: 'cascade' }),
+  userId: text('user_id').notNull(),
+  startDay: text('start_day').notNull(),
+  endDay: text('end_day').notNull(),
+  /** vacation | sick | other */
+  kind: text('kind').notNull(),
+  note: text('note'),
+  /** pending | approved | rejected (Work Teams approve automatically; Company groups need a manager, v3.4) */
+  status: text('status').notNull(),
+  decidedBy: text('decided_by'),
+  createdAt: createdAt(),
+});

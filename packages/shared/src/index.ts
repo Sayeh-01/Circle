@@ -14,4 +14,5 @@ export * from './plans';
 export * from './payments';
 export * from './challenges';
 export * from './forms';
+export * from './work';
 export * as schemas from './schemas';

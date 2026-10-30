@@ -292,3 +292,26 @@ Decisions made while the owner is away (SPEC B0/B8). Newest at the bottom of eac
 - Volunteer shifts and hours (A6) come with shifts in v3.4.
 - No new dependencies.
 
+## v3.0–v3.8 approach
+One PROGRESS line covers five roadmap steps (A17). Each step is built, checked, documented and pushed on its own
+(v3.0 work pack, v3.2 company, v3.4 shifts + clock, v3.6 inventory/assets/approvals, v3.8 public forms + reports); the line
+stays `[~]` until v3.8 is done.
+
+## v3.0 plan
+Board stage on tasks (a `stage` column so every "open task" query keeps working), stand-ups (answers per day, self-re-arming
+reminder 09:30 + summary 12:00 posted to chat on work days), meeting notes with parsed action items → tasks, a leave calendar
+(with an approval switch Company groups will use in v3.4).
+
+## v3.0 decisions
+- Work days: Sunday–Thursday for Egypt and the Gulf states that work them, Monday–Friday elsewhere; a group setting
+  `workDays` overrides. Members on approved leave aren't reminded and are listed as "off" in the summary.
+- The summary is a chat message from a `system` author (shown as "🤖 Circle"). Stand-up jobs start the first time someone
+  opens or answers the stand-up screen, then keep re-arming themselves.
+- Action items: lines `- [ ] …`, `[ ] …`, `TODO: …`, `AI: …`; a trailing `@FirstName` assigns, `by YYYY-MM-DD` sets the due
+  date (17:00 group time). Creating tasks is idempotent; editing notes keeps items already turned into tasks.
+- Leave paths are `/time-off` because `POST /groups/:id/leave` already means "leave the group" (v1.0) — the clash was caught by
+  the tests, and the route sweep now fails on any duplicate method + path.
+- Defaults that list members (expense split, challenge participants, gam'eya members) now follow the member list until the
+  user edits them — an E2E run caught a race where someone who had just joined was left out of a split.
+- No new dependencies.
+

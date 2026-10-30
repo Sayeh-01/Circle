@@ -27,8 +27,9 @@ export default function Challenges() {
   const people = g.members.filter((m) => m.role !== 'guest');
   const [preset, setPreset] = useState<Preset>('khatma');
   const [form, setForm] = useState({ title: '', parts: '30', partLabel: '', target: '20', unit: '', memberIds: [] as string[] });
+  const [touched, setTouched] = useState(false);
   useEffect(() => {
-    if (people.length && !form.memberIds.length) setForm((f) => ({ ...f, memberIds: people.map((m) => m.userId) }));
+    if (people.length && !touched) setForm((f) => ({ ...f, memberIds: people.map((m) => m.userId) }));
   }, [people.length]);
   const choose = (p: Preset) => {
     setPreset(p);
@@ -86,7 +87,7 @@ export default function Challenges() {
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 8 }}>
               {people.map((m) => {
                 const on = form.memberIds.includes(m.userId);
-                return <Chip key={m.userId} label={m.displayName} active={on} color={color} onPress={() => setForm({ ...form, memberIds: on ? form.memberIds.filter((x) => x !== m.userId) : [...form.memberIds, m.userId] })} />;
+                return <Chip key={m.userId} label={m.displayName} active={on} color={color} onPress={() => (setTouched(true), setForm({ ...form, memberIds: on ? form.memberIds.filter((x) => x !== m.userId) : [...form.memberIds, m.userId] }))} />;
               })}
             </View>
             <Muted style={{ marginBottom: 12 }}>{t('challenge.autoNext')}</Muted>

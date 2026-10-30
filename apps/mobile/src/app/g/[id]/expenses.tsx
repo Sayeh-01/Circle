@@ -35,8 +35,11 @@ export default function Expenses() {
   const rate = Number(form.rate.replace(',', '.'));
   const [payment, setPayment] = useState({ toId: '', amount: '', method: 'cash' as 'cash' | 'bank' | 'wallet' | 'other' });
 
+  // everyone (but children) shares by default, including people who join while the screen is open, until the split is edited
+  const [membersTouched, setMembersTouched] = useState(false);
   useEffect(() => {
-    if (g.members.length && !form.payerId) setForm((f) => ({ ...f, payerId: me ?? '', members: g.members.filter((m) => m.role !== 'child').map((m) => m.userId) }));
+    if (!g.members.length) return;
+    setForm((f) => ({ ...f, payerId: f.payerId || (me ?? ''), members: membersTouched ? f.members : g.members.filter((m) => m.role !== 'child').map((m) => m.userId) }));
   }, [g.members.length]);
   const myDebts = (bal.data?.transfers ?? []).filter((x: any) => x.from === me);
   useEffect(() => {
@@ -164,7 +167,7 @@ export default function Expenses() {
         <MemberPicker label={t('expenses.paidBy')} members={g.members} selected={[form.payerId]} onToggle={(u) => setForm({ ...form, payerId: u })} color={g.group?.color} />
         <Segmented<SplitKind> value={form.kind} onChange={(k) => setForm({ ...form, kind: k, values: {} })} options={[{ value: 'equal', label: t('expenses.equal') }, { value: 'exact', label: t('expenses.exact') }, { value: 'shares', label: t('expenses.shares') }]} />
         {form.kind === 'equal' ? (
-          <MemberPicker members={g.members} selected={form.members} multi onToggle={(u) => setForm({ ...form, members: form.members.includes(u) ? form.members.filter((x) => x !== u) : [...form.members, u] })} color={g.group?.color} />
+          <MemberPicker members={g.members} selected={form.members} multi onToggle={(u) => (setMembersTouched(true), setForm({ ...form, members: form.members.includes(u) ? form.members.filter((x) => x !== u) : [...form.members, u] }))} color={g.group?.color} />
         ) : (
           g.members.map((m) => (
             <View key={m.userId} style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>

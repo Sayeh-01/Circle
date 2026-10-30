@@ -34,6 +34,7 @@ import { registerGameyaRoutes } from './routes/gameya';
 import { registerMoney2Routes } from './routes/money2';
 import { registerPaymentRoutes } from './routes/payments';
 import { registerFormRoutes } from './routes/forms';
+import { registerWorkRoutes } from './routes/work';
 import { registerPlanRoutes } from './routes/plans';
 import { registerPollRoutes } from './routes/polls';
 import { registerTaskRoutes } from './routes/tasks';
@@ -99,6 +100,8 @@ export const features: FeatureModule[] = [
   // v2.8
   (r, d) => registerChallengeRoutes(r, d),
   (r, d) => registerFormRoutes(r, d),
+  // v3.0
+  (r, d) => registerWorkRoutes(r, d),
 ];
 
 export function createApp(opts: AppOptions) {

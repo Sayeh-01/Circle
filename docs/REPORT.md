@@ -101,6 +101,9 @@ Make a development build first (Expo Go can't do remote push on Android, B7 #6):
     doesn't scroll while signing, and the signature looks the same on another phone and on the printed sheet (PDF).
 33. **v2.8 Hijri date:** the Faith group's Challenges screen shows today's Hijri date matching a local calendar.
 
+34. **v3.0 stand-up push:** in a Work Team on a work day, the 09:30 reminder arrives for those who haven't answered and the
+    12:00 summary appears in the group chat as "🤖 Circle".
+
 (Later versions add their own device checks in their sections below.)
 
 ## Accounts and keys needed (priority order)
@@ -562,4 +565,29 @@ Hijri date, signed form) — reviewed; the challenge card now shows part ranges 
 **Seen red:** `packages/shared/test/challenges.test.ts`, `packages/shared/test/forms.test.ts`, `apps/server/test/packs2.test.ts`.
 
 **Device checks:** owner checklist items 32–33.
+
+## v3.0 Work Team pack — [x] done (part of the v3.0–v3.8 line)
+
+**Built:** task board (To do / Doing / Done, sideways on a phone; start, move back, finish), async stand-ups (3 questions,
+reminder at 09:30, summary posted to chat at 12:00 on work days, people on leave skipped), meeting notes whose action items
+(`- [ ] … @Name by date`) become tasks, leave calendar (book time off, who's off this week, approval when a group asks for it).
+The Work Team template gets Stand-ups, Meeting notes and Leave.
+
+**Faked / skipped:** nothing.
+
+**`pnpm check`:** shared 57/57 (13 files) · server 161/161 (19 files) · E2E 15/15.
+
+| Check | Evidence |
+|---|---|
+| (no v3.x B9 item is about v3.0) | `apps/server/test/work.test.ts` — board moves (403 for others, 409 after done), stand-up reminder only to who hasn't answered (not the person on leave), summary text in chat, the cycle skips Friday/Saturday and resumes Sunday, action items parsed and turned into tasks once (assignee, 17:00 Cairo due), edits keep made tasks, leave overlap 409 / backwards 400, approval flow (pending hidden from others, member can't approve, 409 on second decision) |
+| Route sweep 404 | `sweep.test.ts` covers the 12 new routes, and now also fails on duplicate method + path |
+| Cross-group per new entity | `work.test.ts` — task stage, meeting edit/tasks, leave approve/delete with another group's ids → 404 |
+
+**Arabic screenshots:** `apps/mobile/e2e/screenshots/v3.0/` (board, stand-ups, meeting notes, leave) — reviewed.
+
+**Seen red:** `packages/shared/test/work.test.ts`, `apps/server/test/work.test.ts` (failed for real first: the `/leave` route clash).
+
+**Fixed along the way:** a race in default member selection (expense split, challenges) found by the E2E suite.
+
+**Device checks:** owner checklist item 34.
 

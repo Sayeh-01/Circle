@@ -254,3 +254,9 @@ export const checklistCreate = z.object({
   items: z.array(z.object({ text: z.string().trim().min(1).max(200), photo: z.boolean().default(false) })).min(1).max(60),
 });
 export const checklistCheck = z.object({ photoFileId: id.optional() });
+
+// v3.4 shifts + clock
+export const shiftCreate = z.object({ userId: id.nullable(), startsAt: isoDate, endsAt: isoDate, label: z.string().trim().max(60).default(''), repeatWeeks: z.number().int().min(1).max(12).default(1) });
+export const shiftSwapCreate = z.object({ toUserId: id.nullable() });
+export const clockPunch = z.object({ code: z.string().regex(/^\d{6}$/) });
+export const clockClose = z.object({ outAt: isoDate });

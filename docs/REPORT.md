@@ -107,6 +107,10 @@ Make a development build first (Expo Go can't do remote push on Android, B7 #6):
 35. **v3.2 checklist photo proof:** tick a 📷 item on a phone → the camera roll opens, the photo uploads and shows under the item
     with the time; a manager sees it in history.
 
+36. **v3.4 QR clock-in:** a manager opens Time clock; a staff phone's camera scans the QR → the app opens on the clock screen with
+    the code filled in → Clock in. Wait over a minute and try an old screenshot of the QR → "code expired".
+37. **v3.4 geofence clock-in:** not built (B5 Skip — device only).
+
 (Later versions add their own device checks in their sections below.)
 
 ## Accounts and keys needed (priority order)
@@ -623,4 +627,30 @@ checklist run with photo) — reviewed.
 **Seen red:** `packages/shared/test/roles.test.ts`, the custom-role sweep in `company.test.ts`.
 
 **Device checks:** owner checklist item 35.
+
+## v3.4 Shifts & time clock — [x] done (part of the v3.0–v3.8 line)
+
+**Built:** shifts (schedule by person or as open shifts, repeat weekly, overnight), overlap and time-off checks, swaps (hand to a
+colleague, give back, claim open — a manager approves every change), time clock with a rotating 6-digit code shown as a QR
+(scan with the phone camera or type it), clock out, managers close forgotten entries, hours report per person for payroll.
+Company template gets Shifts and Time clock; Volunteer gets Shifts.
+
+**Faked:** nothing. **Skipped:** geofence clock-in (B5).
+
+**`pnpm check`:** shared 61/61 (15 files) · server 177/177 (22 files) · E2E 17/17.
+
+| B9 v3.x check | Evidence |
+|---|---|
+| Overlapping shifts for one person are rejected | `apps/server/test/shifts.test.ts` — inside / overlapping → 409 `overlapping_shift`, back-to-back allowed, other people may share hours, a 3-week repeat that collides in week 2 saves nothing, approved time off → 409 `on_time_off`, two managers booking the same person at once → exactly one 200; shared `overlaps` unit test. E2E: the overlapping shift is refused (409) |
+| A shift swap needs manager approval | `shifts.test.ts` — colleague accepting leaves the shift with the owner; manager approve before the colleague → 409; members can't approve (403); approval re-checks overlaps (409, nothing moves); giving back and claiming open shifts also wait for a manager. E2E: Carla accepts → "Waiting for a manager", still Bassem's; Amal approves → Carla's |
+| A QR clock-in token expires within 60 s | `apps/server/test/clock.test.ts` — a code is valid until 59.999 s and invalid at 60 s; one shown late in its window lives ~31 s; another group's key never works. `shifts.test.ts` — code fetched, 60 s later → 400 `code_expired`; a fresh one used 59 s later works; only managers see the code. E2E: the manager's code typed by Bassem clocks him in |
+| Report totals equal the sum of their rows (hours) | `shifts.test.ts` — rows per person (483 and 270 min), total = sum of rows before and after a manager closes a forgotten entry |
+| Route sweep 404 / cross-group | `sweep.test.ts` covers the 13 new routes; `shifts.test.ts` — another group's shift swap / delete and swap approve → 404 |
+
+**Arabic screenshots:** `apps/mobile/e2e/screenshots/v3.4/` (shifts, manager clock with QR and hours, staff clocked in) —
+reviewed.
+
+**Seen red:** `packages/shared/test/shifts.test.ts`, `apps/server/test/clock.test.ts`, `apps/server/test/shifts.test.ts`.
+
+**Device checks:** owner checklist items 36–37.
 

@@ -200,6 +200,14 @@ export const en = {
     items: 'Items (one per line; start with 📷 to ask for a photo)', progress: '{{done}} of {{total}}', completed: 'Completed ✓', check: 'Done', photo: '📷 Add photo', checkedBy: '{{name}} · {{time}}',
     newHires: 'New hires', today: 'Today',
   },
+  shifts: {
+    title: 'Shifts', mine: 'Mine', all: 'Everyone', newShift: 'New shift', who: 'Who', open: 'Open shift', day: 'Day (YYYY-MM-DD)', from: 'From (HH:MM)', to: 'To (HH:MM)',
+    label: 'Position (optional)', repeat: 'Repeat for weeks', swap: 'Swap', giveUp: 'Give up', claim: 'Ask for it', swapTo: 'Hand this shift to…', swaps: 'Swap requests',
+    asks: '{{from}} → {{to}}', waitingPeer: 'Waiting for {{name}}', waitingManager: 'Waiting for a manager', accept: 'Accept', approve: 'Approve', reject: 'Decline', off: '🌴 Off',
+    clock: 'Time clock', showCode: 'Clock-in code', codeHint: 'Staff scan this QR with their phone camera, or type the 6 digits. It changes every 30 seconds.',
+    enterCode: 'Code from the QR', clockIn: 'Clock in', clockOut: 'Clock out', inSince: 'Clocked in since {{time}}', notIn: 'Not clocked in', recent: 'Recent',
+    report: 'Hours this week', total: 'Total', hours: '{{h}} h {{m}} min', stillIn: 'Still clocked in', close: 'Close now',
+  },
   kids: {
     title: 'Kids', add: 'Add a child', name: "Child's name", pin: 'PIN (4–6 digits)', onDevice: 'Kids on this device', switchTo: 'Switch to {{name}}',
     enterPin: 'Enter PIN', wrongPin: 'Wrong PIN', locked: 'Too many tries. Wait 15 minutes.', resetPin: 'New PIN', hint: 'Kids sign in with a PIN on this phone. No email, no money, no links outside the family.',
@@ -413,6 +421,14 @@ export const ar: Shape<typeof en> = {
     checklists: 'قوائم المراجعة', newChecklist: 'قائمة جديدة', checklistTitle: 'العنوان', kind_opening: 'الفتح', kind_closing: 'القفل', kind_onboarding: 'التعيين', kind_other: 'أخرى',
     items: 'البنود (بند في كل سطر؛ ابدأ بـ📷 لو محتاج صورة)', progress: '{{done}} من {{total}}', completed: 'خلصت ✓', check: 'تم', photo: '📷 أضف صورة', checkedBy: '{{name}} · {{time}}',
     newHires: 'الموظفين الجدد', today: 'النهارده',
+  },
+  shifts: {
+    title: 'الورديات', mine: 'بتاعتي', all: 'الكل', newShift: 'وردية جديدة', who: 'مين', open: 'وردية متاحة', day: 'اليوم (YYYY-MM-DD)', from: 'من (HH:MM)', to: 'إلى (HH:MM)',
+    label: 'المكان (اختياري)', repeat: 'تتكرر كام أسبوع', swap: 'تبديل', giveUp: 'سيبها', claim: 'اطلبها', swapTo: 'سلّم الوردية دي لـ…', swaps: 'طلبات التبديل',
+    asks: '{{from}} ← {{to}}', waitingPeer: 'في انتظار {{name}}', waitingManager: 'في انتظار المدير', accept: 'موافق', approve: 'اعتماد', reject: 'رفض', off: '🌴 إجازة',
+    clock: 'الحضور', showCode: 'كود الحضور', codeHint: 'الموظفين بيصوّروا الكود ده بكاميرا الموبايل أو بيكتبوا الـ6 أرقام. بيتغيّر كل 30 ثانية.',
+    enterCode: 'الكود من الـQR', clockIn: 'تسجيل حضور', clockOut: 'تسجيل انصراف', inSince: 'حاضر من {{time}}', notIn: 'مش مسجّل حضور', recent: 'آخر مرات',
+    report: 'ساعات الأسبوع ده', total: 'الإجمالي', hours: '{{h}} س {{m}} د', stillIn: 'لسه حاضرين', close: 'اقفل دلوقتي',
   },
   kids: {
     title: 'الأطفال', add: 'إضافة طفل', name: 'اسم الطفل', pin: 'رمز PIN (4–6 أرقام)', onDevice: 'الأطفال على هذا الجهاز', switchTo: 'التبديل إلى {{name}}',

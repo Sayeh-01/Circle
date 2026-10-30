@@ -33,6 +33,8 @@ export const MODULES = {
   meetings: { emoji: '🗒️', name: { en: 'Meeting notes', ar: 'محاضر الاجتماعات' }, phase: '3.0' },
   leave: { emoji: '🌴', name: { en: 'Leave', ar: 'الإجازات' }, phase: '3.0' },
   checklists: { emoji: '☑️', name: { en: 'Checklists', ar: 'قوائم المراجعة' }, phase: '3.2' },
+  shifts: { emoji: '🗓️', name: { en: 'Shifts', ar: 'الورديات' }, phase: '3.4' },
+  clock: { emoji: '⏰', name: { en: 'Time clock', ar: 'الحضور' }, phase: '3.4' },
 } as const satisfies Record<string, { emoji: string; name: L10n; phase: string }>;
 
 export type ModuleId = keyof typeof MODULES;
@@ -288,7 +290,7 @@ export const TEMPLATES: Template[] = [
     phase: '2',
     name: { en: 'Volunteer / NGO', ar: 'تطوع وجمعية أهلية' },
     tagline: { en: 'Shifts, hours, donations', ar: 'الورديات والساعات والتبرعات' },
-    modules: ['events', 'tasks', 'dues', 'forms', 'chat'],
+    modules: ['shifts', 'events', 'tasks', 'dues', 'forms', 'chat'],
     roles: { owner: { en: 'Coordinator', ar: 'المنسّق' }, admin: { en: 'Coordinator', ar: 'المنسّق' }, member: { en: 'Volunteer', ar: 'متطوع' } },
     vocab: { event: { en: 'Activity', ar: 'نشاط' }, events: { en: 'Activities', ar: 'الأنشطة' } },
     moduleNames: { dues: { en: 'Donations', ar: 'التبرعات' } },
@@ -302,7 +304,7 @@ export const TEMPLATES: Template[] = [
     phase: '3',
     name: { en: 'Company / Business', ar: 'شركة / بيزنس' },
     tagline: { en: 'Daily operations', ar: 'تشغيل يومي' },
-    modules: ['tasks', 'checklists', 'chat', 'leave', 'notes', 'events', 'forms'],
+    modules: ['shifts', 'clock', 'tasks', 'checklists', 'chat', 'leave', 'notes', 'events', 'forms'],
     roles: { owner: { en: 'Owner', ar: 'المالك' }, admin: { en: 'Admin', ar: 'مدير النظام' }, manager: { en: 'Manager', ar: 'مدير' }, member: { en: 'Staff', ar: 'موظف' }, vendor: { en: 'Vendor', ar: 'مورّد' } },
     vocab: {},
     moduleNames: { notes: { en: 'SOP wiki', ar: 'دليل الإجراءات' }, leave: { en: 'Time off', ar: 'الإجازات' } },

@@ -1257,3 +1257,57 @@ export const checklistRuns = pgTable(
   },
   (t) => [uniqueIndex('checklist_runs_uq').on(t.checklistId, t.day, t.subjectUserId)],
 );
+
+// ── v3.4 shifts, swaps, time clock ───────────────────────────────────────────
+export const shifts = pgTable(
+  'shifts',
+  {
+    id: text('id').primaryKey(),
+    groupId: text('group_id')
+      .notNull()
+      .references(() => groups.id, { onDelete: 'cascade' }),
+    /** null = an open shift anyone can ask for */
+    userId: text('user_id'),
+    startsAt: ts('starts_at').notNull(),
+    endsAt: ts('ends_at').notNull(),
+    label: text('label').notNull().default(''),
+    createdBy: text('created_by').notNull(),
+    createdAt: createdAt(),
+  },
+  (t) => [index('shifts_group_time_idx').on(t.groupId, t.startsAt)],
+);
+
+export const shiftSwaps = pgTable('shift_swaps', {
+  id: text('id').primaryKey(),
+  shiftId: text('shift_id')
+    .notNull()
+    .references(() => shifts.id, { onDelete: 'cascade' }),
+  groupId: text('group_id').notNull(),
+  /** who asks: the shift's owner giving it away, or someone claiming an open shift */
+  requesterId: text('requester_id').notNull(),
+  /** who takes it (null = give it back as an open shift) */
+  toUserId: text('to_user_id'),
+  peerAcceptedAt: ts('peer_accepted_at'),
+  /** pending | approved | rejected | cancelled */
+  status: text('status').notNull().default('pending'),
+  decidedBy: text('decided_by'),
+  createdAt: createdAt(),
+});
+
+export const timeEntries = pgTable(
+  'time_entries',
+  {
+    id: text('id').primaryKey(),
+    groupId: text('group_id')
+      .notNull()
+      .references(() => groups.id, { onDelete: 'cascade' }),
+    userId: text('user_id').notNull(),
+    shiftId: text('shift_id'),
+    inAt: ts('in_at').notNull(),
+    outAt: ts('out_at'),
+    /** qr | manager */
+    source: text('source').notNull(),
+    closedBy: text('closed_by'),
+  },
+  (t) => [index('time_entries_group_idx').on(t.groupId, t.inAt)],
+);

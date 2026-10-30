@@ -334,3 +334,21 @@ per-hire runs (onboarding via `onJoinHooks`), time stamps and photo proof; SOP w
 - Company groups need a manager's approval for time off (`leaveApproval: true` from the template defaults).
 - No new dependencies.
 
+## v3.4 plan
+Shifts (overlap check under a row lock, weekly repeats checked together, approved time off blocks a shift), swaps (owner →
+colleague → manager, give back to open, claim open; manager approval re-checks overlap), time clock (6-digit TOTP-style code
+per group, shown as a QR by managers, typed or opened from the QR link by staff), hours report.
+
+## v3.4 decisions
+- Clock code: HMAC(server secret + group id, 30-second window) → 6 digits; accepted in its window and the next, so never
+  older than 60 s (B9). It's computed only on the server (`node:crypto`), so it isn't in the shared package.
+- No camera module: the QR encodes `circleapp://g/<id>/clock?code=…`, which the phone's own camera app opens, and the same
+  screen takes the code typed (the B7 #13 web fallback). Geofence clock-in is a B5 Skip.
+- Clock-in links to the person's shift that starts within 2 hours (for later reports). Forgotten clock-outs are closed by a
+  manager with a time; the report lists still-open entries separately and counts only closed ones.
+- Swaps: every change of hands needs a manager (B9) — even claiming an open shift or giving one back. One pending swap per
+  shift. A shift that has started can't be swapped.
+- Shifts are 0–16 hours; an end time before the start in the app means "overnight".
+- Volunteer / NGO also gets Shifts (A5).
+- No new dependencies.
+

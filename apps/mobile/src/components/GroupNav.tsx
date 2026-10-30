@@ -34,6 +34,8 @@ export const MODULE_ROUTES: Record<string, string> = {
   meetings: 'meetings',
   leave: 'leave',
   checklists: 'checklists',
+  shifts: 'shifts',
+  clock: 'clock',
 };
 
 const PINNED = 5;

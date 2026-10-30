@@ -7,6 +7,7 @@ import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { GroupScreen } from '@/components/GroupNav';
 import { MemberPicker } from '@/components/MemberPicker';
+import { PaySheet, type PayTarget } from '@/components/PaySheet';
 import { Button, Card, Chip, Empty, Field, Loading, Muted, Row, Section, Segmented, Sheet, Txt, colors, useSheet } from '@/components/ui';
 import { get, post, uploadFile } from '@/lib/api';
 import { useAct, useConfig, useGroup } from '@/lib/hooks';
@@ -27,6 +28,7 @@ export default function Expenses() {
   const pay = useSheet();
   const me = g.me?.userId;
   const config = useConfig();
+  const [online, setOnline] = useState<{ target: PayTarget; amount: number; payee: string } | null>(null);
   const [form, setForm] = useState({ title: '', amount: '', payerId: '', kind: 'equal' as SplitKind, members: [] as string[], values: {} as Record<string, string>, currency: '', rate: '', category: '' });
   const formCur = (form.currency || cur).toUpperCase();
   const foreign = formCur !== cur;
@@ -103,6 +105,7 @@ export default function Expenses() {
                   {t('expenses.owes', { from: x.from === me ? t('common.you') : g.memberName(x.from), to: x.to === me ? t('common.you') : g.memberName(x.to) })}
                 </Txt>
                 <Txt style={{ fontWeight: '700' }}>{fmt.money(x.amount, cur)}</Txt>
+                {x.from === me && config.data?.payments && <Button small kind="secondary" title={t('pay.online')} onPress={() => setOnline({ target: { purpose: 'settlement', targetId: x.to, amount: x.amount }, amount: x.amount, payee: g.memberName(x.to) })} testID={`pay-online-${x.to}`} />}
                 {x.from === me && <Button small title={t('expenses.settleUp')} onPress={() => (setPayment({ toId: x.to, amount: String(x.amount / 100), method: 'cash' }), pay.show())} testID={`settle-${x.to}`} />}
               </View>
             ))}
@@ -176,6 +179,7 @@ export default function Expenses() {
         <Button title={t('common.save')} onPress={save} disabled={!valid} loading={pending} testID="expense-save" color={g.group?.color} />
       </Sheet>
 
+      <PaySheet groupId={id} target={online?.target ?? null} amount={online?.amount ?? 0} currency={cur} payeeName={online?.payee ?? ''} color={g.group?.color} onClose={() => setOnline(null)} />
       <Sheet visible={pay.open} onClose={pay.hide} title={t('expenses.recordPayment')} testID="payment-sheet">
         <MemberPicker label={t('expenses.payTo')} members={g.members.filter((m) => m.userId !== me)} selected={[payment.toId]} onToggle={(u) => setPayment({ ...payment, toId: u })} color={g.group?.color} />
         <Field label={`${t('expenses.amount')} (${cur})`} value={payment.amount} onChangeText={(s) => setPayment({ ...payment, amount: s })} inputMode="decimal" testID="payment-amount" />

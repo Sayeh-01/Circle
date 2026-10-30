@@ -8,6 +8,7 @@ import {
   jsonb,
   pgTable,
   primaryKey,
+  serial,
   text,
   timestamp,
   uniqueIndex,
@@ -1025,3 +1026,60 @@ export const entitlements = pgTable(
   },
   (t) => [index('entitlements_subject_idx').on(t.scope, t.subjectId)],
 );
+
+// ── v2.6 payments through a gateway (the app never holds the money; A12 stage 2) ─────────────
+export const payments = pgTable(
+  'payments',
+  {
+    id: text('id').primaryKey(),
+    groupId: text('group_id')
+      .notNull()
+      .references(() => groups.id, { onDelete: 'cascade' }),
+    payerId: text('payer_id').notNull(),
+    payeeId: text('payee_id').notNull(),
+    /** due | settlement | gameya */
+    purpose: text('purpose').notNull(),
+    /** due charge id, payee user id (settlement) or gam'eya payment id */
+    targetId: text('target_id').notNull(),
+    amountMinor: money('amount_minor').notNull(),
+    feeMinor: money('fee_minor').notNull(),
+    totalMinor: money('total_minor').notNull(),
+    currency: text('currency').notNull(),
+    provider: text('provider').notNull(),
+    providerRef: text('provider_ref'),
+    /** created | succeeded | failed */
+    status: text('status').notNull().default('created'),
+    failureCode: text('failure_code'),
+    createdAt: createdAt(),
+    paidAt: ts('paid_at'),
+  },
+  (t) => [uniqueIndex('payments_provider_ref_uq').on(t.provider, t.providerRef), index('payments_group_idx').on(t.groupId)],
+);
+
+/** Every webhook we accepted. The unique (provider, event id) makes a duplicate delivery a no-op (B9 v2.6). */
+export const paymentEvents = pgTable(
+  'payment_events',
+  {
+    id: text('id').primaryKey(),
+    provider: text('provider').notNull(),
+    providerEventId: text('provider_event_id').notNull(),
+    type: text('type').notNull(),
+    paymentId: text('payment_id'),
+    payload: jsonb('payload').notNull(),
+    receivedAt: ts('received_at').notNull(),
+  },
+  (t) => [uniqueIndex('payment_events_uq').on(t.provider, t.providerEventId)],
+);
+
+export const receipts = pgTable('receipts', {
+  id: text('id').primaryKey(),
+  /** one receipt per payment */
+  paymentId: text('payment_id')
+    .notNull()
+    .unique()
+    .references(() => payments.id, { onDelete: 'cascade' }),
+  groupId: text('group_id').notNull(),
+  seq: serial('seq').notNull(),
+  number: text('number').notNull(),
+  issuedAt: ts('issued_at').notNull(),
+});

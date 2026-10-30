@@ -11,4 +11,5 @@ export * from './permissions';
 export * from './templates';
 export * from './gameya';
 export * from './plans';
+export * from './payments';
 export * as schemas from './schemas';

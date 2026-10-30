@@ -158,6 +158,13 @@ export const en = {
     plusTitle: 'Circle Plus', plusHint: 'Extras for you, in every group.', groupHint: 'One member pays; everyone in the group gets it.',
     storeSoon: 'In-app purchases aren’t connected yet. Plans are switched on by the Circle team for now.', restore: 'Restore purchases', youHavePlus: 'You have Circle Plus',
   },
+  pay: {
+    online: 'Pay online', title: 'Pay online', amount: 'Amount', fee: 'Transaction fee', total: 'You pay', receives: '{{name}} receives {{amount}}',
+    continue: 'Continue to payment', note: 'The payment goes through the gateway straight to the receiver. Circle never holds money.',
+    status: 'Payment', created: 'Waiting for the gateway…', succeeded: 'Paid ✓', failed: 'Payment failed', receipt: 'Receipt', receiptNo: 'Receipt {{n}}',
+    reason_card_declined: 'The card was declined', reason_insufficient_funds: 'Not enough funds', reason_amount_mismatch: 'The amount didn’t match', back: 'Back to the group',
+    purpose_due: 'Dues', purpose_settlement: 'Settle up', purpose_gameya: 'Gam’eya share',
+  },
   kids: {
     title: 'Kids', add: 'Add a child', name: "Child's name", pin: 'PIN (4–6 digits)', onDevice: 'Kids on this device', switchTo: 'Switch to {{name}}',
     enterPin: 'Enter PIN', wrongPin: 'Wrong PIN', locked: 'Too many tries. Wait 15 minutes.', resetPin: 'New PIN', hint: 'Kids sign in with a PIN on this phone. No email, no money, no links outside the family.',
@@ -329,6 +336,13 @@ export const ar: Shape<typeof en> = {
     perMonth: '{{price}} / شهريًا', perSeat: '{{price}} / للمقعد شهريًا', perUnit: '{{price}} / للوحدة شهريًا', active: 'مفعّلة', until: 'لحد {{date}}',
     plusTitle: 'Circle بلس', plusHint: 'مزايا ليك أنت، في كل مجموعاتك.', groupHint: 'عضو واحد يدفع، والمجموعة كلها تستفيد.',
     storeSoon: 'الشراء من داخل التطبيق لسه مش متوصّل. فريق Circle بيفعّل الباقات حاليًا.', restore: 'استرجاع المشتريات', youHavePlus: 'معاك Circle بلس',
+  },
+  pay: {
+    online: 'ادفع أونلاين', title: 'الدفع أونلاين', amount: 'المبلغ', fee: 'رسوم المعاملة', total: 'هتدفع', receives: '{{name}} هيستلم {{amount}}',
+    continue: 'كمّل للدفع', note: 'الدفع بيعدّي من بوابة الدفع للمستلم مباشرة. Circle مش بيمسك فلوس.',
+    status: 'الدفعة', created: 'في انتظار بوابة الدفع…', succeeded: 'اتدفع ✓', failed: 'الدفع فشل', receipt: 'الإيصال', receiptNo: 'إيصال {{n}}',
+    reason_card_declined: 'الكارت اترفض', reason_insufficient_funds: 'الرصيد مش كفاية', reason_amount_mismatch: 'المبلغ مش مطابق', back: 'ارجع للمجموعة',
+    purpose_due: 'اشتراك', purpose_settlement: 'تسوية', purpose_gameya: 'قسط جمعية',
   },
   kids: {
     title: 'الأطفال', add: 'إضافة طفل', name: 'اسم الطفل', pin: 'رمز PIN (4–6 أرقام)', onDevice: 'الأطفال على هذا الجهاز', switchTo: 'التبديل إلى {{name}}',

@@ -118,6 +118,22 @@ todaySections.push(async (db, deps, { userId, groups: gs, now }) => {
   return { gameya: out };
 });
 
+/** Confirms one share (by the receiver, or by the payment gateway); the last share completes the month's payout. */
+export async function confirmShare(tx: DbOrTx, deps: Deps, paymentId: string, by: string) {
+  const [p] = await tx.select().from(gameyaPayments).where(eq(gameyaPayments.id, paymentId)).for('update');
+  const [slot] = await tx.select().from(gameyaSlots).where(and(eq(gameyaSlots.gameyaId, p.gameyaId), eq(gameyaSlots.position, p.position))).for('update');
+  if (p.confirmedAt) return { complete: !!slot.receivedAt };
+  const now = deps.clock();
+  await tx.update(gameyaPayments).set({ confirmedAt: now, confirmedBy: by }).where(eq(gameyaPayments.id, p.id));
+  const open = await tx.select({ id: gameyaPayments.id }).from(gameyaPayments).where(and(eq(gameyaPayments.gameyaId, p.gameyaId), eq(gameyaPayments.position, p.position), isNull(gameyaPayments.confirmedAt)));
+  if (open.length) return { complete: false };
+  await tx.update(gameyaSlots).set({ receivedAt: now }).where(and(eq(gameyaSlots.gameyaId, p.gameyaId), eq(gameyaSlots.position, p.position)));
+  const left = await tx.select({ p: gameyaSlots.position }).from(gameyaSlots).where(and(eq(gameyaSlots.gameyaId, p.gameyaId), isNull(gameyaSlots.receivedAt)));
+  if (!left.length) await tx.update(gameyas).set({ status: 'done' }).where(eq(gameyas.id, p.gameyaId));
+  await logActivity(tx, { groupId: p.groupId, actorId: by === 'gateway' ? null : by, verb: 'received', entity: 'gameya', entityId: p.gameyaId, summary: `month ${p.position}` });
+  return { complete: true };
+}
+
 export function registerGameyaRoutes(r: Router, deps: Deps) {
   const { db } = deps;
   const base = '/groups/:groupId';
@@ -220,18 +236,9 @@ export function registerGameyaRoutes(r: Router, deps: Deps) {
     const res = await db.transaction(async (tx) => {
       const [p] = await tx.select().from(gameyaPayments).where(and(eq(gameyaPayments.id, c.req.param('paymentId')!), eq(gameyaPayments.gameyaId, g.id))).for('update');
       if (!p) throw notFound();
-      const [slot] = await tx.select().from(gameyaSlots).where(and(eq(gameyaSlots.gameyaId, g.id), eq(gameyaSlots.position, p.position))).for('update');
+      const [slot] = await tx.select().from(gameyaSlots).where(and(eq(gameyaSlots.gameyaId, g.id), eq(gameyaSlots.position, p.position)));
       if (slot.userId !== user.id) throw forbidden('only_the_receiver_confirms');
-      if (p.confirmedAt) return { complete: !!slot.receivedAt };
-      const now = deps.clock();
-      await tx.update(gameyaPayments).set({ confirmedAt: now, confirmedBy: user.id }).where(eq(gameyaPayments.id, p.id));
-      const open = await tx.select({ id: gameyaPayments.id }).from(gameyaPayments).where(and(eq(gameyaPayments.gameyaId, g.id), eq(gameyaPayments.position, p.position), isNull(gameyaPayments.confirmedAt)));
-      if (open.length) return { complete: false };
-      await tx.update(gameyaSlots).set({ receivedAt: now }).where(and(eq(gameyaSlots.gameyaId, g.id), eq(gameyaSlots.position, p.position)));
-      const left = await tx.select({ p: gameyaSlots.position }).from(gameyaSlots).where(and(eq(gameyaSlots.gameyaId, g.id), isNull(gameyaSlots.receivedAt)));
-      if (!left.length) await tx.update(gameyas).set({ status: 'done' }).where(eq(gameyas.id, g.id));
-      await logActivity(tx, { groupId: g.groupId, actorId: user.id, verb: 'received', entity: 'gameya', entityId: g.id, summary: `month ${p.position}` });
-      return { complete: true };
+      return confirmShare(tx, deps, p.id, user.id);
     });
     emit(c, { type: 'invalidate', groupId: g.groupId, entity: 'gameya' });
     return res;

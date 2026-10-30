@@ -204,3 +204,10 @@ export const gameyaCreate = z.object({
   memberIds: z.array(id).min(2).max(60),
 });
 export const gameyaSwapCreate = z.object({ otherId: id });
+
+// v2.6 payments: the client names what it pays for; the server works out the amount
+export const paymentCreate = z.discriminatedUnion('purpose', [
+  z.object({ purpose: z.literal('due'), targetId: id }),
+  z.object({ purpose: z.literal('gameya'), targetId: id }),
+  z.object({ purpose: z.literal('settlement'), targetId: id, amount: minor.positive() }),
+]);

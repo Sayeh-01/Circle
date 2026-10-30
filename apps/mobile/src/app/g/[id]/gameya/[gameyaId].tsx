@@ -4,7 +4,9 @@ import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Button, Card, Chip, ErrorView, Loading, Muted, Row, Screen, Section, Sheet, Txt, colors, useSheet } from '@/components/ui';
 import { get, post } from '@/lib/api';
-import { useAct, useGroup } from '@/lib/hooks';
+import { useAct, useConfig, useGroup } from '@/lib/hooks';
+import { PaySheet, type PayTarget } from '@/components/PaySheet';
+import { useState } from 'react';
 import { useFormat } from '@/lib/prefs';
 
 const STATUS_COLOR: Record<string, string> = { paid: colors.good, reported: colors.warn, late: colors.danger, due: colors.faint };
@@ -18,6 +20,8 @@ export default function GameyaBoard() {
   const { run, pending } = useAct(id);
   const q = useQuery({ queryKey: ['group', id, 'gameya', gameyaId], queryFn: () => get(`/groups/${id}/gameyas/${gameyaId}`) });
   const swapSheet = useSheet();
+  const config = useConfig();
+  const [pay, setPay] = useState<{ target: PayTarget; amount: number; payee: string } | null>(null);
   const color = g.group?.color ?? colors.primary;
   const cur = g.group?.currency ?? 'EGP';
   const me = g.me?.userId;
@@ -92,6 +96,9 @@ export default function GameyaBoard() {
                     right={
                       <View style={{ flexDirection: 'row', gap: 6, alignItems: 'center' }}>
                         <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: STATUS_COLOR[p.status] }} />
+                        {p.payerId === me && (p.status === 'due' || p.status === 'late') && config.data?.payments && (
+                          <Button small color={color} title={t('pay.online')} onPress={() => setPay({ target: { purpose: 'gameya', targetId: p.id }, amount: p.amountMinor, payee: name(m.receiverId) })} testID={`gameya-pay-${m.position}`} />
+                        )}
                         {p.payerId === me && (p.status === 'due' || p.status === 'late') && (
                           <Button small kind="secondary" title={t('gameya.iPaid')} onPress={() => run(() => post(`${base}/payments/${p.id}/report`))} testID={`gameya-report-${m.position}`} />
                         )}
@@ -115,6 +122,7 @@ export default function GameyaBoard() {
         </Card>
       </Section>
 
+      <PaySheet groupId={id} target={pay?.target ?? null} amount={pay?.amount ?? 0} currency={cur} payeeName={pay?.payee ?? ''} color={color} onClose={() => setPay(null)} />
       <Sheet visible={swapSheet.open} onClose={swapSheet.hide} title={t('gameya.swapWith')} testID="swap-sheet">
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 12 }}>
           {months

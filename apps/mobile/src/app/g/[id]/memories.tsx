@@ -4,30 +4,14 @@ import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import { useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { Platform, View } from 'react-native';
+import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { GroupScreen } from '@/components/GroupNav';
 import { Button, Card, Field, Muted, Sheet, Txt, colors, useSheet } from '@/components/ui';
 import { authHeaders, fileUrl, get, post, uploadFile } from '@/lib/api';
 import { notifyError, useAct, useGroup } from '@/lib/hooks';
 import { useFormat, usePrefs } from '@/lib/prefs';
-
-/** HTML → PDF on the device (expo-print shapes Arabic correctly, B7 #12); the browser's print dialog on web. */
-async function printBook(html: string, title: string) {
-  if (Platform.OS === 'web') {
-    const w = window.open('', '_blank');
-    if (!w) return;
-    w.document.write(html);
-    w.document.close();
-    w.focus();
-    w.print();
-    return;
-  }
-  const Print = await import('expo-print');
-  const Sharing = await import('expo-sharing');
-  const { uri } = await Print.printToFileAsync({ html });
-  await Sharing.shareAsync(uri, { mimeType: 'application/pdf', dialogTitle: title, UTI: 'com.adobe.pdf' });
-}
+import { printHtml } from '@/lib/print';
 
 export default function Memories() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -54,7 +38,7 @@ export default function Memories() {
           onPress={async () => {
             try {
               const book = await get(`/groups/${id}/memories/book?year=${year}&lang=${lang}`);
-              await printBook(book.html, book.title);
+              await printHtml(book.html, book.title);
             } catch (e) {
               notifyError(e);
             }

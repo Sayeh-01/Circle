@@ -12,7 +12,7 @@ Source of truth for where the build is (SPEC B1). One line per version in B5.
 - [x] v2.0 Dues, budgets, multi-currency, contacts, Trip + Event (receipt scan on the AI fake until a key is set)
 - [x] v2.2 Gam'eya + Savings Circle
 - [x] v2.4 Entitlements, plan limits, paywall (store purchases faked: admin CLI grants plans)
-- [ ] v2.6 Payments
+- [x] v2.6 Payments (gateway faked: FakeProvider; webhooks, signatures, idempotency, receipts real)
 - [ ] v2.8 Challenges, forms; Faith, Club, Volunteer templates
 - [ ] v3.0–v3.8 Work & Business
 - [ ] v4.0–v4.9 Property
@@ -24,4 +24,4 @@ Source of truth for where the build is (SPEC B1). One line per version in B5.
 - [ ] v7.0 Cross-group AI assistant
 
 ## Current
-v2.4 done. Next: v2.6.
+v2.6 done. Next: v2.8.

@@ -240,3 +240,29 @@ Decisions made while the owner is away (SPEC B0/B8). Newest at the bottom of eac
   Western digits and the digits post-processor converts them (plan data goes through the same `localDigits`).
 - No new dependencies (`node:util` parseArgs for the CLI).
 
+## v2.6 plan
+1. `paymentQuote` in shared (fee in basis points, half-up to minor units; payer pays amount + fee).
+2. `PaymentProvider` interface + `FakeProvider` with a hosted checkout page under `/fake-gateway`, Stripe-style signed
+   webhooks (`t=…,v1=HMAC-SHA256(t.body)`, 5-minute tolerance, raw body, constant-time compare).
+3. Tables: payments, payment_events (unique provider + event id → idempotency), receipts (sequence → `CIR-YYYY-000001`).
+4. Payable: a due charge, a gam'eya share, a debt (settle up). The client names the target; the server prices it.
+5. Pay sheet (amount + fee = total) → gateway → back to a payment screen that waits for the webhook → receipt.
+
+## v2.6 decisions
+- The gateway pays the receiver directly; Circle never holds a balance (A12 stage 2). The payer pays the fee on top so the
+  receiver gets exactly what was owed (dues and gam'eya totals stay exact). Fee from `FEE_BPS` (default 150 = 1.5%) and
+  `FEE_FIXED_MINOR` (default 0) — A16's 1–2.5% is a hypothesis.
+- Balances, dues and gam'eya shares change only on a verified `payment.succeeded` webhook, never on the redirect back.
+  A gateway settle-up is a confirmed settlement (method `gateway`); a due charge / gam'eya share is confirmed by `gateway`.
+- Webhook handling: bad or stale signature → 400, nothing stored; a repeated event id → 200 `duplicate: true`, nothing
+  changes; a second different event for a finished payment → stored, no effect; amount/currency mismatch → payment failed
+  (`amount_mismatch`), nothing applied; unknown providerRef → acknowledged (200) so the gateway stops retrying.
+- If two checkouts for the same due both succeed, the second is kept as succeeded with `duplicate_target` for a refund
+  through the gateway (refund API comes with the real gateway).
+- Fake gateway rule (B4 "succeeds or fails depending on the amount"): totals ending in .13 → `card_declined`, .14 →
+  `insufficient_funds`, else success. It exists outside production only; in production with no gateway configured the
+  routes answer 503 and the app hides Pay buttons (`/api/config` → `payments: false`).
+- Who sees a payment: the payer, the receiver, and members with `approve` (collectors); everyone else gets 404.
+- "Dues unpaid → reminder → pay link" (A8): the dues reminder opens the dues screen, which now has "Pay online".
+- No new dependencies (node:crypto).
+

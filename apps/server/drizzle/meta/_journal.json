@@ -64,6 +64,13 @@
       "when": 1793353586947,
       "tag": "0008_v2_4_entitlements",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1793354593141,
+      "tag": "0009_v2_6_payments",
+      "breakpoints": true
     }
   ]
 }

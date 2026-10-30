@@ -93,6 +93,10 @@ Make a development build first (Expo Go can't do remote push on Android, B7 #6):
     "Upgrade" says purchases aren't connected yet. After RevenueCat is set up (accounts row 10), buy each plan with a sandbox
     account and check the plan turns on (server webhook still to build then).
 
+31. **v2.6 pay online (after a real gateway is added):** Pay online from a due → the gateway page opens in the browser →
+    pay with a sandbox card → coming back to the app shows "Paid ✓" and the receipt opens as a PDF in the share sheet.
+    With the fake gateway in a dev build: the browser opens the fake checkout; return to the app manually.
+
 (Later versions add their own device checks in their sections below.)
 
 ## Accounts and keys needed (priority order)
@@ -114,7 +118,8 @@ Make a development build first (Expo Go can't do remote push on Android, B7 #6):
 
 | 10 | RevenueCat + App Store Connect / Google Play products (`plus`, `group_pro`, monthly) | Real in-app purchases (v2.4) | RevenueCat public SDK keys in the app, a webhook secret on the server — the webhook route and `react-native-purchases` adapter are the next step; until then grant plans with `pnpm --filter @circle/server grant` |
 
-(Later versions append rows: payment gateway.)
+| 11 | Payment gateway account (Egypt: Paymob or Fawry; elsewhere Stripe) + the regulatory check A12 asks for | Real online payments (v2.6) | gateway keys + webhook secret; implement `PaymentProvider` (`apps/server/src/payments/provider.ts`) — create checkout + verify webhook — and set it in `createApp`. `FEE_BPS`, `FEE_FIXED_MINOR` set the fee |
+
 
 ## Defects or contradictions found in the brief
 
@@ -481,4 +486,41 @@ full") — reviewed; found and fixed hard-coded Arabic-Indic digits that ignored
 **Seen red:** `packages/shared/test/plans.test.ts`, `apps/server/test/plans.test.ts` (and the grant sweep with a bad route).
 
 **Device checks:** owner checklist item 30.
+
+## v2.6 Payments — [x] done
+
+**Built:** pay online for a due, a gam'eya share or a debt. The server prices the target, adds the fee (1.5% default, half-up
+to minor units, paid on top so the receiver gets the full amount), opens a checkout with the payment provider and returns
+the link. A signed webhook (raw body, HMAC-SHA256, 5-minute window) moves the payment to succeeded/failed exactly once
+(unique provider event id), applies it (due paid / gam'eya share confirmed, completing the month / confirmed settlement),
+issues a receipt (`CIR-2026-000001`, HTML in English or Arabic, printable/PDF) and notifies payer and receiver. App: Pay
+online buttons (dues, gam'eya board, settle up), a pay sheet showing amount + fee = total, a payment screen that waits for the
+webhook and opens the receipt.
+
+**Faked:** the gateway — `FakeProvider` with a hosted checkout page at `/fake-gateway/checkout/:ref` that succeeds or fails
+by amount (.13 declined, .14 insufficient funds) and sends a real signed webhook. Not registered in production.
+
+**Skipped:** nothing.
+
+**`pnpm check`:** shared 45/45 (10 files) · server 143/143 (17 files) · E2E 13/13.
+
+| B9 v2.6 check | Evidence |
+|---|---|
+| A duplicate webhook produces one payment | `apps/server/test/payments.test.ts` — the same signed event delivered twice → `duplicate: false` then `true`; a second different success event → no effect; exactly one confirmed settlement, one receipt, two stored events; B's debt cleared once |
+| A bad signature → 400 and nothing saved | `payments.test.ts` — body changed after signing, wrong secret, no header, garbage header, replay 10 minutes later → all 400 `bad_signature`; no event stored, payment still `created`, no settlement; unknown provider → 404. Proven red by disabling the signature check |
+| Fees round correctly in minor units | `packages/shared/test/payments.test.ts` — 200.00 → 3.00 fee; 3.33 → 0.05 (4.995 up); 2.99 → 0.04 (4.485 down); 2.5% + 2.00; 1,350 amounts all whole minor units, total = amount + fee, within half a unit of the exact rate. E2E: 150.00 → fee 2.25, total 152.25 at the gateway |
+| Receipts are generated | `payments.test.ts` — paid due → receipt `CIR-2026-NNNNNN`, HTML has amount 200.00, fee 3.00, total 203.00, payer, receiver, purpose; Arabic receipt is RTL; failed and mismatched payments get none. E2E: "Paid ✓" with the receipt number; receipt HTML has 152.25 |
+| Route sweep 404 / cross-group | `sweep.test.ts` covers the 4 new group routes; `payments.test.ts` — another group's payment/receipt/due ids → 404; a member who is neither payer nor receiver → 404 |
+
+**Also tested:** fake decline by amount (no settlement, no receipt, payer told, paying the checkout twice sends one event), an
+amount-mismatch event fails the payment, gam'eya share via the gateway completes the month (paid in = paid out), the
+receiver's own share and already-paid dues are refused (409), paying more than owed or yourself (400), children can't pay,
+no gateway → 503 and `payments: false`.
+
+**Arabic screenshots:** `apps/mobile/e2e/screenshots/v2.6/` (payment paid with receipt, pay sheet with fee, settled expenses)
+— reviewed, no clipped text.
+
+**Seen red:** `packages/shared/test/payments.test.ts`, `apps/server/test/payments.test.ts`.
+
+**Device checks:** owner checklist item 31.
 

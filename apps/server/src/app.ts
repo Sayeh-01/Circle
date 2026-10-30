@@ -31,10 +31,12 @@ import { registerMeRoutes } from './routes/me';
 import { registerMiscRoutes } from './routes/misc';
 import { registerGameyaRoutes } from './routes/gameya';
 import { registerMoney2Routes } from './routes/money2';
+import { registerPaymentRoutes } from './routes/payments';
 import { registerPlanRoutes } from './routes/plans';
 import { registerPollRoutes } from './routes/polls';
 import { registerTaskRoutes } from './routes/tasks';
 import { createDevSms, type SmsSender } from './sms';
+import { createFakeProvider, type PaymentProvider } from './payments/provider';
 import { createMemoryStorage, type FileStorage } from './storage';
 import { envFromProcess } from './deps';
 
@@ -50,6 +52,8 @@ export interface AppOptions {
   storage?: FileStorage;
   /** Serve the exported Expo web build (E2E and simple deployments). */
   staticDir?: string;
+  /** Override the payment gateway (tests). Default: the fake gateway outside production, none in production. */
+  payments?: PaymentProvider | null;
   /** Register the WebSocket route (needs injectWebSocket on a real HTTP server). */
   realtime?: boolean;
 }
@@ -88,6 +92,8 @@ export const features: FeatureModule[] = [
   (r, d) => registerGameyaRoutes(r, d),
   // v2.4
   (r, d) => registerPlanRoutes(r, d),
+  // v2.6
+  (r, d, root) => registerPaymentRoutes(r, d, root),
 ];
 
 export function createApp(opts: AppOptions) {
@@ -103,7 +109,9 @@ export function createApp(opts: AppOptions) {
     push: opts.push ?? createMemoryPushSender(),
     sms: opts.sms ?? createDevSms(env.nodeEnv !== 'test'),
     ai: null,
+    payments: null,
   };
+  deps.payments = opts.payments !== undefined ? opts.payments : env.nodeEnv !== 'production' ? createFakeProvider({ secret: env.paymentWebhookSecret, publicUrl: env.publicUrl }) : null;
   deps.ai =
     opts.ai !== undefined
       ? opts.ai
@@ -127,7 +135,7 @@ export function createApp(opts: AppOptions) {
   app.on(['GET', 'POST'], '/api/auth/*', (c) => auth.handler(c.req.raw));
   app.get('/api/health', (c) => c.json({ ok: true }));
   app.get('/api/config', (c) =>
-    c.json({ google: !!env.google, apple: !!env.apple, phone: true, ai: !!deps.ai, linkDomain: env.linkDomain }),
+    c.json({ google: !!env.google, apple: !!env.apple, phone: true, ai: !!deps.ai, linkDomain: env.linkDomain, payments: !!deps.payments, fee: env.fee }),
   );
   app.post('/api/ws-ticket', router.requireUser as any, (c: any) =>
     c.json({ ticket: signTicket(env.authSecret, c.get('user').id, deps.clock().getTime() + 60_000) }),

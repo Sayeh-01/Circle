@@ -29,6 +29,7 @@ import { registerGroupRoutes } from './routes/groups';
 import { registerListRoutes } from './routes/lists';
 import { registerMeRoutes } from './routes/me';
 import { registerMiscRoutes } from './routes/misc';
+import { registerMoney2Routes } from './routes/money2';
 import { registerPollRoutes } from './routes/polls';
 import { registerTaskRoutes } from './routes/tasks';
 import { createDevSms, type SmsSender } from './sms';
@@ -79,6 +80,8 @@ export const features: FeatureModule[] = [
   (r, d) => registerAiRoutes(r, d),
   // v1.5 Care & Safety
   (r, d) => registerCareRoutes(r, d),
+  // v2.0
+  (r, d) => registerMoney2Routes(r, d),
 ];
 
 export function createApp(opts: AppOptions) {

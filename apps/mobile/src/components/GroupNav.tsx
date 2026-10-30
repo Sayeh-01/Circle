@@ -23,6 +23,10 @@ export const MODULE_ROUTES: Record<string, string> = {
   vault: 'vault',
   meds: 'meds',
   safety: 'safety',
+  dues: 'dues',
+  budgets: 'budgets',
+  contacts: 'contacts',
+  guests: 'guests',
 };
 
 const PINNED = 5;

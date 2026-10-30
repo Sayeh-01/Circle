@@ -22,6 +22,10 @@ export const MODULES = {
   vault: { emoji: '🗄️', name: { en: 'Vault', ar: 'الخزنة' }, phase: '1.5' },
   meds: { emoji: '💊', name: { en: 'Meds', ar: 'الأدوية' }, phase: '1.5' },
   safety: { emoji: '🛟', name: { en: 'Safety', ar: 'الأمان' }, phase: '1.5' },
+  dues: { emoji: '🧾', name: { en: 'Dues & Fees', ar: 'الاشتراكات' }, phase: '2.0' },
+  budgets: { emoji: '🎯', name: { en: 'Budgets', ar: 'الميزانيات' }, phase: '2.0' },
+  contacts: { emoji: '📇', name: { en: 'Contacts', ar: 'جهات الاتصال' }, phase: '2.0' },
+  guests: { emoji: '💌', name: { en: 'Guest list', ar: 'قائمة الضيوف' }, phase: '2.0' },
 } as const satisfies Record<string, { emoji: string; name: L10n; phase: string }>;
 
 export type ModuleId = keyof typeof MODULES;
@@ -197,6 +201,34 @@ export const TEMPLATES: Template[] = [
     defaults: {},
     starters: {
       tasks: [{ title: { en: 'Drive to the doctor', ar: 'التوصيل للدكتور' }, rrule: 'FREQ=WEEKLY;BYDAY=TU', rotation: true }],
+    },
+  },
+  {
+    id: 'trip',
+    emoji: '✈️',
+    color: '#2E86AB',
+    phase: '2',
+    name: { en: 'Trip', ar: 'رحلة' },
+    tagline: { en: 'Itinerary, packing, shared costs', ar: 'البرنامج والشنط والمصاريف المشتركة' },
+    modules: ['events', 'lists', 'expenses', 'budgets', 'vault', 'chat', 'polls'],
+    roles: { owner: { en: 'Organizer', ar: 'المنظّم' }, admin: { en: 'Organizer', ar: 'المنظّم' }, member: { en: 'Traveller', ar: 'مسافر' } },
+    vocab: { events: { en: 'Itinerary', ar: 'البرنامج' }, event: { en: 'Plan', ar: 'فقرة' }, lists: { en: 'Packing', ar: 'الشنط' }, list: { en: 'Packing list', ar: 'قائمة شنطة' } },
+    defaults: {},
+    starters: { lists: [{ title: { en: 'Packing', ar: 'الشنطة' }, items: [{ en: 'Passport', ar: 'الباسبور' }, { en: 'Charger', ar: 'الشاحن' }, { en: 'Adapter', ar: 'محوّل كهرباء' }] }] },
+  },
+  {
+    id: 'event',
+    emoji: '🎉',
+    color: '#B5548C',
+    phase: '2',
+    name: { en: 'Event', ar: 'مناسبة' },
+    tagline: { en: 'Guests, budget, vendors, timeline', ar: 'الضيوف والميزانية والموردين والجدول' },
+    modules: ['guests', 'tasks', 'expenses', 'budgets', 'contacts', 'polls', 'chat'],
+    roles: { owner: { en: 'Host', ar: 'المضيف' }, admin: { en: 'Host', ar: 'المضيف' }, member: { en: 'Helper', ar: 'مساعد' }, guest: { en: 'Guest', ar: 'ضيف' } },
+    vocab: { tasks: { en: 'Timeline', ar: 'الجدول' }, task: { en: 'To-do', ar: 'مهمة' } },
+    defaults: {},
+    starters: {
+      tasks: [{ title: { en: 'Book the venue', ar: 'احجز المكان' } }, { title: { en: 'Send invitations', ar: 'ابعت الدعوات' } }],
     },
   },
   {

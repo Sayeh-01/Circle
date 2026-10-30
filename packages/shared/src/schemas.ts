@@ -184,3 +184,10 @@ export const medCreate = z.object({
   notes: z.string().max(2000).optional(),
 });
 export const safetyPing = z.object({ note: z.string().max(200).optional() });
+
+export const dueCreate = z.object({ title: z.string().trim().min(1).max(120), amount: minor.positive(), period: z.enum(['monthly', 'once']).default('monthly'), dueDay: z.number().int().min(1).max(28).default(1), memberIds: z.array(id).max(500).optional() });
+export const budgetCreate = z.object({ category: z.string().trim().min(1).max(40), amount: minor.positive(), period: z.enum(['month', 'total']).default('month') });
+export const contactCreate = z.object({ name: z.string().trim().min(1).max(80), kind: z.string().max(40).default('other'), phone: z.string().max(30).optional(), email: z.string().max(120).optional(), notes: z.string().max(500).optional() });
+export const guestCreate = z.object({ name: z.string().trim().min(1).max(80), phone: z.string().max(30).optional(), maxPlusOnes: z.number().int().min(0).max(10).default(0) });
+export const guestRsvp = z.object({ status: z.enum(['going', 'maybe', 'no']), plusOnes: z.number().int().min(0).max(10).default(0), dietary: z.string().max(200).optional() });
+export const aiReceipt = z.object({ fileId: id });

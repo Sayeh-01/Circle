@@ -1,5 +1,6 @@
-import { parseMajorToMinor } from '@circle/shared';
+import { convertMinor, parseMajorToMinor } from '@circle/shared';
 import { useQuery } from '@tanstack/react-query';
+import * as ImagePicker from 'expo-image-picker';
 import { useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { View } from 'react-native';
@@ -7,8 +8,8 @@ import { useTranslation } from 'react-i18next';
 import { GroupScreen } from '@/components/GroupNav';
 import { MemberPicker } from '@/components/MemberPicker';
 import { Button, Card, Chip, Empty, Field, Loading, Muted, Row, Section, Segmented, Sheet, Txt, colors, useSheet } from '@/components/ui';
-import { get, post } from '@/lib/api';
-import { useAct, useGroup } from '@/lib/hooks';
+import { get, post, uploadFile } from '@/lib/api';
+import { useAct, useConfig, useGroup } from '@/lib/hooks';
 import { useFormat } from '@/lib/prefs';
 
 type SplitKind = 'equal' | 'exact' | 'shares';
@@ -25,7 +26,11 @@ export default function Expenses() {
   const add = useSheet();
   const pay = useSheet();
   const me = g.me?.userId;
-  const [form, setForm] = useState({ title: '', amount: '', payerId: '', kind: 'equal' as SplitKind, members: [] as string[], values: {} as Record<string, string> });
+  const config = useConfig();
+  const [form, setForm] = useState({ title: '', amount: '', payerId: '', kind: 'equal' as SplitKind, members: [] as string[], values: {} as Record<string, string>, currency: '', rate: '', category: '' });
+  const formCur = (form.currency || cur).toUpperCase();
+  const foreign = formCur !== cur;
+  const rate = Number(form.rate.replace(',', '.'));
   const [payment, setPayment] = useState({ toId: '', amount: '', method: 'cash' as 'cash' | 'bank' | 'wallet' | 'other' });
 
   useEffect(() => {
@@ -41,7 +46,7 @@ export default function Expenses() {
 
   const total = parseMajorToMinor(form.amount) ?? 0;
   const exactSum = useMemo(() => Object.values(form.values).reduce((s, v) => s + (parseMajorToMinor(v) ?? 0), 0), [form.values]);
-  const valid = form.title.trim() && total > 0 && form.payerId && (form.kind === 'equal' ? form.members.length > 0 : form.kind === 'exact' ? exactSum === total : Object.values(form.values).some((v) => Number(v) > 0));
+  const valid = form.title.trim() && total > 0 && form.payerId && formCur.length === 3 && (!foreign || rate > 0) && (form.kind === 'equal' ? form.members.length > 0 : form.kind === 'exact' ? exactSum === total : Object.values(form.values).some((v) => Number(v) > 0));
 
   async function save() {
     const split =
@@ -50,9 +55,32 @@ export default function Expenses() {
         : form.kind === 'exact'
           ? { kind: 'exact', amounts: Object.fromEntries(Object.entries(form.values).map(([k, v]) => [k, parseMajorToMinor(v) ?? 0]).filter(([, v]) => (v as number) > 0)) }
           : { kind: 'shares', shares: Object.fromEntries(Object.entries(form.values).map(([k, v]) => [k, Number(v) || 0]).filter(([, v]) => (v as number) > 0)) };
-    await run(() => post(`/groups/${id}/expenses`, { title: form.title.trim(), amount: total, payerId: form.payerId, split }));
-    setForm((f) => ({ ...f, title: '', amount: '', values: {} }));
+    await run(() => post(`/groups/${id}/expenses`, { title: form.title.trim(), amount: total, payerId: form.payerId, split, currency: formCur, rate: foreign ? rate : undefined, category: form.category.trim() || undefined }));
+    setForm((f) => ({ ...f, title: '', amount: '', values: {}, category: '' }));
     add.hide();
+  }
+
+  const [scanning, setScanning] = useState(false);
+  const [scanned, setScanned] = useState(false);
+  async function scan() {
+    const res = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 0.7 });
+    if (res.canceled) return;
+    setScanning(true);
+    try {
+      const a = res.assets[0];
+      const draft = await run(async () => {
+        const fileId = await uploadFile(id, a.uri, a.mimeType ?? 'image/jpeg');
+        return (await post(`/groups/${id}/ai/receipt`, { fileId })).draft;
+      });
+      // a draft only: nothing is saved until the person checks it and taps Save
+      setForm((f) => ({ ...f, title: draft.title, amount: String(draft.total / 100), currency: draft.currency, rate: '', kind: 'equal', values: {} }));
+      setScanned(true);
+      add.show();
+    } catch {
+      // useAct already showed the error
+    } finally {
+      setScanning(false);
+    }
   }
 
   return (
@@ -63,6 +91,7 @@ export default function Expenses() {
           <Button style={{ flex: 1 }} kind="secondary" title={t('expenses.recordPayment')} onPress={() => (setPayment({ toId: myDebts[0]?.to ?? '', amount: myDebts[0] ? String(myDebts[0].amount / 100) : '', method: 'cash' }), pay.show())} testID="record-payment" />
         </View>
       )}
+      {g.can('money.write') && config.data?.ai && <Button kind="secondary" title={t('money.scan')} onPress={scan} loading={scanning} testID="scan-receipt" style={{ marginBottom: 12 }} />}
       {bal.isLoading && <Loading />}
       {bal.data && (
         <Section title={t('expenses.simplified')}>
@@ -104,16 +133,31 @@ export default function Expenses() {
             <Row
               title={e.title}
               strike={!!e.reversedAt}
-              subtitle={`${t('expenses.paidBy')} ${g.memberName(e.payerId)} · ${fmt.date(e.spentAt)}${e.reversedAt ? ` · ${t('expenses.reversed')}` : ''}`}
+              subtitle={`${t('expenses.paidBy')} ${g.memberName(e.payerId)} · ${fmt.date(e.spentAt)}${e.currency !== cur ? ` · ${fmt.money(e.originalMinor, e.currency)} (${t('money.paidIn', { cur: e.currency, rate: fmt.number(e.rate) })})` : ''}${e.category ? ` · ${e.category}` : ''}${e.reversedAt ? ` · ${t('expenses.reversed')}` : ''}`}
               right={<Txt style={{ fontWeight: '700' }}>{fmt.money(e.amountMinor, cur)}</Txt>}
             />
           </Card>
         ))}
       </Section>
 
-      <Sheet visible={add.open} onClose={add.hide} title={t('expenses.new')} testID="expense-sheet">
+      <Sheet visible={add.open} onClose={() => (add.hide(), setScanned(false))} title={t('expenses.new')} testID="expense-sheet">
+        {scanned && <Muted style={{ marginBottom: 8 }} testID="scan-hint">{t('money.scanHint')}</Muted>}
         <Field label={t('expenses.title')} value={form.title} onChangeText={(s) => setForm({ ...form, title: s })} testID="expense-title" />
-        <Field label={`${t('expenses.amount')} (${cur})`} value={form.amount} onChangeText={(s) => setForm({ ...form, amount: s })} inputMode="decimal" testID="expense-amount" />
+        <View style={{ flexDirection: 'row', gap: 8 }}>
+          <View style={{ flex: 1 }}>
+            <Field label={`${t('expenses.amount')} (${formCur})`} value={form.amount} onChangeText={(s) => setForm({ ...form, amount: s })} inputMode="decimal" testID="expense-amount" />
+          </View>
+          <View style={{ width: 96 }}>
+            <Field label={t('money.currency')} value={form.currency || cur} onChangeText={(s) => setForm({ ...form, currency: s.toUpperCase().slice(0, 3) })} autoCapitalize="characters" style={{ writingDirection: 'ltr' }} testID="expense-currency" />
+          </View>
+        </View>
+        {foreign && (
+          <>
+            <Field label={t('money.rate', { cur: formCur, group: cur })} value={form.rate} onChangeText={(s) => setForm({ ...form, rate: s })} inputMode="decimal" style={{ writingDirection: 'ltr' }} testID="expense-rate" />
+            {rate > 0 && total > 0 && <Muted style={{ marginBottom: 8 }} testID="expense-converted">{t('money.converted', { amount: fmt.money(convertMinor(total, rate), cur) })}</Muted>}
+          </>
+        )}
+        {g.has('budgets') && <Field label={t('money.category')} value={form.category} onChangeText={(s) => setForm({ ...form, category: s })} testID="expense-category" />}
         <MemberPicker label={t('expenses.paidBy')} members={g.members} selected={[form.payerId]} onToggle={(u) => setForm({ ...form, payerId: u })} color={g.group?.color} />
         <Segmented<SplitKind> value={form.kind} onChange={(k) => setForm({ ...form, kind: k, values: {} })} options={[{ value: 'equal', label: t('expenses.equal') }, { value: 'exact', label: t('expenses.exact') }, { value: 'shares', label: t('expenses.shares') }]} />
         {form.kind === 'equal' ? (

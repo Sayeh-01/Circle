@@ -104,6 +104,10 @@ describe('Child accounts', () => {
   it('B9 v1.2: a Child is blocked on every money route (sweep)', async () => {
     const moneyRoutes = t.router.registry.filter((r) => r.path.includes(':groupId') && (r.perm === 'money.read' || r.perm === 'money.write'));
     expect(moneyRoutes.length).toBeGreaterThanOrEqual(7);
+    // switch on every module that has money routes, so the permission check (not "module off") is what answers
+    const mods = (await P.get(`/api/groups/${g.id}`)).body.group.modules;
+    const moneyModules = [...new Set(moneyRoutes.map((r) => r.module).filter(Boolean))] as string[];
+    expect((await P.put(`/api/groups/${g.id}/modules`, { modules: [...new Set([...mods, ...moneyModules])] })).status).toBe(200);
     const failures: string[] = [];
     for (const r of moneyRoutes) {
       const path = r.path.replace(':groupId', g.id).replace(/:[A-Za-z]+/g, 'x');

@@ -164,3 +164,30 @@ Decisions made while the owner is away (SPEC B0/B8). Newest at the bottom of eac
   days before expiry.
 - "Arrived safely" sends no location (A6 "no continuous tracking").
 - Dates typed as YYYY-MM-DD in forms for now (no native date picker); shown through Intl.
+
+## v2.0 plan
+1. Multi-currency was stored per expense since v1.0 (`currency`, `originalMinor`, `rate`); v2.0 adds the UI (currency + manual
+   rate, live conversion preview) and a trip test across EUR/USD/EGP.
+2. Budgets: alert check runs inside each expense's transaction (`expenseHooks`); a `(budget, period, threshold)` row makes
+   each alert fire once.
+3. Dues: one charge row per payer per period (`payerKey` is a user id now, a unit id in v5); report → confirm; reminder job
+   the day before; a roll-over job opens next month's board on the 1st.
+4. Guest list: invitees are not members; each gets an `invitee` guest link and RSVPs on the server-rendered `/p/:token` page.
+5. Contacts directory; Trip + Event templates; receipt scan → draft expense (AI module, image input).
+
+## v2.0 decisions
+- Rates are typed by hand as "1 FOREIGN = x GROUP" (B5: manual rates). The rate is stored on the expense and never
+  re-applied; balances and transfers are always in the group currency. Exact splits are typed in the original currency.
+- Budget categories are free text on the expense (`category`), `*` = everything. Monthly budgets use the group's timezone
+  and the expense's `spentAt` month; `total` budgets never reset. Reversing an expense doesn't re-arm an alert already sent
+  that period. Alerts go to owner/admin/manager/member (not Children or guests).
+- Setting a budget needs `group.settings`; creating a due and confirming payments need `approve`; members report "I paid".
+  No online payment until v2.6.
+- Dues isn't a default module on any v2.0 template (the spec's dues templates — Faith, Volunteer, Building, Class — come
+  later); any group can switch it on in Settings.
+- Plus-ones are capped per guest by the host (`maxPlusOnes`, 0–10); headcount = guests going + their plus-ones. Removing a
+  guest revokes their link.
+- Receipt scan uses Haiku 5.5 with the image (draft only, `saved: false`); a receipt in the group currency comes back as
+  currency null → the group currency. The phone pre-fills the expense sheet; the person picks who shares it and saves.
+- No new dependencies.
+

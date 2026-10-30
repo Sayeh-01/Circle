@@ -9,13 +9,13 @@ import { z } from 'zod';
 export const PARSE_MODEL = 'claude-haiku-5-5';
 export const ASSISTANT_MODEL = 'claude-sonnet-5-5';
 
-export type AiTask = 'capture' | 'chat_items' | 'catchup' | 'quiz' | 'assistant' | 'ocr';
+export type AiTask = 'capture' | 'chat_items' | 'catchup' | 'quiz' | 'assistant' | 'ocr' | 'receipt';
 
 export class AiRefusal extends Error {}
 
 export interface AiModel {
   /** Structured output validated against a zod schema (parsing/classification → Haiku). */
-  json<S extends z.ZodType>(task: AiTask, a: { system: string; prompt: string; schema: S; maxTokens?: number }): Promise<z.infer<S>>;
+  json<S extends z.ZodType>(task: AiTask, a: { system: string; prompt: string; schema: S; maxTokens?: number; image?: { mime: string; base64: string } }): Promise<z.infer<S>>;
   /** Free text (summaries → Sonnet). */
   text(task: AiTask, a: { system: string; prompt: string; maxTokens?: number }): Promise<string>;
   /** Read the text in an image (vault OCR → Haiku). */
@@ -30,7 +30,17 @@ export function createClaudeModel(apiKey: string): AiModel {
         model: PARSE_MODEL,
         max_tokens: a.maxTokens ?? 4000,
         system: a.system,
-        messages: [{ role: 'user', content: a.prompt }],
+        messages: [
+          {
+            role: 'user',
+            content: a.image
+              ? [
+                  { type: 'image', source: { type: 'base64', media_type: a.image.mime as 'image/jpeg', data: a.image.base64 } },
+                  { type: 'text', text: a.prompt },
+                ]
+              : a.prompt,
+          },
+        ],
         output_config: { effort: 'low', format: zodOutputFormat(a.schema) },
       });
       if (response.stop_reason === 'refusal') throw new AiRefusal(response.stop_details?.category ?? 'refusal');
@@ -155,5 +165,6 @@ export function createRuleBasedModel(clock: () => Date = () => new Date()): AiMo
       return { cards: sentences.map((s) => ({ front: `${s.split(' ').slice(0, Math.ceil(s.split(' ').length / 2)).join(' ')} …?`, back: s })) };
     },
     ocr: () => 'Scanned document (demo OCR): Policy No. 0000-DEMO',
+    receipt: () => ({ title: 'Receipt (demo scan)', total: 25000, currency: null, items: [{ name: 'Demo item', amount: 25000 }] }),
   });
 }

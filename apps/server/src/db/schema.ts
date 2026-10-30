@@ -825,3 +825,101 @@ export const medDoses = pgTable(
   },
   (t) => [uniqueIndex('med_doses_med_time_uq').on(t.medId, t.scheduledAt)],
 );
+
+// ── v2.0 Money & more groups ──────────────────────────────────────────────────
+export const dues = pgTable('dues', {
+  id: text('id').primaryKey(),
+  groupId: text('group_id')
+    .notNull()
+    .references(() => groups.id, { onDelete: 'cascade' }),
+  title: text('title').notNull(),
+  amountMinor: money('amount_minor').notNull(),
+  /** monthly | once */
+  period: text('period').notNull(),
+  dueDay: integer('due_day').notNull().default(1),
+  /** Empty = every adult member. v5.6 adds unit-based dues. */
+  memberIds: text('member_ids').array().notNull().default(sql`'{}'::text[]`),
+  unitBased: boolean('unit_based').notNull().default(false),
+  active: boolean('active').notNull().default(true),
+  createdBy: text('created_by').notNull(),
+  createdAt: createdAt(),
+});
+
+export const dueCharges = pgTable(
+  'due_charges',
+  {
+    id: text('id').primaryKey(),
+    dueId: text('due_id')
+      .notNull()
+      .references(() => dues.id, { onDelete: 'cascade' }),
+    groupId: text('group_id').notNull(),
+    /** a member, or (v5.6) a unit id */
+    payerKey: text('payer_key').notNull(),
+    periodKey: text('period_key').notNull(),
+    amountMinor: money('amount_minor').notNull(),
+    reportedAt: ts('reported_at'),
+    paidAt: ts('paid_at'),
+    confirmedBy: text('confirmed_by'),
+    createdAt: createdAt(),
+  },
+  (t) => [uniqueIndex('due_charges_uq').on(t.dueId, t.payerKey, t.periodKey)],
+);
+
+export const budgets = pgTable('budgets', {
+  id: text('id').primaryKey(),
+  groupId: text('group_id')
+    .notNull()
+    .references(() => groups.id, { onDelete: 'cascade' }),
+  category: text('category').notNull(),
+  amountMinor: money('amount_minor').notNull(),
+  /** month | total */
+  period: text('period').notNull(),
+  createdBy: text('created_by').notNull(),
+  createdAt: createdAt(),
+});
+
+/** One row per (budget, period, threshold): an alert can only ever be sent once. */
+export const budgetAlerts = pgTable(
+  'budget_alerts',
+  {
+    budgetId: text('budget_id')
+      .notNull()
+      .references(() => budgets.id, { onDelete: 'cascade' }),
+    periodKey: text('period_key').notNull(),
+    threshold: integer('threshold').notNull(),
+    createdAt: createdAt(),
+  },
+  (t) => [primaryKey({ columns: [t.budgetId, t.periodKey, t.threshold] })],
+);
+
+export const contacts = pgTable('contacts', {
+  id: text('id').primaryKey(),
+  groupId: text('group_id')
+    .notNull()
+    .references(() => groups.id, { onDelete: 'cascade' }),
+  name: text('name').notNull(),
+  kind: text('kind').notNull().default('other'),
+  phone: text('phone'),
+  email: text('email'),
+  notes: text('notes'),
+  createdBy: text('created_by').notNull(),
+  createdAt: createdAt(),
+});
+
+/** Event guest list: people without the app RSVP through their own guest link. */
+export const invitees = pgTable('invitees', {
+  id: text('id').primaryKey(),
+  groupId: text('group_id')
+    .notNull()
+    .references(() => groups.id, { onDelete: 'cascade' }),
+  name: text('name').notNull(),
+  phone: text('phone'),
+  maxPlusOnes: integer('max_plus_ones').notNull().default(0),
+  /** invited | going | maybe | no */
+  status: text('status').notNull().default('invited'),
+  plusOnes: integer('plus_ones').notNull().default(0),
+  dietary: text('dietary'),
+  respondedAt: ts('responded_at'),
+  createdBy: text('created_by').notNull(),
+  createdAt: createdAt(),
+});

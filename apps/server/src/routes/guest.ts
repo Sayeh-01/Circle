@@ -2,15 +2,18 @@ import { and, asc, count, eq, isNull } from 'drizzle-orm';
 import type { Hono } from 'hono';
 import { getCookie, setCookie } from 'hono/cookie';
 import { z } from 'zod';
-import { eventRsvps, events, groupMembers, groups, guestLinks, listItems, lists } from '../db/schema';
+import { schemas } from '@circle/shared';
+import { eventRsvps, events, groupMembers, groups, guestLinks, invitees, listItems, lists } from '../db/schema';
 import type { Deps } from '../deps';
 import { logActivity } from '../effects';
 import { badRequest, forbidden, notFound } from '../errors';
 import { actorCan, emit, type Router } from '../http';
 import { newId, newToken } from '../ids';
 import { setRsvp } from '../services/events';
+import { inviteeRsvp } from './money2';
 
 const GUEST_ENTITIES = ['event', 'list'] as const;
+// 'invitee' links (v2.0 guest list) are created by the guest list itself, not through POST /guest-links
 type GuestEntity = (typeof GUEST_ENTITIES)[number];
 
 /**
@@ -152,6 +155,19 @@ export function registerGuestRoutes(r: Router, deps: Deps, root: Hono) {
     setCookie(c, 'circle_visits', String(visits), { path: '/', maxAge: 60 * 60 * 24 * 365, sameSite: 'Lax' });
     const install = visits > 2 ? `<a class="install" href="circleapp://p/${esc(token)}">${t(lang, 'install')}</a>` : '';
     const head = `<div class="group" style="border-color:${esc(group.color)}">${esc(group.emoji)} ${esc(group.name)}</div>`;
+    if (link.entity === 'invitee') {
+      const [inv] = await db.select().from(invitees).where(and(eq(invitees.id, link.entityId), eq(invitees.groupId, group.id)));
+      if (!inv) return c.html(page({ lang, title: 'Circle', body: `<p class="muted">${t(lang, 'gone')}</p>` }), 404);
+      const plus = inv.maxPlusOnes
+        ? `<label>${t(lang, 'plusOnes')} (≤ ${inv.maxPlusOnes})<input name="plusOnes" type="number" min="0" max="${inv.maxPlusOnes}" value="${inv.plusOnes}" data-testid="guest-plus"></label>`
+        : '';
+      const status = inv.status !== 'invited' ? `<p class="status">${t(lang, 'you')}: <b>${t(lang, inv.status)}${inv.plusOnes ? ` +${inv.plusOnes}` : ''}</b></p>` : '';
+      const body = `${head}<h1>${esc(group.name)}</h1><p class="muted">${t(lang, 'dear')} ${esc(inv.name)}</p>${status}
+<form method="post" action="/p/${esc(token)}/invitee?lang=${lang}">${plus}
+<label>${t(lang, 'dietary')}<input name="dietary" maxlength="200" value="${esc(inv.dietary ?? '')}"></label>
+<div class="row"><button name="status" value="going" data-testid="guest-going">${t(lang, 'going')}</button><button name="status" value="maybe" class="sec">${t(lang, 'maybe')}</button><button name="status" value="no" class="sec">${t(lang, 'no')}</button></div></form>${install}`;
+      return c.html(page({ lang, title: `${group.emoji} ${group.name}`, description: t(lang, 'tap'), body }));
+    }
     if (link.entity === 'event') {
       const ev = await guestEvent(deps, group.id, link.entityId, guestId ? `guest:${guestId}` : null);
       const when = new Intl.DateTimeFormat(lang === 'ar' ? 'ar-EG-u-nu-latn' : 'en-GB', { timeZone: ev.tz, weekday: 'long', day: 'numeric', month: 'long', hour: 'numeric', minute: '2-digit' }).format(ev.startsAt);
@@ -170,6 +186,19 @@ export function registerGuestRoutes(r: Router, deps: Deps, root: Hono) {
     return c.html(page({ lang, title: `${group.emoji} ${l.title}`, description: `${l.items.filter((i) => !i.checked).length} ${t(lang, 'left')}`, body: `${head}<h1>${esc(l.title)}</h1><ul data-testid="guest-list">${items}</ul>${install}` }));
   });
 
+  root.post('/p/:token/invitee', async (c) => {
+    const token = c.req.param('token');
+    const form = await c.req.parseBody();
+    const parsed = schemas.guestRsvp.safeParse({ status: String(form.status ?? ''), plusOnes: Number(form.plusOnes ?? 0) || 0, dietary: form.dietary ? String(form.dietary) : undefined });
+    if (parsed.success) await inviteeRsvp(deps, token, parsed.data);
+    return c.redirect(`/p/${token}?lang=${c.req.query('lang') ?? ''}`, 303);
+  });
+
+  r.post('/guest/:token/invitee', { auth: 'public', tags: ['guest'], summary: 'Invitee RSVP with plus-ones', body: schemas.guestRsvp }, async (c, { body }) => {
+    const row = await inviteeRsvp(deps, c.req.param('token')!, body);
+    return { status: row.status, plusOnes: row.plusOnes };
+  });
+
   root.post('/p/:token/rsvp', async (c) => {
     const token = c.req.param('token');
     const form = await c.req.parseBody();
@@ -186,8 +215,8 @@ export function registerGuestRoutes(r: Router, deps: Deps, root: Hono) {
 }
 
 const STR = {
-  en: { going: 'Going', maybe: 'Maybe', no: "Can't", in: 'in', name: 'Your name', you: 'You', tap: 'Tap to join', left: 'left', install: 'Get the Circle app', gone: 'This link has expired or was turned off.', waitlist: 'Waitlist' },
-  ar: { going: 'رايح', maybe: 'يمكن', no: 'مش هقدر', in: 'جايين', name: 'اسمك', you: 'أنت', tap: 'اضغط للانضمام', left: 'متبقي', install: 'نزّل تطبيق Circle', gone: 'هذا الرابط انتهى أو تم إيقافه.', waitlist: 'قائمة الانتظار' },
+  en: { plusOnes: 'Guests with you', dietary: 'Dietary needs', dear: 'Dear', going: 'Going', maybe: 'Maybe', no: "Can't", in: 'in', name: 'Your name', you: 'You', tap: 'Tap to join', left: 'left', install: 'Get the Circle app', gone: 'This link has expired or was turned off.', waitlist: 'Waitlist' },
+  ar: { plusOnes: 'مرافقين', dietary: 'احتياجات غذائية', dear: 'عزيزنا', going: 'رايح', maybe: 'يمكن', no: 'مش هقدر', in: 'جايين', name: 'اسمك', you: 'أنت', tap: 'اضغط للانضمام', left: 'متبقي', install: 'نزّل تطبيق Circle', gone: 'هذا الرابط انتهى أو تم إيقافه.', waitlist: 'قائمة الانتظار' },
 } as const;
 
 function t(lang: 'en' | 'ar', key: string): string {

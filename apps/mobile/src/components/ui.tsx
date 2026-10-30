@@ -196,8 +196,10 @@ export function Button({
   small,
   color,
   style,
+  accessibilityLabel,
 }: {
   title: string;
+  accessibilityLabel?: string;
   onPress?: () => void;
   kind?: 'primary' | 'secondary' | 'danger' | 'ghost';
   disabled?: boolean;
@@ -215,6 +217,7 @@ export function Button({
       disabled={disabled || loading}
       testID={testID}
       accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel}
       accessibilityState={{ disabled: !!(disabled || loading) }}
       style={({ pressed }) => [styles.btn, small && styles.btnSmall, { backgroundColor: bg, opacity: disabled ? 0.45 : pressed ? 0.8 : 1 }, style]}>
       {loading ? <ActivityIndicator color={fg} /> : <Text style={{ color: fg, fontWeight: '600', fontSize: small ? 14 : 16, textAlign: 'center' }}>{title}</Text>}

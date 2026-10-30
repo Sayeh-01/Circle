@@ -80,6 +80,12 @@ Make a development build first (Expo Go can't do remote push on Android, B7 #6):
     critical alerts need an Apple entitlement — owner decision).
 25. **v1.5 emergency card on the lock screen:** needs a widget/Live Activity (native extension) — not built (widgets are a B5 Skip).
 
+26. **v2.0 receipt scan (with `ANTHROPIC_API_KEY`):** Expenses → 📷 Scan receipt → take/choose a real receipt photo → the
+    sheet fills with the shop, total and currency; nothing is saved until Save.
+27. **v2.0 guest invite:** Guest list → Send invite opens WhatsApp with the guest's link; the guest opens it on a phone
+    without the app, picks plus-ones and taps Going → the host's headcount updates live.
+28. **v2.0 contacts:** the 📞 Call button opens the phone dialer with the number.
+
 (Later versions add their own device checks in their sections below.)
 
 ## Accounts and keys needed (priority order)
@@ -352,3 +358,43 @@ recorded answer in tests; demo text under `AI_FAKE=1`).
 **Seen red:** `care.test.ts`.
 
 **Device checks:** owner checklist items 22–25.
+
+## v2.0 Money & Trips — [x] done
+
+**Built:** multi-currency expenses with a manual rate per expense (stored with the expense; balances and transfers in the
+group currency; the sheet shows the converted amount as you type; the history shows "paid in EUR at 52.5"). Budgets (module
+`budgets`): per category or everything, per month or for the whole trip/event, progress bars, alerts at 80% and 100%. Dues &
+fees (module `dues`): monthly or one-off per member, paid / says-paid / unpaid board, "I paid" → collector confirms,
+reminder at 09:00 the day before the due day to whoever hasn't paid or reported, next month's board opens on the 1st.
+Contacts (module `contacts`): vendors, doctors, emergency numbers with call/email. Guest list (module `guests`): invite by
+link (WhatsApp share or copy), RSVP on the web page without the app with plus-ones (capped per guest) and dietary notes,
+live headcount. Trip template (Organizer/Traveller, Itinerary, Packing list) and Event template (Host/Helper/Guest,
+Timeline with starter to-dos, guests, budget, vendors). Receipt scan: photo → draft expense.
+
+**Faked:** receipt reading — runs through the AI module (Claude Haiku 5.5 with the image when a key is set; recorded answer in
+tests; a demo receipt under `AI_FAKE=1`).
+
+**Skipped:** nothing.
+
+**`pnpm check`:** shared 33/33 (7 files) · server 115/115 (14 files) · E2E 10/10.
+
+| B9 v2.0 check | Evidence |
+|---|---|
+| A trip settles in one currency using each expense's stored rate | `apps/server/test/money2.test.ts` "multi-currency trip" — EGP trip, €90 at 52.50 → 4,725.00, $30 at 48 → 1,440.00, 300.00 EGP, a second € expense at 55: each keeps its own rate; balances are exact EGP sums of the stored amounts, add to 0, and the suggested transfers clear them; a foreign expense without a rate → 400. E2E: "= 4,725" preview, B owes 2,362.50 |
+| Budget alerts fire once at 80% and once at 100% | `money2.test.ts` "budget alerts" — Catering 1,000.00/month: 50% none, other category ignored, 80% one alert, 85% none, 100% one, 110% none; both adults got exactly 2; next month fires 80/100 once each again; a whole-trip `*` budget counts every category and never resets |
+| Guest-list RSVPs count plus-ones | `money2.test.ts` "guest list" — HTML form (no JS) going +2, API going asking +4 with max 1 → +1, maybe and no don't count plus-ones → headcount 5; change of mind updates it; removed guest's link → 404. E2E: guest page in a fresh browser (no account) → +2 → host sees headcount 3 |
+| Route sweep 404 | `sweep.test.ts` covers the 14 new group routes automatically (non-member 404, no session 401) |
+| Cross-group per new entity | `money2.test.ts` "cross-group" — budget, contact, guest, due charge (report + confirm) ids from another group → 404, nothing changed |
+
+**Also tested:** dues board (only the payer can report, only `approve` can confirm, reminder goes to the unpaid only, runs
+twice without duplicating, next month's board + reminder without anyone opening the screen), contacts, receipt draft not
+saved and another group's file refused, Trip/Event template content. The v1.2 "Child is blocked on every money route" sweep
+now switches on every module that has money routes, so the new budget/dues routes are checked for 403 too.
+
+**Arabic screenshots:** `apps/mobile/e2e/screenshots/v2.0/` (guests, contacts, expenses, expense sheet with currency + rate,
+budgets, dues, the guest RSVP page) — reviewed, no clipped text.
+
+**Seen red:** `money2.test.ts` (headcount assertion; and the roll-over test with the roll-over job removed).
+
+**Device checks:** owner checklist items 26–28.
+

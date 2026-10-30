@@ -9,7 +9,7 @@ Source of truth for where the build is (SPEC B1). One line per version in B5.
 - [x] v1.3 Sport & Study (widgets skipped per B5)
 - [x] v1.4 Life + AI (AI on a fake model until a key is set)
 - [x] v1.5 Care & Safety
-- [ ] v2.0 Dues, budgets, multi-currency, contacts, Trip + Event
+- [x] v2.0 Dues, budgets, multi-currency, contacts, Trip + Event (receipt scan on the AI fake until a key is set)
 - [ ] v2.2 Gam'eya + Savings Circle
 - [ ] v2.4 Entitlements, plan limits, paywall
 - [ ] v2.6 Payments
@@ -24,4 +24,4 @@ Source of truth for where the build is (SPEC B1). One line per version in B5.
 - [ ] v7.0 Cross-group AI assistant
 
 ## Current
-v1.5 done. Next: v2.0.
+v2.0 done. Next: v2.2.

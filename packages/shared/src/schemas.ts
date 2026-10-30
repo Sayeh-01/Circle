@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { formField, signatureInput } from './forms';
+import { PERMISSIONS, type Permission } from './permissions';
 import { isValidRRule } from './recurrence';
 import { isValidTimeZone } from './time';
 
@@ -237,3 +238,19 @@ export const standupAnswer = z.object({ yesterday: z.string().trim().max(1000).d
 export const meetingCreate = z.object({ title: z.string().trim().min(1).max(120), day, notes: z.string().max(20000).default('') });
 export const meetingUpdate = z.object({ title: z.string().trim().min(1).max(120).optional(), notes: z.string().max(20000).optional() });
 export const leaveCreate = z.object({ startDay: day, endDay: day, kind: z.enum(['vacation', 'sick', 'other']).default('vacation'), note: z.string().max(300).optional() });
+
+// v3.2 company
+const permission = z.enum(Object.keys(PERMISSIONS) as [Permission, ...Permission[]]);
+export const customRoleDef = z.object({
+  name: z.string().trim().min(1).max(40),
+  base: z.enum(['admin', 'manager', 'member', 'vendor']),
+  grant: z.array(permission).max(30).default([]),
+  deny: z.array(permission).max(30).default([]),
+});
+export const subgroupCreate = z.object({ name: z.string().trim().min(1).max(80), emoji: z.string().max(16).optional(), memberIds: z.array(id).max(500).default([]) });
+export const checklistCreate = z.object({
+  title: z.string().trim().min(1).max(120),
+  kind: z.enum(['opening', 'closing', 'onboarding', 'other']),
+  items: z.array(z.object({ text: z.string().trim().min(1).max(200), photo: z.boolean().default(false) })).min(1).max(60),
+});
+export const checklistCheck = z.object({ photoFileId: id.optional() });

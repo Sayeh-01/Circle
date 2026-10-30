@@ -33,6 +33,7 @@ export const MODULE_ROUTES: Record<string, string> = {
   standups: 'standups',
   meetings: 'meetings',
   leave: 'leave',
+  checklists: 'checklists',
 };
 
 const PINNED = 5;

@@ -85,6 +85,13 @@
       "when": 1793356720313,
       "tag": "0011_v3_0_work",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1793358182332,
+      "tag": "0012_v3_2_company",
+      "breakpoints": true
     }
   ]
 }

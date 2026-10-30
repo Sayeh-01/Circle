@@ -315,3 +315,22 @@ reminder 09:30 + summary 12:00 posted to chat on work days), meeting notes with 
   user edits them — an E2E run caught a race where someone who had just joined was left out of a split.
 - No new dependencies.
 
+## v3.2 plan
+Company template; custom roles (define/delete routes on top of the existing `can()` support, escalation guard
+`customRoleProblem`); departments as sub-groups (`groups.parentId`); checklists with per-day runs (opening/closing) and
+per-hire runs (onboarding via `onJoinHooks`), time stamps and photo proof; SOP wiki = Notes renamed by the template.
+
+## v3.2 decisions
+- Custom roles live in group settings (`customRoles[id] = { name, base, grant, deny }`); only `group.settings` holders define
+  them; no owner-only rights (`group.delete`, `group.transfer`), no grant the definer lacks, base never `owner`. Deleting a role
+  sends its members back to their base role.
+- B9 "custom roles pass the sweep": a test calls every permission-guarded group route as three custom-role members and checks
+  each answer against `can()` (403 exactly when the matrix says no); proven red by making the middleware ignore custom roles.
+- Departments: one level deep, members chosen from the parent; the parent's owner/admins join every department with their
+  roles; a department is covered by the parent's plan (Group Pro lists sub-groups). Removing someone from the parent doesn't
+  yet remove them from its departments (owner can remove them there).
+- Checklists: items marked 📷 need a photo uploaded to the group; a tick can't be undone (it's a time-stamped record); managers
+  see history and onboarding progress; members can't open someone else's onboarding run.
+- Company groups need a manager's approval for time off (`leaveApproval: true` from the template defaults).
+- No new dependencies.
+

@@ -25,6 +25,8 @@ export interface Group {
   modules: string[];
   currency: string;
   timezone: string;
+  /** v3.2: a department of this group */
+  parentId: string | null;
   settings: Record<string, any>;
   createdBy: string;
 }

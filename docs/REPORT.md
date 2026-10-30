@@ -104,6 +104,9 @@ Make a development build first (Expo Go can't do remote push on Android, B7 #6):
 34. **v3.0 stand-up push:** in a Work Team on a work day, the 09:30 reminder arrives for those who haven't answered and the
     12:00 summary appears in the group chat as "🤖 Circle".
 
+35. **v3.2 checklist photo proof:** tick a 📷 item on a phone → the camera roll opens, the photo uploads and shows under the item
+    with the time; a manager sees it in history.
+
 (Later versions add their own device checks in their sections below.)
 
 ## Accounts and keys needed (priority order)
@@ -590,4 +593,34 @@ The Work Team template gets Stand-ups, Meeting notes and Leave.
 **Fixed along the way:** a race in default member selection (expense split, challenges) found by the E2E suite.
 
 **Device checks:** owner checklist item 34.
+
+## v3.2 Company — [x] done (part of the v3.0–v3.8 line)
+
+**Built:** Company / Business template (Owner / Admin / Manager / Staff / Vendor; checklists, tasks, chat, time off with approval,
+SOP wiki, calendar, forms). Custom roles (a base role plus permissions granted or taken away; assign per member; delete falls
+back). Departments as sub-groups from the parent's members (leads join all; covered by the parent's plan). Checklists: opening
+/ closing (one run per day), onboarding (a run per new hire, created when they join), time-stamped ticks with photo proof,
+history and onboarding progress for managers.
+
+**Faked / skipped:** nothing.
+
+**`pnpm check`:** shared 59/59 (14 files) · server 168/168 (20 files) · E2E 16/16.
+
+| B9 v3.x check | Evidence |
+|---|---|
+| Custom roles pass the sweep | `apps/server/test/company.test.ts` — all modules on, three custom roles (Cashier: +money.write −items.create; Viewer: −items.read −chat −money.read; Supervisor: +items.manage +approve +members.invite), every permission-guarded group route (150+) called by each: 403 exactly where `can()` says no; a custom role still gets 404 in another group. Proven red by making the middleware ignore custom roles (a Viewer could read tasks). E2E: a Cashier can't add a task (403) |
+| Route sweep 404 | `sweep.test.ts` covers the 11 new routes |
+| Cross-group per new entity | `company.test.ts` — another group's checklist (run / tick) and role → 404; department routes covered by the sweep |
+
+**Also tested:** role definition guards (member 403, owner-only 403, bad id 400, unknown role on assign 400), role deletion,
+departments (only chosen people see them, leads are owners there, no nesting, parent's Group Pro lifts the department cap),
+checklist ticks (time stamp, 409 twice, photo required, another group's photo refused, completion notifies managers, a new day
+starts empty, history for managers only), onboarding runs for new hires and their privacy.
+
+**Arabic screenshots:** `apps/mobile/e2e/screenshots/v3.2/` (roles & departments, checklists, home with departments,
+checklist run with photo) — reviewed.
+
+**Seen red:** `packages/shared/test/roles.test.ts`, the custom-role sweep in `company.test.ts`.
+
+**Device checks:** owner checklist item 35.
 

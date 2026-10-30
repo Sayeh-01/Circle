@@ -32,6 +32,7 @@ export const MODULES = {
   standups: { emoji: '☀️', name: { en: 'Stand-ups', ar: 'الاجتماع اليومي' }, phase: '3.0' },
   meetings: { emoji: '🗒️', name: { en: 'Meeting notes', ar: 'محاضر الاجتماعات' }, phase: '3.0' },
   leave: { emoji: '🌴', name: { en: 'Leave', ar: 'الإجازات' }, phase: '3.0' },
+  checklists: { emoji: '☑️', name: { en: 'Checklists', ar: 'قوائم المراجعة' }, phase: '3.2' },
 } as const satisfies Record<string, { emoji: string; name: L10n; phase: string }>;
 
 export type ModuleId = keyof typeof MODULES;
@@ -68,7 +69,8 @@ export interface Template {
   vocab: Partial<Record<VocabKey, L10n>>;
   /** rename a module for this template (e.g. Dues → Donations) */
   moduleNames?: Partial<Record<string, L10n>>;
-  defaults: { eventCapacity?: number; waitlist?: boolean; currency?: string };
+  /** spread into the group's settings on creation */
+  defaults: { eventCapacity?: number; waitlist?: boolean; currency?: string; leaveApproval?: boolean };
   starters: { lists?: { title: L10n; items?: L10n[] }[]; events?: StarterEvent[]; tasks?: StarterTask[] };
 }
 
@@ -292,6 +294,20 @@ export const TEMPLATES: Template[] = [
     moduleNames: { dues: { en: 'Donations', ar: 'التبرعات' } },
     defaults: {},
     starters: { tasks: [{ title: { en: 'Welcome the new volunteers', ar: 'رحّب بالمتطوعين الجدد' } }] },
+  },
+  {
+    id: 'company',
+    emoji: '🏢',
+    color: '#34495E',
+    phase: '3',
+    name: { en: 'Company / Business', ar: 'شركة / بيزنس' },
+    tagline: { en: 'Daily operations', ar: 'تشغيل يومي' },
+    modules: ['tasks', 'checklists', 'chat', 'leave', 'notes', 'events', 'forms'],
+    roles: { owner: { en: 'Owner', ar: 'المالك' }, admin: { en: 'Admin', ar: 'مدير النظام' }, manager: { en: 'Manager', ar: 'مدير' }, member: { en: 'Staff', ar: 'موظف' }, vendor: { en: 'Vendor', ar: 'مورّد' } },
+    vocab: {},
+    moduleNames: { notes: { en: 'SOP wiki', ar: 'دليل الإجراءات' }, leave: { en: 'Time off', ar: 'الإجازات' } },
+    defaults: { leaveApproval: true },
+    starters: { tasks: [{ title: { en: 'Set up the opening checklist', ar: 'جهّز قائمة الفتح' } }] },
   },
   {
     id: 'custom',

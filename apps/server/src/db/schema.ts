@@ -1223,3 +1223,37 @@ export const leaves = pgTable('leaves', {
   decidedBy: text('decided_by'),
   createdAt: createdAt(),
 });
+
+// ── v3.2 checklists (opening / closing every day, onboarding per new hire) ────
+export const checklists = pgTable('checklists', {
+  id: text('id').primaryKey(),
+  groupId: text('group_id')
+    .notNull()
+    .references(() => groups.id, { onDelete: 'cascade' }),
+  title: text('title').notNull(),
+  /** opening | closing | onboarding | other */
+  kind: text('kind').notNull(),
+  items: jsonb('items').$type<{ id: string; text: string; photo: boolean }[]>().notNull(),
+  active: boolean('active').notNull().default(true),
+  createdBy: text('created_by').notNull(),
+  createdAt: createdAt(),
+});
+
+export const checklistRuns = pgTable(
+  'checklist_runs',
+  {
+    id: text('id').primaryKey(),
+    checklistId: text('checklist_id')
+      .notNull()
+      .references(() => checklists.id, { onDelete: 'cascade' }),
+    groupId: text('group_id').notNull(),
+    /** daily lists: the local day; onboarding: '' */
+    day: text('day').notNull().default(''),
+    /** onboarding: the new hire; daily lists: '' */
+    subjectUserId: text('subject_user_id').notNull().default(''),
+    checks: jsonb('checks').$type<Record<string, { at: string; by: string; photoFileId: string | null }>>().notNull().default({}),
+    completedAt: ts('completed_at'),
+    createdAt: createdAt(),
+  },
+  (t) => [uniqueIndex('checklist_runs_uq').on(t.checklistId, t.day, t.subjectUserId)],
+);

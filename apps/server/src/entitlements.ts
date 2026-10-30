@@ -14,7 +14,9 @@ export async function activePlans(db: DbOrTx, scope: 'user' | 'group', subjectId
 }
 
 export async function groupPlanInfo(db: DbOrTx, groupId: string, now: Date) {
-  const active = await activePlans(db, 'group', groupId, now);
+  // a department (sub-group, v3.2) is covered by its parent's plan
+  const [g] = await db.select({ parentId: groups.parentId }).from(groups).where(eq(groups.id, groupId));
+  const active = [...(await activePlans(db, 'group', groupId, now)), ...(g?.parentId ? await activePlans(db, 'group', g.parentId, now) : [])];
   const limit = memberLimit(active.map((e) => e.plan));
   const best = active.map((e) => e.plan as PlanId).sort((a, b) => (PLANS[b]?.members ?? 0) - (PLANS[a]?.members ?? 0))[0] ?? 'free';
   return { plan: best, limit, entitlements: active };

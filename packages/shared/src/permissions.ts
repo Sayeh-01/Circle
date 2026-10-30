@@ -59,3 +59,12 @@ export const ROLE_RANK: Record<Role, number> = {
   child: 1,
   guest: 0,
 };
+
+/** Why a custom role definition isn't allowed for this actor, or null. No owner-only rights; nothing the actor lacks. */
+export function customRoleProblem(actorRole: Role, def: { base: Role; grant?: Permission[] }): string | null {
+  if (!['admin', 'manager', 'member', 'vendor'].includes(def.base)) return def.base === 'owner' ? 'base_too_high' : 'bad_base';
+  if (ROLE_RANK[def.base] > ROLE_RANK[actorRole] || (def.base === actorRole && actorRole !== 'owner' && actorRole !== 'admin')) return 'base_too_high';
+  if (def.grant?.some((p) => p === 'group.delete' || p === 'group.transfer')) return 'owner_only';
+  if (def.grant?.some((p) => !can(actorRole, p))) return 'grant_too_high';
+  return null;
+}

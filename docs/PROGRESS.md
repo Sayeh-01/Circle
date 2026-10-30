@@ -14,7 +14,7 @@ Source of truth for where the build is (SPEC B1). One line per version in B5.
 - [x] v2.4 Entitlements, plan limits, paywall (store purchases faked: admin CLI grants plans)
 - [x] v2.6 Payments (gateway faked: FakeProvider; webhooks, signatures, idempotency, receipts real)
 - [x] v2.8 Challenges, forms; Faith, Club, Volunteer templates
-- [~] v3.0–v3.8 Work & Business (v3.0 done)
+- [~] v3.0–v3.8 Work & Business (v3.0, v3.2 done)
 - [ ] v4.0–v4.9 Property
 - [ ] v5.0–v5.9 Community & School
 - [ ] v6.0 Marketplace
@@ -24,4 +24,4 @@ Source of truth for where the build is (SPEC B1). One line per version in B5.
 - [ ] v7.0 Cross-group AI assistant
 
 ## Current
-v3.0 done. Next: v3.2 (Company template, sub-groups, custom roles, checklists, SOP wiki).
+v3.2 done. Next: v3.4 (shifts, swaps, time-off, QR time clock).

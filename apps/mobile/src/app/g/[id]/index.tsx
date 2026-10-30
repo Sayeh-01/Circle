@@ -24,6 +24,7 @@ export default function GroupHome() {
   const balances = useQuery({ queryKey: ['group', id, 'balances'], queryFn: () => get(`/groups/${id}/balances`), enabled: has('expenses') && g.can('money.read') });
   const anns = useQuery({ queryKey: ['group', id, 'announcements'], queryFn: () => get(`/groups/${id}/announcements`), enabled: has('chat') });
   const countdowns = useQuery({ queryKey: ['group', id, 'countdowns'], queryFn: () => get(`/groups/${id}/countdowns`), enabled: has('focus') });
+  const subgroups = useQuery({ queryKey: ['group', id, 'subgroups'], queryFn: () => get(`/groups/${id}/subgroups`), enabled: !!g.group && !g.group.parentId });
   const next = events.data?.find((e: any) => new Date(e.startsAt).getTime() > Date.now() - 3 * 3600_000);
   const myNet = g.me ? balances.data?.balances?.[g.me.userId] ?? 0 : 0;
   const tpl = g.group ? getTemplate(g.group.type) : null;
@@ -108,6 +109,16 @@ export default function GroupHome() {
           <Txt style={{ marginVertical: 6 }}>{tpl.starters.events[0].title[lang]}</Txt>
           <Button small title={t('group.addSuggested')} onPress={() => router.push(`/g/${id}/events?new=1`)} />
         </Card>
+      )}
+
+      {subgroups.data?.some((s: any) => s.member) && (
+        <Section title={t('company.departments')}>
+          {subgroups.data.filter((s: any) => s.member).map((s: any) => (
+            <Card key={s.id} onPress={() => router.push(`/g/${s.id}`)} testID={`home-department-${s.id}`}>
+              <Txt style={{ fontWeight: '600' }}>{`${s.emoji} ${s.name}`}</Txt>
+            </Card>
+          ))}
+        </Section>
       )}
 
       <Button kind="ghost" title={t('group.activity')} onPress={() => router.push(`/g/${id}/activity`)} testID="open-activity" />

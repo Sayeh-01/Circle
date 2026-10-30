@@ -35,6 +35,7 @@ import { registerMoney2Routes } from './routes/money2';
 import { registerPaymentRoutes } from './routes/payments';
 import { registerFormRoutes } from './routes/forms';
 import { registerWorkRoutes } from './routes/work';
+import { registerCompanyRoutes } from './routes/company';
 import { registerPlanRoutes } from './routes/plans';
 import { registerPollRoutes } from './routes/polls';
 import { registerTaskRoutes } from './routes/tasks';
@@ -102,6 +103,8 @@ export const features: FeatureModule[] = [
   (r, d) => registerFormRoutes(r, d),
   // v3.0
   (r, d) => registerWorkRoutes(r, d),
+  // v3.2
+  (r, d) => registerCompanyRoutes(r, d),
 ];
 
 export function createApp(opts: AppOptions) {

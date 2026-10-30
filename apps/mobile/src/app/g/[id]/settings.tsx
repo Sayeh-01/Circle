@@ -79,6 +79,7 @@ export default function GroupSettings() {
           </View>
         </Section>
       )}
+      {admin && <Button kind="secondary" title={`🎭 ${t('company.team')}`} onPress={() => router.push(`/g/${id}/team`)} testID="open-team" style={{ marginBottom: 12 }} />}
       <Section title={t('settings.members')}>
         <Card style={{ paddingVertical: 4 }}>
           {g.members.map((m) => (

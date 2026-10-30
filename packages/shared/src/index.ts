@@ -3,6 +3,8 @@ export * from './rotation';
 export * from './motivation';
 export * from './balancer';
 export * from './srs';
+export * from './meals';
+export * from './capture';
 export * from './time';
 export * from './recurrence';
 export * from './permissions';

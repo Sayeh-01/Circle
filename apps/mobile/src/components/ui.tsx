@@ -184,7 +184,7 @@ export function Txt({ style, children, ...rest }: { style?: StyleProp<TextStyle>
   );
 }
 
-export const Muted = ({ children, style }: { children: ReactNode; style?: StyleProp<TextStyle> }) => <Txt style={[{ color: colors.muted, fontSize: 13 }, style]}>{children}</Txt>;
+export const Muted = ({ children, style, testID }: { children: ReactNode; style?: StyleProp<TextStyle>; testID?: string }) => <Txt style={[{ color: colors.muted, fontSize: 13 }, style]} testID={testID}>{children}</Txt>;
 
 export function Button({
   title,

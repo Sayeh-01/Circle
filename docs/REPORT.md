@@ -67,6 +67,11 @@ Make a development build first (Expo Go can't do remote push on Android, B7 #6):
 19. **v1.3 focus room:** two phones open the same study group's Focus tab; one taps Start → the other sees 🟢 within a
     second; backgrounding the app for a while and returning reconnects (the socket reconnects on foreground).
 
+20. **v1.4 yearly book PDF:** Memories → 📖 Yearly book → a PDF opens in the share sheet; Arabic text is joined correctly
+    (not disconnected letters) and photos appear.
+21. **v1.4 live AI (with `ANTHROPIC_API_KEY`):** Add → ✨ Smart capture with "remind the roommates to pay internet Friday"
+    → the form fills with the right group, assignee and Friday; nothing is created until Save.
+
 (Later versions add their own device checks in their sections below.)
 
 ## Accounts and keys needed (priority order)
@@ -82,7 +87,9 @@ Make a development build first (Expo Go can't do remote push on Android, B7 #6):
 | 6 | Google OAuth client (Web + iOS + Android) | Google sign-in (v1.1) | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` |
 | 7 | Apple "Sign in with Apple" service id + key (required once Google is offered) | Apple sign-in (v1.1) | `APPLE_CLIENT_ID`, `APPLE_CLIENT_SECRET` |
 
-(Later versions append rows: Anthropic, RevenueCat, payment gateway.)
+| 8 | Anthropic API key | Live AI (v1.4 quick capture, chat → items, "what did I miss", quiz from notes; later the assistant) | `ANTHROPIC_API_KEY` (server only; never in the app) |
+
+(Later versions append rows: RevenueCat, payment gateway.)
 
 ## Defects or contradictions found in the brief
 
@@ -266,3 +273,38 @@ screen.
 **Seen red:** `balancer.test.ts`, `srs.test.ts`, `packs.test.ts`, and the new presence test in `realtime.test.ts`.
 
 **Device checks:** owner checklist item 19.
+
+## v1.4 Life + AI — [x] done
+
+**Built:** meal planner (module `meals`, Family template): plan a week by day and slot with ingredients; "add this week's
+ingredients to the grocery list" merges the same ingredient + unit (unit aliases incl. Arabic) and merges again into the
+list's open lines on re-run. Memories (module `memories`): timeline with photos; yearly book rendered as HTML (photos
+embedded as data URIs, RTL in Arabic) and turned into a PDF on the device with `expo-print` + share sheet (browser print on
+web). Rule-based quick capture moved to `@circle/shared` (reused by the fake model).
+
+**Faked:** the AI model. `apps/server/src/ai.ts` calls Claude through the official SDK when `ANTHROPIC_API_KEY` is set —
+`claude-haiku-5-5` with structured output (`messages.parse` + `zodOutputFormat`, effort `low`) for capture, chat → items and
+quiz; `claude-sonnet-5-5` (with the server-side refusal fallback `fallbacks: "default"`) for "what did I miss". Tests use
+recorded answers (`createFakeModel`); `AI_FAKE=1` (non-production only) gives the E2E build a deterministic rule-based model.
+Without either, AI routes answer 503 and the app hides every AI button.
+
+**Skipped:** nothing in v1.4 (widgets were v1.3's skip).
+
+**`pnpm check`:** shared 33/33 (7 files) · server 97/97 (12 files) · E2E 8/8.
+
+| B9 v1.4 check | Evidence |
+|---|---|
+| Meal plan → groceries merges the same ingredient and unit | `packages/shared/test/meals.test.ts` (g/grams merge, kg separate, Arabic units) + `apps/server/test/life.test.ts` (list gets "rice 800 g", "rice 1 kg", "onions 3"; re-run updates 4 lines, adds 0). E2E: list shows "rice × 800 g", "onions × 3" |
+| AI endpoints only return drafts; nothing is saved until the user confirms | `life.test.ts` "AI endpoints only return drafts" — counts tasks, events, cards, messages, list items before/after capture, chat-items, catchup and quiz: unchanged. E2E: after ✨ Smart capture there is no task until Save |
+| With the fake model, quick capture can't target a group the user isn't in | `life.test.ts` — fake answers with another group's id / list / member → draft has `groupId: null`, no assignees, no list; the model's prompt never contained the other group's name or id |
+
+**Also tested:** AI 503 without a model, 403 for Child accounts on all AI routes, invalid model output → 422 (not saved),
+chat suggestions that cite a non-existent message are dropped, book HTML escapes user text and excludes other years,
+memory photos must belong to the group, cross-group 404s for meals and memories.
+
+**Arabic screenshots:** `apps/mobile/e2e/screenshots/v1.4/` (meal plan, memories, quick add with an AI draft from an Arabic
+sentence) — reviewed.
+
+**Seen red:** `meals.test.ts`, `life.test.ts`.
+
+**Device checks:** owner checklist items 20–21.

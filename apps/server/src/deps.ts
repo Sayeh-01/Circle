@@ -3,6 +3,7 @@ import type { DB } from './db/client';
 import type { Mailer } from './mailer';
 import type { PushSender } from './push';
 import type { SmsSender } from './sms';
+import type { AiModel } from './ai';
 import type { FileStorage } from './storage';
 
 export interface Env {
@@ -31,6 +32,8 @@ export interface Deps {
   storage: FileStorage;
   push: PushSender;
   sms: SmsSender;
+  /** null when no ANTHROPIC_API_KEY (and not AI_FAKE): AI routes answer 503 and the app hides AI UI. */
+  ai: AiModel | null;
 }
 
 export function envFromProcess(overrides: Partial<Env> = {}): Env {

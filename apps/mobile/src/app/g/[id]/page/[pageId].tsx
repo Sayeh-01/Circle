@@ -3,8 +3,8 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button, Card, Field, Loading, Muted, Screen, Txt } from '@/components/ui';
-import { del, get, patch } from '@/lib/api';
-import { confirmAsk, useAct, useGroup } from '@/lib/hooks';
+import { del, get, patch, post } from '@/lib/api';
+import { confirmAsk, useAct, useConfig, useGroup } from '@/lib/hooks';
 
 export default function Page() {
   const { id, pageId, edit } = useLocalSearchParams<{ id: string; pageId: string; edit?: string }>();
@@ -16,6 +16,10 @@ export default function Page() {
   const [editing, setEditing] = useState(!!edit);
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
+  const config = useConfig();
+  const decks = useQuery({ queryKey: ['group', id, 'decks'], queryFn: () => get(`/groups/${id}/decks`), enabled: !!config.data?.ai && g.has('flashcards') });
+  const [cards, setCards] = useState<{ front: string; back: string }[] | null>(null);
+  const [addedTo, setAddedTo] = useState<string | null>(null);
   useEffect(() => {
     if (q.data) {
       setTitle(q.data.title);
@@ -53,6 +57,20 @@ export default function Page() {
         <Card>
           <Txt style={{ fontSize: 16, lineHeight: 24 }}>{q.data.body || '—'}</Txt>
           <Muted style={{ marginTop: 12 }}>{t('study.edited', { name: g.memberName(q.data.updatedBy) })}</Muted>
+        </Card>
+      )}
+      {!editing && config.data?.ai && g.has('flashcards') && g.can('items.create') && (
+        <Button kind="secondary" title={t('life.makeCards')} onPress={() => run(() => post(`/groups/${id}/ai/quiz`, { pageId, count: 10 })).then((r) => setCards(r.cards))} testID="ai-quiz" />
+      )}
+      {cards && (
+        <Card testID="ai-cards">
+          <Muted>{t('life.draft')}</Muted>
+          {cards.map((cd, i) => (
+            <Txt key={i} style={{ marginVertical: 4 }}>{`❓ ${cd.front}\n✅ ${cd.back}`}</Txt>
+          ))}
+          {addedTo ? <Txt>{t('life.added')}</Txt> : (decks.data ?? []).map((d: any) => (
+            <Button key={d.id} small kind="secondary" title={`${t('life.pickDeck')}: ${d.title}`} style={{ marginTop: 6 }} onPress={() => run(async () => { for (const cd of cards) await post(`/groups/${id}/decks/${d.id}/cards`, cd); setAddedTo(d.id); })} />
+          ))}
         </Card>
       )}
     </Screen>

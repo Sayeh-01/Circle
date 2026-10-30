@@ -148,3 +148,15 @@ export const deckCreate = z.object({ title: z.string().trim().min(1).max(120) })
 export const cardCreate = z.object({ front: z.string().trim().min(1).max(1000), back: z.string().trim().min(1).max(2000) });
 export const cardReview = z.object({ grade: z.number().int().min(0).max(5) });
 export const pageUpsert = z.object({ title: z.string().trim().min(1).max(200), body: z.string().max(50_000).default('') });
+
+export const ingredient = z.object({ name: z.string().trim().min(1).max(80), qty: z.number().nonnegative().max(100000).nullable().optional(), unit: z.string().max(20).nullable().optional() });
+export const mealCreate = z.object({
+  day: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  slot: z.enum(['breakfast', 'lunch', 'dinner', 'snack']),
+  title: z.string().trim().min(1).max(120),
+  ingredients: z.array(ingredient).max(60).default([]),
+});
+export const mealsToList = z.object({ from: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), to: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), listId: id.optional() });
+export const memoryCreate = z.object({ day: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), text: z.string().trim().max(4000).default(''), photoFileIds: z.array(id).max(10).default([]) });
+export const aiCapture = z.object({ text: z.string().trim().min(1).max(500) });
+export const aiQuiz = z.object({ pageId: id.optional(), text: z.string().max(20000).optional(), count: z.number().int().min(1).max(30).default(10) });

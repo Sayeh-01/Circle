@@ -702,3 +702,38 @@ export const pages = pgTable('pages', {
   createdAt: createdAt(),
   updatedAt: ts('updated_at').notNull().defaultNow(),
 });
+
+// ── v1.4 Life ─────────────────────────────────────────────────────────────────
+export const meals = pgTable(
+  'meals',
+  {
+    id: text('id').primaryKey(),
+    groupId: text('group_id')
+      .notNull()
+      .references(() => groups.id, { onDelete: 'cascade' }),
+    /** Local calendar day in the group timezone, YYYY-MM-DD. */
+    day: text('day').notNull(),
+    slot: text('slot').notNull(),
+    title: text('title').notNull(),
+    ingredients: jsonb('ingredients').$type<{ name: string; qty?: number | null; unit?: string | null }[]>().notNull().default([]),
+    createdBy: text('created_by').notNull(),
+    createdAt: createdAt(),
+  },
+  (t) => [index('meals_group_day_idx').on(t.groupId, t.day)],
+);
+
+export const memories = pgTable(
+  'memories',
+  {
+    id: text('id').primaryKey(),
+    groupId: text('group_id')
+      .notNull()
+      .references(() => groups.id, { onDelete: 'cascade' }),
+    userId: text('user_id').notNull(),
+    day: text('day').notNull(),
+    text: text('text').notNull().default(''),
+    photoFileIds: text('photo_file_ids').array().notNull().default(sql`'{}'::text[]`),
+    createdAt: createdAt(),
+  },
+  (t) => [index('memories_group_day_idx').on(t.groupId, t.day)],
+);

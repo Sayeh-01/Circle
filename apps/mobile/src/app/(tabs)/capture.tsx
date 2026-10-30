@@ -5,8 +5,8 @@ import { useTranslation } from 'react-i18next';
 import { Button, Chip, Field, HScroll, Muted, Screen, Segmented, Txt, styles } from '@/components/ui';
 import { DateTimeField } from '@/components/DateTimeField';
 import { get, post } from '@/lib/api';
-import { parseQuickCapture } from '@/lib/capture';
-import { useAct, useGroups } from '@/lib/hooks';
+import { parseQuickCapture } from '@circle/shared';
+import { useAct, useConfig, useGroups } from '@/lib/hooks';
 import { usePrefs } from '@/lib/prefs';
 import { useQuery } from '@tanstack/react-query';
 
@@ -24,6 +24,10 @@ export default function Capture() {
   const [when, setWhen] = useState<Date | null>(null);
   const [listId, setListId] = useState<string | null>(null);
   const [saved, setSaved] = useState<string | null>(null);
+  const config = useConfig();
+  const [aiTitle, setAiTitle] = useState<string | null>(null);
+  const [assignees, setAssignees] = useState<string[]>([]);
+  const [thinking, setThinking] = useState(false);
   const { run, pending } = useAct(groupId ?? undefined);
   const parsed = useMemo(() => parseQuickCapture(text, new Date(), tz), [text, tz]);
   const moduleFor = kind === 'task' ? 'tasks' : kind === 'event' ? 'events' : 'lists';
@@ -33,20 +37,40 @@ export default function Capture() {
 
   async function save() {
     if (!groupId) return;
-    const title = parsed.title || text.trim();
-    if (kind === 'task') await run(() => post(`/groups/${groupId}/tasks`, { title, dueAt: date?.toISOString() ?? null }));
+    const title = aiTitle ?? (parsed.title || text.trim());
+    if (kind === 'task') await run(() => post(`/groups/${groupId}/tasks`, { title, dueAt: date?.toISOString() ?? null, assigneeId: assignees[0] ?? null }));
     if (kind === 'event') await run(() => post(`/groups/${groupId}/events`, { title, startsAt: (date ?? new Date(Date.now() + 86_400_000)).toISOString() }));
     if (kind === 'item' && listId) await run(() => post(`/groups/${groupId}/lists/${listId}/items`, { title }));
     const g = candidates.find((x: any) => x.id === groupId);
     setSaved(t('capture.saved', { group: g?.name ?? '' }));
     setText('');
     setWhen(null);
+    setAiTitle(null);
+    setAssignees([]);
+  }
+
+  /** AI fills the form (group, type, date, assignees); the user still reviews and presses Save. */
+  async function smart() {
+    setThinking(true);
+    try {
+      const { draft } = await run(() => post('/ai/capture', { text }));
+      setKind(draft.kind === 'list_item' ? 'item' : draft.kind);
+      if (draft.groupId) setGroupId(draft.groupId);
+      if (draft.listId) setListId(draft.listId);
+      setWhen(draft.when ? new Date(draft.when) : null);
+      setAiTitle(draft.title);
+      setAssignees(draft.assigneeIds);
+    } finally {
+      setThinking(false);
+    }
   }
 
   return (
     <Screen title={t('capture.title')} testID="capture-screen">
       <Muted style={{ marginBottom: 12 }}>{t('capture.hint')}</Muted>
-      <Field value={text} onChangeText={(s) => (setText(s), setSaved(null))} placeholder={t('capture.placeholder')} testID="capture-input" autoFocus />
+      <Field value={text} onChangeText={(s) => (setText(s), setSaved(null), setAiTitle(null))} placeholder={t('capture.placeholder')} testID="capture-input" autoFocus />
+      {config.data?.ai && <Button kind="secondary" title={t('life.smart')} onPress={smart} loading={thinking} disabled={!text.trim()} testID="capture-smart" style={{ marginBottom: 12 }} />}
+      {aiTitle && <Muted style={{ marginBottom: 8 }} testID="capture-draft">{`${t('life.draft')}: ${aiTitle}`}</Muted>}
       <Segmented<Kind>
         value={kind}
         onChange={setKind}

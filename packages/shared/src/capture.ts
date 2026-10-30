@@ -1,4 +1,5 @@
-import { fromZoned, toWesternDigits, toZoned } from '@circle/shared';
+import { toWesternDigits } from './money';
+import { fromZoned, toZoned } from './time';
 
 const WEEKDAYS: Record<string, number> = {
   sunday: 0, sun: 0, monday: 1, mon: 1, tuesday: 2, tue: 2, wednesday: 3, wed: 3, thursday: 4, thu: 4, friday: 5, fri: 5, saturday: 6, sat: 6,

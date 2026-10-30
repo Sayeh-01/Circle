@@ -112,6 +112,13 @@ export const en = {
     study: 'Study', front: 'Question', back: 'Answer', addCard: 'Add card', show: 'Show answer', again: 'Again', hard: 'Hard', good: 'Good', easy: 'Easy', doneForNow: 'Nothing due. Come back later! 🎉',
     pages: 'Pages', newPage: 'New page', pageTitle: 'Title', pageBody: 'Text', edited: 'Edited by {{name}}',
   },
+  life: {
+    meals: 'Meal plan', addMeal: 'Add meal', slot_breakfast: 'Breakfast', slot_lunch: 'Lunch', slot_dinner: 'Dinner', slot_snack: 'Snack', mealTitle: 'Dish',
+    ingredients: 'Ingredients (one per line, e.g. "500 g rice")', toList: '🛒 Add this week’s ingredients to the grocery list', toListDone: '{{added}} added, {{updated}} merged',
+    openList: 'Open list', memories: 'Memories', addMemory: 'Add a memory', memoryText: 'What happened?', addPhotos: 'Add photos', book: '📖 Yearly book {{year}}',
+    noMeals: 'No meals planned', ai: '✨', smart: '✨ Smart capture', suggest: '✨ Suggest items from chat', missed: '✨ What did I miss?', makeCards: '✨ Make flashcards',
+    draft: 'Draft — check it, then save', addAll: 'Add all', added: 'Added', nothingNew: 'Nothing new since you last read', pickDeck: 'Add to deck',
+  },
   kids: {
     title: 'Kids', add: 'Add a child', name: "Child's name", pin: 'PIN (4–6 digits)', onDevice: 'Kids on this device', switchTo: 'Switch to {{name}}',
     enterPin: 'Enter PIN', wrongPin: 'Wrong PIN', locked: 'Too many tries. Wait 15 minutes.', resetPin: 'New PIN', hint: 'Kids sign in with a PIN on this phone. No email, no money, no links outside the family.',
@@ -236,6 +243,13 @@ export const ar: Shape<typeof en> = {
     due_zero: 'لا شيء مستحق', due_one: 'واحدة مستحقة', due_two: 'اثنتان مستحقتان', due_few: '{{count}} مستحقة', due_many: '{{count}} مستحقة', due_other: '{{count}} مستحقة',
     study: 'راجع', front: 'السؤال', back: 'الإجابة', addCard: 'أضف بطاقة', show: 'اعرض الإجابة', again: 'تاني', hard: 'صعب', good: 'كويس', easy: 'سهل', doneForNow: 'مفيش حاجة مستحقة. ارجع بعدين! 🎉',
     pages: 'الصفحات', newPage: 'صفحة جديدة', pageTitle: 'العنوان', pageBody: 'النص', edited: 'آخر تعديل: {{name}}',
+  },
+  life: {
+    meals: 'خطة الوجبات', addMeal: 'أضف وجبة', slot_breakfast: 'فطار', slot_lunch: 'غدا', slot_dinner: 'عشا', slot_snack: 'سناك', mealTitle: 'الأكلة',
+    ingredients: 'المكونات (سطر لكل مكوّن، مثلًا "500 g رز")', toList: '🛒 ضيف مكونات الأسبوع لقائمة البقالة', toListDone: 'اتضاف {{added}} واتدمج {{updated}}',
+    openList: 'افتح القائمة', memories: 'الذكريات', addMemory: 'أضف ذكرى', memoryText: 'إيه اللي حصل؟', addPhotos: 'أضف صور', book: '📖 كتاب سنة {{year}}',
+    noMeals: 'مفيش وجبات متخططة', ai: '✨', smart: '✨ إضافة ذكية', suggest: '✨ اقترح عناصر من الدردشة', missed: '✨ إيه اللي فاتني؟', makeCards: '✨ اعمل بطاقات مراجعة',
+    draft: 'مسودة — راجعها وبعدين احفظ', addAll: 'أضف الكل', added: 'اتضاف', nothingNew: 'مفيش جديد من آخر مرة', pickDeck: 'أضف إلى مجموعة',
   },
   kids: {
     title: 'الأطفال', add: 'إضافة طفل', name: 'اسم الطفل', pin: 'رمز PIN (٤–٦ أرقام)', onDevice: 'الأطفال على هذا الجهاز', switchTo: 'التبديل إلى {{name}}',

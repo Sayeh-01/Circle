@@ -17,6 +17,8 @@ export const MODULES = {
   focus: { emoji: '⏱️', name: { en: 'Focus', ar: 'التركيز' }, phase: '1.3' },
   flashcards: { emoji: '🃏', name: { en: 'Flashcards', ar: 'بطاقات المراجعة' }, phase: '1.3' },
   notes: { emoji: '📒', name: { en: 'Notes & Wiki', ar: 'الملاحظات' }, phase: '1.3' },
+  meals: { emoji: '🍲', name: { en: 'Meal planner', ar: 'خطة الوجبات' }, phase: '1.4' },
+  memories: { emoji: '📸', name: { en: 'Memories', ar: 'الذكريات' }, phase: '1.4' },
 } as const satisfies Record<string, { emoji: string; name: L10n; phase: string }>;
 
 export type ModuleId = keyof typeof MODULES;
@@ -86,7 +88,7 @@ export const TEMPLATES: Template[] = [
     phase: '1',
     name: { en: 'Home & Family', ar: 'البيت والعائلة' },
     tagline: { en: 'Organize daily life', ar: 'نظّموا حياتكم اليومية' },
-    modules: ['events', 'tasks', 'lists', 'chat', 'expenses', 'polls', 'points'],
+    modules: ['events', 'tasks', 'lists', 'chat', 'expenses', 'polls', 'points', 'meals', 'memories'],
     roles: { owner: { en: 'Parent', ar: 'وليّ الأمر' }, admin: { en: 'Parent', ar: 'وليّ الأمر' }, child: { en: 'Child', ar: 'طفل' } },
     vocab: { task: { en: 'Chore', ar: 'مهمة منزلية' }, tasks: { en: 'Chores', ar: 'المهام المنزلية' } },
     defaults: {},

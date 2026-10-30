@@ -18,6 +18,8 @@ export const MODULE_ROUTES: Record<string, string> = {
   focus: 'focus',
   flashcards: 'flashcards',
   notes: 'notes',
+  meals: 'meals',
+  memories: 'memories',
 };
 
 const PINNED = 5;

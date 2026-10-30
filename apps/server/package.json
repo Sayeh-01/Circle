@@ -12,6 +12,7 @@
     "grant": "tsx scripts/grant-entitlement.ts"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^1.3.0",
     "@better-auth/expo": "1.7.14",
     "@circle/shared": "workspace:*",
     "@electric-sql/pglite": "^0.5.13",

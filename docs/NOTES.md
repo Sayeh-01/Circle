@@ -132,3 +132,19 @@ Decisions made while the owner is away (SPEC B0/B8). Newest at the bottom of eac
 - Attendance = RSVP "going" for past, non-cancelled events (no separate check-in); a no-show marker can be added later.
 - A focus session counts at most 3 hours if the app never sent "stop".
 - Home-screen widgets: Skip per B5 (owner's list in REPORT).
+
+## v1.4 plan
+1. `mergeIngredients` in shared (tested), meals + memories tables, to-list merges into open list lines.
+2. Yearly book = server HTML with embedded photos → expo-print on device.
+3. One `AiModel` interface: Claude (official SDK; Haiku 5.5 structured output for parsing, Sonnet 5.5 for summaries),
+   recorded fake for tests, rule-based fake behind `AI_FAKE=1` for E2E. Every AI route returns drafts; ids in a model's
+   answer are re-checked against what the user can see.
+
+## v1.4 decisions
+- Model ids follow the spec (A10): `claude-haiku-5-5` for parsing, `claude-sonnet-5-5` for summaries/assistant. Parsing runs
+  at effort `low` (cheap, fast); the Sonnet call opts into the server-side refusal fallback (`fallbacks: "default"`, beta
+  `server-side-fallback-2026-07-01`) per the Claude API guidance.
+- The model only ever sees groups where the user may create items, with member display names (no emails/phones).
+- `@anthropic-ai/sdk` added (server only) — official SDK for Claude (B4 ai module).
+- Grocery merge does not convert between units (500 g + 1 kg stay two lines) — no silent unit maths.
+- Web "yearly book" uses the browser print dialog (expo-print's PDF file + share sheet is native-only).

@@ -10,7 +10,7 @@ import { VoiceNote } from '@/components/VoiceNote';
 import { VoiceRecorder } from '@/components/VoiceRecorder';
 import { Button, Chip, HScroll, Muted, Sheet, Txt, colors, styles, useSheet } from '@/components/ui';
 import { authHeaders, fileUrl, get, post } from '@/lib/api';
-import { useAct, useGroup } from '@/lib/hooks';
+import { useAct, useConfig, useGroup } from '@/lib/hooks';
 import { useFormat } from '@/lib/prefs';
 
 export default function Chat() {
@@ -27,6 +27,9 @@ export default function Chat() {
   const [image, setImage] = useState<{ uri: string; mime: string } | null>(null);
   const [selected, setSelected] = useState<any>(null);
   const actions = useSheet();
+  const config = useConfig();
+  const aiSheet = useSheet();
+  const [ai, setAi] = useState<{ summary?: string; items?: any[]; added: string[] } | null>(null);
   const color = g.group?.color ?? colors.primary;
   const mentionQuery = /@(\S*)$/.exec(text)?.[1];
 
@@ -94,6 +97,12 @@ export default function Chat() {
           {g.can('announce') && text.trim() ? <Button small kind="ghost" title={`📣 ${t('chat.announce')}`} onPress={() => send(true)} testID="chat-announce" /> : null}
         </View>
       }>
+      {config.data?.ai && (
+        <View style={{ flexDirection: 'row', gap: 8, padding: 8, flexWrap: 'wrap' }}>
+          <Chip label={t('life.missed')} onPress={() => run(() => post(`/groups/${id}/ai/catchup`)).then((r) => (setAi({ summary: r.summary || t('life.nothingNew'), added: [] }), aiSheet.show()))} testID="ai-missed" />
+          {g.can('items.create') && <Chip label={t('life.suggest')} onPress={() => run(() => post(`/groups/${id}/ai/chat-items`)).then((r) => (setAi({ items: r.items, added: [] }), aiSheet.show()))} testID="ai-suggest" />}
+        </View>
+      )}
       {pinned && (
         <View style={{ backgroundColor: '#FFF6DD', padding: 10, borderBottomWidth: 1, borderBottomColor: colors.border }} testID="pinned-banner">
           <Txt numberOfLines={2}>📣 {pinned.body}</Txt>
@@ -125,6 +134,28 @@ export default function Chat() {
           );
         }}
       />
+      <Sheet visible={aiSheet.open} onClose={aiSheet.hide} title={ai?.summary !== undefined ? t('life.missed') : t('life.suggest')} testID="ai-sheet">
+        {ai?.summary !== undefined && <Txt style={{ fontSize: 16, lineHeight: 24 }} testID="ai-summary">{ai.summary}</Txt>}
+        {ai?.items?.length === 0 && <Muted>{t('group.nothingYet')}</Muted>}
+        {ai?.items?.map((it, i) => (
+          <View key={i} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 8 }}>
+            <Txt style={{ flex: 1 }}>{`${it.kind === 'event' ? '📅' : '✅'} ${it.title}${it.when ? ` · ${fmt.dateTime(it.when)}` : ''}`}</Txt>
+            <Button
+              small
+              color={color}
+              title={ai.added.includes(String(i)) ? t('life.added') : t('common.add')}
+              disabled={ai.added.includes(String(i)) || (it.kind === 'event' && !it.when)}
+              testID={`ai-add-${i}`}
+              onPress={() =>
+                run(() => (it.kind === 'event' ? post(`/groups/${id}/events`, { title: it.title, startsAt: it.when }) : post(`/groups/${id}/tasks`, { title: it.title, dueAt: it.when }))).then(() =>
+                  setAi({ ...ai, added: [...ai.added, String(i)] }),
+                )
+              }
+            />
+          </View>
+        ))}
+        <Muted style={{ marginTop: 8 }}>{t('life.draft')}</Muted>
+      </Sheet>
       <Sheet visible={actions.open} onClose={actions.hide} title={selected?.body?.slice(0, 40) || t('chat.photo')}>
         <View style={{ gap: 8 }}>
           <Button kind="secondary" title={t('chat.reply')} onPress={() => (setReplyTo(selected), actions.hide())} />

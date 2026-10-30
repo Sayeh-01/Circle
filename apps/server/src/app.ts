@@ -3,6 +3,7 @@ import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
+import { createClaudeModel, createRuleBasedModel, type AiModel } from './ai';
 import { createAuth, type Auth } from './auth';
 import { Bus } from './bus';
 import type { DB } from './db/client';
@@ -12,7 +13,9 @@ import { createRouter, type Router } from './http';
 import { createDevMailer, type Mailer } from './mailer';
 import { createMemoryPushSender, type PushSender } from './push';
 import { attachRealtime, signTicket } from './realtime';
+import { registerAiRoutes } from './routes/ai';
 import { registerChatRoutes } from './routes/chat';
+import { registerLifeRoutes } from './routes/life';
 import { registerChildRoutes } from './routes/children';
 import { registerMotivationRoutes } from './routes/motivation';
 import { registerSportRoutes } from './routes/sport';
@@ -38,6 +41,8 @@ export interface AppOptions {
   clock?: () => Date;
   push?: PushSender;
   sms?: SmsSender;
+  /** Override the AI model (tests). Default: Claude when ANTHROPIC_API_KEY is set, rules when AI_FAKE=1 outside production, else off. */
+  ai?: AiModel | null;
   storage?: FileStorage;
   /** Serve the exported Expo web build (E2E and simple deployments). */
   staticDir?: string;
@@ -68,6 +73,9 @@ export const features: FeatureModule[] = [
   // v1.3 Sport & Study
   (r, d) => registerSportRoutes(r, d),
   (r, d) => registerStudyRoutes(r, d),
+  // v1.4 Life + AI
+  (r, d) => registerLifeRoutes(r, d),
+  (r, d) => registerAiRoutes(r, d),
 ];
 
 export function createApp(opts: AppOptions) {
@@ -82,7 +90,16 @@ export function createApp(opts: AppOptions) {
     storage: opts.storage ?? createMemoryStorage(),
     push: opts.push ?? createMemoryPushSender(),
     sms: opts.sms ?? createDevSms(env.nodeEnv !== 'test'),
+    ai: null,
   };
+  deps.ai =
+    opts.ai !== undefined
+      ? opts.ai
+      : env.anthropicApiKey
+        ? createClaudeModel(env.anthropicApiKey)
+        : process.env.AI_FAKE === '1' && env.nodeEnv !== 'production'
+          ? createRuleBasedModel(deps.clock)
+          : null;
   const auth: Auth = createAuth(opts.db, env, mailer, deps.sms, deps.clock);
   const router = createRouter(deps, auth);
   const app = new Hono();
@@ -98,7 +115,7 @@ export function createApp(opts: AppOptions) {
   app.on(['GET', 'POST'], '/api/auth/*', (c) => auth.handler(c.req.raw));
   app.get('/api/health', (c) => c.json({ ok: true }));
   app.get('/api/config', (c) =>
-    c.json({ google: !!env.google, apple: !!env.apple, phone: true, ai: !!env.anthropicApiKey, linkDomain: env.linkDomain }),
+    c.json({ google: !!env.google, apple: !!env.apple, phone: true, ai: !!deps.ai, linkDomain: env.linkDomain }),
   );
   app.post('/api/ws-ticket', router.requireUser as any, (c: any) =>
     c.json({ ticket: signTicket(env.authSecret, c.get('user').id, deps.clock().getTime() + 60_000) }),

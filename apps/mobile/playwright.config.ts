@@ -30,6 +30,8 @@ export default defineConfig({
       FILES_DIR: join(__dirname, 'e2e/.output/files'),
       NODE_ENV: 'development',
       PUBLIC_URL: `http://localhost:${PORT}`,
+      // deterministic stand-in model so AI screens can be exercised without an API key (never in production)
+      AI_FAKE: '1',
     },
   },
 });

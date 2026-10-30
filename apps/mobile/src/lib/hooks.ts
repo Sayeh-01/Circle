@@ -91,3 +91,6 @@ export function useAct(groupId?: string) {
   const run = useCallback(<T,>(fn: () => Promise<T>) => m.mutateAsync(fn) as Promise<T>, [m]);
   return { run, pending: m.isPending };
 }
+
+/** Server feature flags (AI on/off, social providers). AI UI is hidden when the server has no model (B4). */
+export const useConfig = () => useQuery({ queryKey: ['config'], queryFn: () => get<{ ai: boolean; google: boolean; apple: boolean; phone: boolean }>('/config'), staleTime: 5 * 60_000 });

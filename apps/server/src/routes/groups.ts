@@ -2,7 +2,7 @@ import { ASSIGNABLE_ROLES, MODULE_IDS, ROLE_RANK, getTemplate, schemas, type Lan
 import { and, asc, count, desc, eq, gt, inArray, isNull, ne, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import type { DbOrTx } from '../db/client';
-import { groupMembers, groups, invites, messages, tasks, users } from '../db/schema';
+import { files, groupMembers, groups, invites, messages, tasks, users } from '../db/schema';
 import type { Deps } from '../deps';
 import { logActivity } from '../effects';
 import { badRequest, conflict, forbidden, notFound } from '../errors';
@@ -162,6 +162,10 @@ export function registerGroupRoutes(r: Router, deps: Deps) {
   r.patch('/groups/:groupId', { summary: 'Edit name, emoji, photo, settings', perm: 'group.settings', body: schemas.groupUpdate, tags: ['groups'] }, async (c, { body }) => {
     const group = c.get('group');
     const { membersCanInvite, ...fields } = body;
+    if (fields.photo) {
+      const [f] = await db.select().from(files).where(and(eq(files.id, fields.photo), eq(files.groupId, group.id)));
+      if (!f) throw badRequest('bad_file');
+    }
     const settings = membersCanInvite === undefined ? group.settings : { ...group.settings, membersCanInvite };
     await db.transaction(async (tx) => {
       await tx.update(groups).set({ ...fields, settings }).where(eq(groups.id, group.id));

@@ -120,3 +120,14 @@ describe('groups & templates', () => {
     expect(res.status).toBe(401);
   });
 });
+
+describe('group photo', () => {
+  it('must be a file uploaded to this group', async () => {
+    const g = await makeGroup(A, 'family', 'Photo test');
+    const other = await makeGroup(A, 'family', 'Other');
+    const f = await A.post(`/api/groups/${other.id}/files`, { mime: 'image/png', size: 4 });
+    expect((await A.patch(`/api/groups/${g.id}`, { photo: f.body.fileId })).status).toBe(400);
+    const own = await A.post(`/api/groups/${g.id}/files`, { mime: 'image/png', size: 4 });
+    expect((await A.patch(`/api/groups/${g.id}`, { photo: own.body.fileId })).status).toBe(200);
+  });
+});

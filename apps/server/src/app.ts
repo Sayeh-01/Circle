@@ -11,7 +11,7 @@ import { HttpError } from './errors';
 import { createRouter, type Router } from './http';
 import { createDevMailer, type Mailer } from './mailer';
 import { createMemoryPushSender, type PushSender } from './push';
-import { signTicket } from './realtime';
+import { attachRealtime, signTicket } from './realtime';
 import { registerChatRoutes } from './routes/chat';
 import { registerEventRoutes } from './routes/events';
 import { registerExpenseRoutes } from './routes/expenses';
@@ -33,6 +33,8 @@ export interface AppOptions {
   storage?: FileStorage;
   /** Serve the exported Expo web build (E2E and simple deployments). */
   staticDir?: string;
+  /** Register the WebSocket route (needs injectWebSocket on a real HTTP server). */
+  realtime?: boolean;
 }
 
 export type FeatureModule = (r: Router, deps: Deps, root: Hono) => void;
@@ -93,6 +95,7 @@ export function createApp(opts: AppOptions) {
 
   for (const feature of features) feature(router, deps, app);
   app.route('/api', router.app);
+  const rt = opts.realtime ? attachRealtime(app, deps) : null;
   app.all('/api/*', (c) => c.json({ error: 'not_found' }, 404));
 
   if (opts.staticDir) {
@@ -101,7 +104,7 @@ export function createApp(opts: AppOptions) {
     app.get('*', async (c) => c.html(await readFile(join(root, 'index.html'), 'utf8')));
   }
 
-  return { app, auth, deps, router };
+  return { app, auth, deps, router, injectWebSocket: rt?.injectWebSocket ?? (() => {}), presence: rt?.presence ?? null };
 }
 
 export type CircleApp = ReturnType<typeof createApp>;

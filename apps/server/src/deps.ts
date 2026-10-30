@@ -38,7 +38,7 @@ export function envFromProcess(overrides: Partial<Env> = {}): Env {
     nodeEnv: p.NODE_ENV ?? 'development',
     publicUrl,
     authSecret: p.BETTER_AUTH_SECRET ?? 'dev-only-secret-change-me-dev-only-secret',
-    trustedOrigins: [publicUrl, 'circleapp://', 'http://localhost:8081', ...(p.TRUSTED_ORIGINS?.split(',').filter(Boolean) ?? [])],
+    trustedOrigins: [publicUrl, 'circleapp://', ...(p.NODE_ENV === 'production' ? [] : ['http://localhost:8081']), ...(p.TRUSTED_ORIGINS?.split(',').filter(Boolean) ?? [])],
     linkDomain: p.LINK_DOMAIN ?? 'circle.example.com',
     google: p.GOOGLE_CLIENT_ID && p.GOOGLE_CLIENT_SECRET ? { clientId: p.GOOGLE_CLIENT_ID, clientSecret: p.GOOGLE_CLIENT_SECRET } : undefined,
     apple: p.APPLE_CLIENT_ID && p.APPLE_CLIENT_SECRET ? { clientId: p.APPLE_CLIENT_ID, clientSecret: p.APPLE_CLIENT_SECRET } : undefined,

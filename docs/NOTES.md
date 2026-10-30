@@ -58,3 +58,25 @@ Decisions made while the owner is away (SPEC B0/B8). Newest at the bottom of eac
   `expo-image-picker` — photos for chat/proof; `expo-clipboard` — copy invite code; `expo-notifications` — push;
   `expo-print`, `expo-sharing` — PDFs (B3); `qrcode-generator` — invite QR rendered with plain Views (no native SVG needed);
   `@playwright/test@1.63.0` — E2E, pinned to the preinstalled browser build.
+
+## v1.0 plan (B10)
+1. pnpm workspace, shared package (money, rotation, recurrence, permissions, templates, zod schemas) — tests first.
+2. Drizzle schema + first migration; PGlite test harness with real OTP sign-in.
+3. Route helper = single authorization choke point; route sweep + cross-group tests from day one.
+4. Groups/templates/invites → tasks/lists/events/Today → expenses/polls/chat/activity/realtime → push + account deletion.
+5. Expo app: tabs (Today · Groups · + · Inbox · Me), group home + module tabs, all module screens, Arabic/RTL.
+6. Playwright against the exported web build served by the API (same origin → cookie sessions just work).
+
+## v1.0 review pass (1 round)
+- Found: WebSocket route registered after the `/api/*` 404 catch-all → never connected (caught by E2E). Fixed: realtime
+  registers inside `createApp` before catch-alls; real-socket test added.
+- Found: persisted query cache restored as "fresh" after reload → stale screens. Fixed: invalidate after restore and on
+  every socket (re)connect.
+- Found: Arabic plural forms missing (fell back to English). Fixed with `_zero/_one/_two/_few/_many/_other`.
+- Found: group `photo` accepted any id; dev origin trusted in production. Fixed.
+- Left as is: profile photos (`/api/photos/:id`) are readable by any signed-in user who has the id (ids are only shown to
+  people who share a group). API routes have no rate limiting outside Better Auth until v6.3.
+- Native RTL switch needs an app restart (B7 #5). In dev the app reloads itself (`DevSettings.reload`); in production
+  builds we ask the user to reopen the app instead of adding `expo-updates` just for `reloadAsync`. Owner device check #5.
+- Date/time input uses day chips + an HH:MM field instead of a native picker (no extra native module, works on web).
+- Quiet hours / daily digest (A9) have no version in B5; not built.

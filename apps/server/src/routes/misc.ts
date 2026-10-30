@@ -1,4 +1,4 @@
-import { and, desc, eq, lt } from 'drizzle-orm';
+import { and, desc, eq, isNull, lt } from 'drizzle-orm';
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import { z } from 'zod';
 import { activity, files } from '../db/schema';
@@ -43,6 +43,23 @@ export function registerMiscRoutes(r: Router, deps: Deps) {
     await db.insert(files).values({ id, groupId: group.id, ownerId: c.get('user').id, key: `groups/${group.id}/${id}`, mime: body.mime, size: body.size });
     const token = signUpload(deps.env.authSecret, id, deps.clock().getTime() + 10 * 60_000);
     return { fileId: id, uploadUrl: `/api/uploads/${token}`, method: 'PUT' };
+  });
+
+  /** Profile photos are not in any group. */
+  r.post('/me/photo', { tags: ['me'], summary: 'Start a profile photo upload', body: z.object({ mime: z.string().max(100), size: z.number().int().positive().max(MAX_UPLOAD) }) }, async (c, { body }) => {
+    if (!body.mime.startsWith('image/') || !ALLOWED.test(body.mime)) throw badRequest('unsupported_type');
+    const id = newId();
+    await db.insert(files).values({ id, groupId: null, ownerId: c.get('user').id, key: `users/${c.get('user').id}/${id}`, mime: body.mime, size: body.size });
+    const token = signUpload(deps.env.authSecret, id, deps.clock().getTime() + 10 * 60_000);
+    return { fileId: id, uploadUrl: `/api/uploads/${token}`, method: 'PUT', imageUrl: `/api/photos/${id}` };
+  });
+
+  r.get('/photos/:fileId', { tags: ['me'], summary: 'A profile photo' }, async (c) => {
+    const [f] = await db.select().from(files).where(and(eq(files.id, c.req.param('fileId')!), isNull(files.groupId)));
+    if (!f || !f.uploadedAt) throw notFound();
+    const data = await deps.storage.get(f.key);
+    if (!data) throw notFound();
+    return new Response(Buffer.from(data), { headers: { 'content-type': f.mime, 'cache-control': 'private, max-age=86400' } });
   });
 
   r.put('/uploads/:token', { auth: 'public', tags: ['files'], summary: 'Upload target for a presigned URL' }, async (c) => {

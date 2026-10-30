@@ -1,0 +1,139 @@
+# Circle — build report
+
+Evidence for every version (B12), the owner's checklist, and how to run it. Status lives in `docs/PROGRESS.md`.
+Nothing here has been run on a phone: everything was verified on the Expo **web** build and in tests (B4/B5 rule 5).
+
+## Where the code is (read this first)
+
+This session was attached to `Sayeh-01/High_level_calc`, not `Sayeh-01/Circle`, and it was not allowed to push to Circle.
+The work is on branch **`claude/circle-mobile-app-zm3gcj`** of `Sayeh-01/High_level_calc`. That branch starts from
+Circle's `main` commit `1d6fcc4` ("Create SPEC.md"), so it has the same history as `Sayeh-01/Circle` and moves over cleanly:
+
+```bash
+git clone https://github.com/Sayeh-01/Circle && cd Circle
+git fetch https://github.com/Sayeh-01/High_level_calc claude/circle-mobile-app-zm3gcj
+git push origin FETCH_HEAD:refs/heads/claude/circle-mobile-app-zm3gcj
+# then open a PR claude/circle-mobile-app-zm3gcj → main on Sayeh-01/Circle
+```
+
+## How to run it locally
+
+```bash
+corepack enable            # pnpm 10
+pnpm install
+pnpm check                 # typecheck → Vitest (shared + server on PGlite) → Playwright on the Expo web build
+pnpm dev:server            # API + jobs + realtime on :4100, in-memory PGlite; OTP codes print to the console
+pnpm dev:mobile            # Expo; for a phone set EXPO_PUBLIC_API_URL=http://<LAN-IP>:4100
+docker compose up          # real Postgres 17 + server (Docker was not available in this container)
+```
+
+Useful env vars (server): `DATABASE_URL` (real Postgres; PGlite when unset), `PGLITE_DIR` (persist PGlite to disk),
+`PUBLIC_URL`, `BETTER_AUTH_SECRET`, `SMTP_URL` + `MAIL_FROM`, `EXPO_ACCESS_TOKEN`, `GOOGLE_CLIENT_ID/SECRET`,
+`APPLE_CLIENT_ID/SECRET`, `ANTHROPIC_API_KEY`, `LINK_DOMAIN`, `FILES_DIR`, `STATIC_DIR`, `JOBS=0` (disable job loop).
+
+## Owner's device checklist
+
+Make a development build first (Expo Go can't do remote push on Android, B7 #6):
+`npx eas-cli@latest build --profile development --platform ios|android` (needs the accounts below), install it, run
+`pnpm dev:server` on your machine and start the app with `EXPO_PUBLIC_API_URL=http://<LAN-IP>:4100 pnpm dev:mobile`.
+
+1. **Login persistence (B7 #7):** sign in with email + code, force-quit, reopen → still signed in, Today loads.
+2. **Push:** allow notifications; from a second account assign yourself a task → banner arrives; check the
+   "✓ Done" / "I'm in" / "Confirm" action buttons appear (categories `task`, `rsvp`, `settle`).
+3. **Deep links:** open `circleapp://join/<CODE>` (e.g. from Notes) → join preview opens. Universal links need the domain (below).
+4. **Camera / photos:** complete a task with photo proof; send a photo in chat; change profile and group photo.
+5. **RTL:** Me → Language → العربية → the app asks to close and reopen; after reopening, tabs, chevrons, swipes and
+   lists must run right-to-left. Switch back to English the same way.
+6. **Arabic digits:** Me → Digits → Arabic (١٢٣) → amounts, dates and counts use Arabic-Indic digits.
+7. **Haptics:** completing a task gives a success tap.
+8. **Offline reads:** load Today, enable airplane mode, force-quit, reopen → cached Today still shows.
+9. **Time zone:** set the phone to another zone; a group's weekly 21:00 match should still show 21:00 group time.
+10. **QR invite:** scan the QR on the invite screen with the phone camera → opens the join link (needs the domain for https links).
+
+(Later versions add their own device checks in their sections below.)
+
+## Accounts and keys needed (priority order)
+
+| # | Account | What it unlocks | Env var(s) |
+|---|---|---|---|
+| 1 | Apple Developer + Google Play Console + Expo (EAS) | Dev/store builds, real push, all device checks | `EXPO_ACCESS_TOKEN` (server push), EAS project id in `app.json` → `extra.eas.projectId` |
+| 2 | SMTP provider (e.g. Resend) | Real sign-in emails | `SMTP_URL`, `MAIL_FROM` |
+| 3 | A domain | Universal links, hosted guest pages | `LINK_DOMAIN`, `PUBLIC_URL`; update `associatedDomains` / `intentFilters` in `apps/mobile/app.json` |
+| 4 | Managed Postgres (e.g. Neon) + a VPS/Fly.io + Cloudflare R2 | Production | `DATABASE_URL`, storage keys (R2 driver to add) |
+
+(Later versions append rows: SMS, Google/Apple OAuth, Anthropic, RevenueCat, payment gateway.)
+
+## Defects or contradictions found in the brief
+
+1. **pg-boss vs. "the whole suite runs on PGlite"** (B3 vs B1/B3): pg-boss needs a TCP Postgres connection. Took the
+   simpler reading: our own Postgres `jobs` table with the same semantics (absolute `run_at`, retries, dead letters).
+2. **Account deletion heir** (B9 #10) only covers "oldest Admin" and "nobody else". Groups with members but no admin pass
+   to the oldest Manager, then the oldest Member.
+3. **Expo SDK:** the brief says 56+; the current SDK is 58, used as-is.
+4. **"Push: settle-up awaiting my confirmation"** etc. are listed, but the brief has no notification preferences UI in
+   v1.0; quiet hours/digests are A9 features without a version — not built.
+
+## Open questions for the owner
+
+1. Should a group with members but no admin really pass to a regular member when the owner deletes their account?
+2. Default currency per group is EGP; should templates or the user's locale pick it?
+3. Members can invite by default. Keep that, or make invites admin-only by default?
+
+---
+
+## v1.0 MVP — [x] done
+
+**Built:** Email OTP sign-in (Better Auth), profile (name, photo, language, digits, timezone), delete account, export;
+groups from 6 templates (modules, renamed roles, vocabulary, starter content, defaults), edit name/emoji/photo, module
+switches, roles, invites (code, QR, share sheet, WhatsApp), join by code or deep link, leave/remove/transfer, per-group
+display name; Today (tasks overdue/today/7 days, events with RSVP, owe/owed, settle-ups to confirm, unread
+announcements, inline actions); tasks/chores (assignee or rotation, due, RRULE recurrence, points, photo proof,
+comments); calendar (recurrence materialized in the group timezone, location, RSVP, capacity + waitlist with
+auto-promotion, reminders, agenda + month); lists (real-time check, qty, who checked); expenses (equal/exact/shares,
+balances, simplified debts, settle-up counts only after receiver confirms, reversal, split event among Going); polls
+(single/multi, anonymous, deadline); chat (text, image, reply, @mention, pinned announcements, read state); activity
+feed (same transaction); push pipeline; realtime invalidation over WebSocket; English + Arabic with RTL and digit choice;
+rule-based quick capture.
+
+**Faked:** sending push goes through `createExpoPushSender` (real Expo HTTP API) but only in production/`EXPO_PUSH=1`;
+dev and tests use an in-memory sender. Unit-tested with mocked fetch.
+
+**Skipped:** nothing.
+
+**`pnpm check`** (2026-10-30):
+```
+packages/shared  Test Files  3 passed (3)   Tests  20 passed (20)
+apps/server      Test Files  8 passed (8)   Tests  60 passed (60)
+apps/mobile      ✓ sport group end to end, then Arabic mirroring (25.7s)
+                 ✓ tasks, lists, polls, chat and quick capture on web (13.0s)
+                 2 passed (44.3s)
+```
+
+| B9 v1.0 check | Evidence |
+|---|---|
+| 1 100.00 / 3 = 33.34/33.33/33.33; splits sum exactly | `packages/shared/test/money.test.ts` "splits (B9 v1.0 #1)" (500 random cases per kind) |
+| 2 A pays 300 → B, C owe 100; confirmed settlement clears B; unconfirmed changes nothing | `money.test.ts` "balances (B9 v1.0 #2)" + API version in `apps/server/test/money.test.ts` |
+| 3 simplify debts ≤ n−1 transfers, keeps balances | `money.test.ts` "simplify debts (B9 v1.0 #3)" (300 random ledgers) |
+| 4 rotation A→B→C→A skipping away | `packages/shared/test/rotation.test.ts`; on completion via API in `apps/server/test/items.test.ts` |
+| 5 weekly 21:00 Cairo stays 21:00 across DST | `packages/shared/test/recurrence.test.ts` (spring and autumn 2026; asserts UTC hour really changes) |
+| 6 Member can't change modules (403); only Owner deletes | `apps/server/test/groups.test.ts` "B9 #6" |
+| 7 13th RSVP waitlisted; #5 cancels → promoted; concurrent last spot → exactly one | `apps/server/test/events.test.ts` (plus 15 concurrent RSVPs on 5 spots) |
+| 8 Sport group → code → join → match → RSVP → split → B's Today owes | `apps/mobile/e2e/v1.0-mvp.spec.ts` test 1 |
+| 9 Arabic mirrors Today, Group home, Tasks, Expenses, Event | `apps/mobile/e2e/screenshots/v1.0/ar-*.png`; `shoot()` fails the test on clipped/off-screen text |
+| 10 Delete account: profile + memberships gone; groups to oldest Admin or deleted | `apps/server/test/account.test.ts` |
+| 11 Push in chunks ≤ 100, prunes invalid tokens | `apps/server/test/push.test.ts` (mocked fetch; tickets + receipts; retry/backoff/dead) |
+
+**Global gates:** route sweep — `apps/server/test/sweep.test.ts` walks every `/api/groups/:groupId` route registered in
+the app (57 routes at v1.0) as a non-member → all 404, and without a session → all 401. Cross-group tests for task,
+event, list, list item, expense, settlement, poll, message, file in the same file. Realtime with real sockets:
+`apps/server/test/realtime.test.ts`.
+
+**Seen red once (B9):** each new test file had one assertion broken, run, and restored —
+money, rotation, recurrence (shared); groups, sweep, events, money, items, account, push, realtime (server): all went
+red (`1 failed`) and green again after revert. The E2E spec failed for real on its first runs (stale cache after reload,
+WebSocket route registered after the catch-all) before the fixes.
+
+**Arabic screenshots reviewed by eye:** headers, tab order, chevrons, cards and money rows mirror; one defect found and
+fixed — Arabic plural forms (`_two`, `_few`, …) were missing, so "2 members" fell back to English.
+
+**Device checks:** items 1–10 of the owner's checklist.

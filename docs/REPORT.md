@@ -89,6 +89,10 @@ Make a development build first (Expo Go can't do remote push on Android, B7 #6):
 29. **v2.2 gam'eya reminders:** start a round with a due day of tomorrow → at 09:00 the members who haven't paid get
     "💰 … due tomorrow" and the receiver gets "You receive the pot this month"; tapping opens the board.
 
+30. **v2.4 paywall:** Me → ✨ Circle Plus and a full group's Invite → Upgrade open the paywall; prices show in EGP and USD;
+    "Upgrade" says purchases aren't connected yet. After RevenueCat is set up (accounts row 10), buy each plan with a sandbox
+    account and check the plan turns on (server webhook still to build then).
+
 (Later versions add their own device checks in their sections below.)
 
 ## Accounts and keys needed (priority order)
@@ -108,7 +112,9 @@ Make a development build first (Expo Go can't do remote push on Android, B7 #6):
 
 | 9 | A strong `DATA_KEY` secret | Encryption key for vault files, notes, OCR text, emergency cards, med notes (v1.5) | `DATA_KEY` (keep it backed up — losing it loses the encrypted data) |
 
-(Later versions append rows: RevenueCat, payment gateway.)
+| 10 | RevenueCat + App Store Connect / Google Play products (`plus`, `group_pro`, monthly) | Real in-app purchases (v2.4) | RevenueCat public SDK keys in the app, a webhook secret on the server — the webhook route and `react-native-purchases` adapter are the next step; until then grant plans with `pnpm --filter @circle/server grant` |
+
+(Later versions append rows: payment gateway.)
 
 ## Defects or contradictions found in the brief
 
@@ -125,6 +131,9 @@ Make a development build first (Expo Go can't do remote push on Android, B7 #6):
 1. Should a group with members but no admin really pass to a regular member when the owner deletes their account?
 2. Default currency per group is EGP; should templates or the user's locale pick it?
 3. Members can invite by default. Keep that, or make invites admin-only by default?
+4. (v2.4) Only the member cap is enforced. Should Plus / Group Pro features (AI, vault alerts, dues, exports) be gated too?
+   It's one check per feature (`activePlans`), but A16 says to validate prices first, and gating would change existing groups.
+5. (v2.2) Gam'eya allows one share per member. Do you need half / double shares ("سهمين")?
 
 ---
 
@@ -437,4 +446,39 @@ preselected; fixed.
 **Seen red:** `packages/shared/test/gameya.test.ts`, `apps/server/test/gameya.test.ts`.
 
 **Device checks:** owner checklist item 29.
+
+## v2.4 Plans — [x] done
+
+**Built:** plan catalog as data (Free 15 members, Group Pro 100, Plus personal; Business/Property/Community defined for later
+phases), `entitlements` table, seat check in every transaction that adds a member (joins and child accounts, with a row
+lock), 402 `upgrade_required` error, "group is full" state on the join screen, invite screen and group settings (seats used),
+"couldn't join" notification to organizers, paywall screen (Plus + Group Pro, EGP and USD prices, features), Me → Circle Plus.
+Admin CLI: `pnpm --filter @circle/server grant -- --group <id> --plan group_pro [--days 30]`, `--user <id|email> --plan plus`,
+`--list`, `--revoke <id>` (uses `DATABASE_URL` or `PGLITE_DIR` like the server).
+
+**Faked:** store purchases (RevenueCat) — the app's purchase adapter reports "not connected yet"; plans are granted only by
+the admin CLI (B4).
+
+**Skipped:** nothing.
+
+**`pnpm check`:** shared 42/42 (9 files) · server 135/135 (16 files) · E2E 12/12.
+
+| B9 v2.4 check | Evidence |
+|---|---|
+| The 16th member joining a Free group is rejected with an upgrade error | `apps/server/test/plans.test.ts` — owner + 14 joined; the 16th: preview `full: true`, join → 402 `upgrade_required` `{plan: free, limit: 15, upgradeTo: group_pro}`, still 15 members, owner notified; a child account → 402 too. E2E: 14 players join through the API, number 16 sees "This group is full (15 members)" and no Join button; forcing the API → 402 |
+| Group Pro lifts the limit | `plans.test.ts` — CLI grants Group Pro for 30 days → limit 100, members 16 and 17 join; after 31 days → back to 15, nobody removed, the next join → 402; revoke works; Plus doesn't change a group's cap. The CLI script itself runs as a subprocess against a PGlite data directory and refuses to run without a database |
+| No client route can grant an entitlement | `plans.test.ts` — every registered route (180+), called by a group owner with grant-shaped bodies and query strings (DELETEs last), plus Better Auth's update-user/sign-in → the entitlements table is unchanged; no write route path mentions plans/purchases; a source scan finds no `insert/update/delete(entitlements)` or grant calls outside `entitlements.ts` and the CLI. Proven red by temporarily adding a route that grants Plus: both checks failed. E2E: the paywall's Upgrade button leaves the group on Free |
+| Route sweep 404 | `sweep.test.ts` covers `GET /groups/:groupId/plan` |
+| Cross-group | the only new group route is read-only and goes through `requireMember` (sweep: 404 for non-members) |
+
+**Also tested:** entitlement start/expiry/revoke rules and the "most generous plan wins" cap (shared), CLI input errors
+(wrong scope, free, unknown group, both/neither subject, bad days). The v1.0 waitlist test uses a 16-person team, so its setup
+now grants Group Pro the admin way.
+
+**Arabic screenshots:** `apps/mobile/e2e/screenshots/v2.4/` (paywall, full invite screen, Me with Plus, the joiner's "group is
+full") — reviewed; found and fixed hard-coded Arabic-Indic digits that ignored the Digits setting (also in older strings).
+
+**Seen red:** `packages/shared/test/plans.test.ts`, `apps/server/test/plans.test.ts` (and the grant sweep with a bad route).
+
+**Device checks:** owner checklist item 30.
 

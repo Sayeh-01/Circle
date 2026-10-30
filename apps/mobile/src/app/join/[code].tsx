@@ -56,6 +56,8 @@ export default function Join() {
               <Muted style={{ marginTop: 12 }}>{t('join.already')}</Muted>
               <Button title={t('common.open')} style={{ marginTop: 12 }} onPress={() => router.replace(`/g/${preview.data.groupId}`)} />
             </>
+          ) : preview.data.full ? (
+            <Txt style={{ marginTop: 12, color: colors.danger, fontWeight: '600' }} testID="join-full">{t('plans.joinFull', { limit: preview.data.memberLimit })}</Txt>
           ) : (
             <>
               <View style={{ marginTop: 16 }}>
@@ -67,8 +69,12 @@ export default function Join() {
                 loading={pending}
                 testID="join-submit"
                 onPress={async () => {
-                  const res = await run(() => post(`/invites/${submitted.trim()}/join`, { displayName: displayName.trim() || undefined }));
-                  router.replace(`/g/${res.groupId}`);
+                  try {
+                    const res = await run(() => post(`/invites/${submitted.trim()}/join`, { displayName: displayName.trim() || undefined }));
+                    router.replace(`/g/${res.groupId}`);
+                  } catch {
+                    preview.refetch(); // e.g. the last seat was just taken
+                  }
                 }}
               />
             </>

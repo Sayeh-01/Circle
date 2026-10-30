@@ -1,4 +1,5 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { grantEntitlement } from '../src/entitlements';
 import { join, makeGroup, setup, type Client, type TestApp } from './helpers';
 
 let t: TestApp;
@@ -10,6 +11,8 @@ beforeAll(async () => {
   t = await setup();
   captain = await t.signIn('captain@example.com', 'Captain');
   g = await makeGroup(captain, 'sport');
+  // 16 people is over the Free cap (v2.4): the admin path grants this team Group Pro
+  await grantEntitlement(t.db, { scope: 'group', subjectId: g.id, plan: 'group_pro', grantedBy: 'test', now: t.now() });
   for (let i = 1; i <= 15; i++) {
     const p = await t.signIn(`p${i}@example.com`, `Player ${i}`);
     await join(p, g.code);

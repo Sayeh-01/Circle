@@ -2,11 +2,12 @@ import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import { useQuery } from '@tanstack/react-query';
 import * as Clipboard from 'expo-clipboard';
+import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Platform, Share, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { KidsSwitcher } from '@/components/KidsSwitcher';
-import { Avatar, Button, Card, Field, Muted, Screen, Section, Segmented, Txt } from '@/components/ui';
+import { Avatar, Button, Card, Field, Muted, Row, Screen, Section, Segmented, Txt } from '@/components/ui';
 import { del, get, imageSource, patch, post, uploadProfilePhoto } from '@/lib/api';
 import { authClient } from '@/lib/auth';
 import { confirmAsk, notifyError, useMe } from '@/lib/hooks';
@@ -20,6 +21,8 @@ export default function Me() {
   const [name, setName] = useState('');
   const [zone, setZone] = useState(tz);
   const feed = useQuery({ queryKey: ['calendar-feed'], queryFn: () => get('/me/calendar-feed') });
+  const plusQ = useQuery({ queryKey: ['me', 'plan'], queryFn: () => get('/me/plan') });
+  const router = useRouter();
   const [feedCopied, setFeedCopied] = useState(false);
   useEffect(() => {
     if (me.data) setName(me.data.name);
@@ -95,6 +98,9 @@ export default function Me() {
           }}
         />
       </Card>
+      {!me.data?.isChild && <Card onPress={() => router.push('/paywall?plan=plus')} testID="me-plus">
+        <Row title={plusQ.data?.plus ? `✓ ${t('plans.youHavePlus')}` : `✨ ${t('plans.plusTitle')}`} subtitle={plusQ.data?.plus ? undefined : t('plans.plusHint')} />
+      </Card>}
       <KidsSwitcher />
       <Section title={t('reach.calendarFeed')}>
         <Card testID="calendar-feed">

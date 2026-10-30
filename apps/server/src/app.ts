@@ -31,6 +31,7 @@ import { registerMeRoutes } from './routes/me';
 import { registerMiscRoutes } from './routes/misc';
 import { registerGameyaRoutes } from './routes/gameya';
 import { registerMoney2Routes } from './routes/money2';
+import { registerPlanRoutes } from './routes/plans';
 import { registerPollRoutes } from './routes/polls';
 import { registerTaskRoutes } from './routes/tasks';
 import { createDevSms, type SmsSender } from './sms';
@@ -85,6 +86,8 @@ export const features: FeatureModule[] = [
   (r, d) => registerMoney2Routes(r, d),
   // v2.2
   (r, d) => registerGameyaRoutes(r, d),
+  // v2.4
+  (r, d) => registerPlanRoutes(r, d),
 ];
 
 export function createApp(opts: AppOptions) {

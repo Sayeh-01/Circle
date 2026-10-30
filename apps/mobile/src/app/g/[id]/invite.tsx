@@ -15,6 +15,7 @@ export default function Invite() {
   const router = useRouter();
   const g = useGroup(id);
   const q = useQuery({ queryKey: ['group', id, 'invite'], queryFn: () => get(`/groups/${id}/invite`) });
+  const plan = useQuery({ queryKey: ['group', id, 'plan'], queryFn: () => get(`/groups/${id}/plan`) });
   const { run } = useAct(id);
   const [copied, setCopied] = useState(false);
   const text = q.data && g.group ? t('invite.shareText', { name: g.group.name, link: q.data.webLink, code: q.data.code }) : '';
@@ -22,6 +23,13 @@ export default function Invite() {
     <Screen title={t('invite.title')} back testID="invite-screen" accent={g.group?.color}>
       {q.isLoading && <Loading />}
       {q.error ? <ErrorView error={q.error} /> : null}
+      {plan.data?.full && (
+        <Card accent={colors.danger} testID="invite-full">
+          <Txt style={{ fontWeight: '700' }}>{t('plans.full')}</Txt>
+          <Muted>{t('plans.fullHint', { limit: plan.data.limit })}</Muted>
+          {g.can('group.settings') && <Button small style={{ marginTop: 8, alignSelf: 'flex-start' }} title={t('plans.upgradeGroup')} onPress={() => router.push(`/paywall?plan=group_pro&groupId=${id}`)} testID="invite-upgrade" />}
+        </Card>
+      )}
       {q.data && (
         <>
           <Card style={{ alignItems: 'center', gap: 12 }}>
@@ -31,6 +39,7 @@ export default function Invite() {
             </Txt>
             <QR value={q.data.webLink} size={180} />
             <Muted>{t('invite.scan')}</Muted>
+            {plan.data && <Muted testID="invite-seats">{t('plans.seats', { members: plan.data.members, limit: plan.data.limit })}</Muted>}
           </Card>
           <View style={{ gap: 10 }}>
             <Button title={t('common.whatsapp')} color="#1F8A4C" onPress={() => Linking.openURL(`https://wa.me/?text=${encodeURIComponent(text)}`)} testID="invite-whatsapp" />

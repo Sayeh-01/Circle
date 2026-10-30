@@ -151,6 +151,13 @@ export const en = {
     trust: 'Trust record', onTime: '{{n}} on time', lateCount: '{{n}} late', nextRound: 'Start the next round', done: 'Round finished 🎉',
     tracking: 'Circle only records the payments. The money moves between you directly.', empty: 'Start a round when everyone has joined.', dueBy: '{{amount}} due {{date}}',
   },
+  plans: {
+    title: 'Plans', current: 'Current plan', seats: '{{members}} of {{limit}} members', full: 'This group is full', fullHint: 'Free groups hold up to {{limit}} members. Group Pro raises it to 100.',
+    joinFull: 'This group is full ({{limit}} members). Ask the organizer to upgrade to Group Pro.', upgrade: 'Upgrade', upgradeGroup: 'Upgrade to Group Pro',
+    perMonth: '{{price}} / month', perSeat: '{{price}} / seat / month', perUnit: '{{price}} / unit / month', active: 'Active', until: 'until {{date}}',
+    plusTitle: 'Circle Plus', plusHint: 'Extras for you, in every group.', groupHint: 'One member pays; everyone in the group gets it.',
+    storeSoon: 'In-app purchases aren’t connected yet. Plans are switched on by the Circle team for now.', restore: 'Restore purchases', youHavePlus: 'You have Circle Plus',
+  },
   kids: {
     title: 'Kids', add: 'Add a child', name: "Child's name", pin: 'PIN (4–6 digits)', onDevice: 'Kids on this device', switchTo: 'Switch to {{name}}',
     enterPin: 'Enter PIN', wrongPin: 'Wrong PIN', locked: 'Too many tries. Wait 15 minutes.', resetPin: 'New PIN', hint: 'Kids sign in with a PIN on this phone. No email, no money, no links outside the family.',
@@ -170,7 +177,7 @@ export const ar: Shape<typeof en> = {
   tabs: { today: 'اليوم', groups: 'المجموعات', capture: 'إضافة', inbox: 'الوارد', me: 'حسابي' },
   auth: {
     tagline: 'واتساب للكلام. Circle لإنجاز الأمور.',
-    email: 'البريد الإلكتروني', sendCode: 'أرسل الكود', code: 'الكود (٦ أرقام)', verify: 'دخول', codeSent: 'أرسلنا كودًا إلى {{email}}',
+    email: 'البريد الإلكتروني', sendCode: 'أرسل الكود', code: 'الكود (6 أرقام)', verify: 'دخول', codeSent: 'أرسلنا كودًا إلى {{email}}',
     changeEmail: 'استخدم بريدًا آخر', yourName: 'اسمك', welcome: 'أهلًا! بماذا تناديك مجموعاتك؟', continue: 'متابعة',
     phone: 'رقم الموبايل', usePhone: 'استخدم رقم الموبايل', useEmail: 'استخدم البريد الإلكتروني', google: 'المتابعة باستخدام Google', apple: 'المتابعة باستخدام Apple',
   },
@@ -184,7 +191,7 @@ export const ar: Shape<typeof en> = {
   groups: { title: 'المجموعات', new: 'مجموعة جديدة', join: 'انضم بكود', empty: 'أنت لست في أي مجموعة بعد.', pinned: 'مثبّتة' },
   newGroup: {
     whatFor: 'المجموعة دي لإيه؟', name: 'اسم المجموعة', namePlaceholder: 'مثلًا: كورة الخميس', emoji: 'إيموجي',
-    create: 'إنشاء المجموعة', pickModules: 'اختر الأدوات التي تحتاجها المجموعة', step: 'الخطوة {{n}} من ٢',
+    create: 'إنشاء المجموعة', pickModules: 'اختر الأدوات التي تحتاجها المجموعة', step: 'الخطوة {{n}} من 2',
   },
   invite: {
     title: 'ادعُ الناس', code: 'كود الدعوة', shareText: 'انضم إلى "{{name}}" على Circle: {{link}} (الكود {{code}})', copyCode: 'نسخ الكود',
@@ -261,13 +268,13 @@ export const ar: Shape<typeof en> = {
     myChores: 'مهامي', allDone: 'خلّصت كله! 🎉', waitingParent: 'في انتظار موافقة بابا أو ماما ✓',
   },
   sport: {
-    skills: 'تقييم اللاعبين (١–١٠)', balance: 'اعمل فريقين متوازنين', teamA: 'فريق أ', teamB: 'فريق ب', diff: 'الفرق: {{diff}}', leaderboard: 'ترتيب الموسم',
+    skills: 'تقييم اللاعبين (1–10)', balance: 'اعمل فريقين متوازنين', teamA: 'فريق أ', teamB: 'فريق ب', diff: 'الفرق: {{diff}}', leaderboard: 'ترتيب الموسم',
     attended: 'لعب', rate: 'النسبة', motm: 'الأفضل', matches_zero: 'لا ماتشات', matches_one: 'ماتش واحد', matches_two: 'ماتشين', matches_few: '{{count}} ماتشات', matches_many: '{{count}} ماتش', matches_other: '{{count}} ماتش',
     motmTitle: 'أفضل لاعب', vote: 'صوّت', voted: 'صوّتت', notStarted: 'التصويت يفتح مع بداية الماتش', carpool: 'مشاركة العربية', offerSeats: 'اعرض أماكن', seats: 'الأماكن',
     takeSeat: 'خُد مكان', leaveSeat: 'انزل', full: 'مليانة', from: 'ملاحظة (مثلًا من الدقي)', driver: 'السواق', winner: '🏆 {{name}}',
   },
   study: {
-    focus: 'ذاكروا سوا', start: 'ابدأ ٢٥ دقيقة', stop: 'إيقاف', break: 'استراحة', studyingNow_zero: 'محدش بيذاكر دلوقتي', studyingNow_one: 'واحد بيذاكر دلوقتي', studyingNow_two: 'اتنين بيذاكروا دلوقتي',
+    focus: 'ذاكروا سوا', start: 'ابدأ 25 دقيقة', stop: 'إيقاف', break: 'استراحة', studyingNow_zero: 'محدش بيذاكر دلوقتي', studyingNow_one: 'واحد بيذاكر دلوقتي', studyingNow_two: 'اتنين بيذاكروا دلوقتي',
     studyingNow_few: '{{count}} بيذاكروا دلوقتي', studyingNow_many: '{{count}} بيذاكروا دلوقتي', studyingNow_other: '{{count}} بيذاكروا دلوقتي',
     minutesToday: 'دقائق النهارده', groupStreak: 'سلسلة المجموعة: {{count}} يوم 🔥', countdowns: 'العد التنازلي',
     daysLeft_zero: 'النهارده', daysLeft_one: 'باقي يوم', daysLeft_two: 'باقي يومين', daysLeft_few: 'باقي {{count}} أيام', daysLeft_many: 'باقي {{count}} يومًا', daysLeft_other: 'باقي {{count}} يوم',
@@ -294,11 +301,11 @@ export const ar: Shape<typeof en> = {
     givenBy: 'إداه {{name}}', due: 'موعده', sosConfirm: 'تبعت استغاثة لكل اللي في المجموعة؟',
   },
   money: {
-    currency: 'العملة', rate: '١ {{cur}} = ؟ {{group}}', converted: '= {{amount}}', category: 'البند (اختياري)', paidIn: 'مدفوع بـ{{cur}} بسعر {{rate}}',
+    currency: 'العملة', rate: '1 {{cur}} = ؟ {{group}}', converted: '= {{amount}}', category: 'البند (اختياري)', paidIn: 'مدفوع بـ{{cur}} بسعر {{rate}}',
     scan: '📷 صوّر الفاتورة', scanHint: 'راجع المبالغ واختار مين يشارك، وبعدين احفظ.',
     budgets: 'الميزانيات', addBudget: 'حدد ميزانية', budgetCategory: 'البند (* = الكل)', limit: 'الحد', perMonth: 'كل شهر', whole: 'الرحلة / المناسبة كلها',
     spentOf: '{{spent}} من {{limit}}', everything: 'الكل',
-    dues: 'الاشتراكات', addDue: 'اجمع اشتراك', dueTitle: 'على إيه؟', perMember: 'المبلغ على كل عضو', monthly: 'كل شهر', once: 'مرة واحدة', dueDay: 'يستحق يوم (١–٢٨)',
+    dues: 'الاشتراكات', addDue: 'اجمع اشتراك', dueTitle: 'على إيه؟', perMember: 'المبلغ على كل عضو', monthly: 'كل شهر', once: 'مرة واحدة', dueDay: 'يستحق يوم (1–28)',
     collected: 'اتجمع {{amount}}', paid: 'دفع', reported: 'بيقول دفع', unpaid: 'لسه', iPaid: 'دفعت', confirmPaid: 'تأكيد',
     contacts: 'جهات الاتصال', addContact: 'أضف جهة اتصال', name: 'الاسم', phone: 'الموبايل', email: 'البريد', notes: 'ملاحظات', call: 'اتصال',
     kind_vendor: 'مورّد', kind_doctor: 'دكتور', kind_emergency: 'طوارئ', kind_other: 'أخرى',
@@ -307,7 +314,7 @@ export const ar: Shape<typeof en> = {
     inviteText: 'أنت مدعو إلى {{name}}. من فضلك رُد هنا: {{url}}',
   },
   gameya: {
-    title: 'الجمعية', start: 'ابدأ دورة', name: 'الاسم', amount: 'كل عضو يدفع (شهريًا)', startMonth: 'أول شهر (YYYY-MM)', dueDay: 'الدفع لحد يوم (١–٢٨)',
+    title: 'الجمعية', start: 'ابدأ دورة', name: 'الاسم', amount: 'كل عضو يدفع (شهريًا)', startMonth: 'أول شهر (YYYY-MM)', dueDay: 'الدفع لحد يوم (1–28)',
     order: 'ترتيب القبض', agreed: 'ترتيب متفق عليه', drawn: 'قرعة', orderHint: 'اضغط على الأعضاء بترتيب القبض.', members: 'الأعضاء',
     pot: 'القبضة', monthOf: 'الشهر {{n}} من {{total}}', yourTurn: 'دورك: الشهر {{n}} ({{month}})', myTurn: 'دورك: الشهر {{n}}', receiver: 'يقبض', round: 'الدورة {{n}}',
     board: 'لوحة الدفع', paid: 'دفع', reported: 'بيقول دفع', late: 'متأخر', due: 'مستحق', iPaid: 'دفعت', confirm: 'تأكيد', received: 'استلم القبضة ✓',
@@ -316,8 +323,15 @@ export const ar: Shape<typeof en> = {
     trust: 'سجل الالتزام', onTime: '{{n}} في الميعاد', lateCount: '{{n}} متأخر', nextRound: 'ابدأ الدورة الجاية', done: 'الدورة خلصت 🎉',
     tracking: 'Circle بيسجّل الدفع بس. الفلوس بتتنقل بينكم مباشرة.', empty: 'ابدأ دورة لما الكل ينضم.', dueBy: '{{amount}} مستحق {{date}}',
   },
+  plans: {
+    title: 'الباقات', current: 'الباقة الحالية', seats: '{{members}} من {{limit}} عضو', full: 'المجموعة اكتملت', fullHint: 'المجموعات المجانية لحد {{limit}} عضو. Group Pro بيرفعها لـ100.',
+    joinFull: 'المجموعة دي اكتملت ({{limit}} عضو). اطلب من المنظّم يرقّيها لـGroup Pro.', upgrade: 'ترقية', upgradeGroup: 'رقّي لـGroup Pro',
+    perMonth: '{{price}} / شهريًا', perSeat: '{{price}} / للمقعد شهريًا', perUnit: '{{price}} / للوحدة شهريًا', active: 'مفعّلة', until: 'لحد {{date}}',
+    plusTitle: 'Circle بلس', plusHint: 'مزايا ليك أنت، في كل مجموعاتك.', groupHint: 'عضو واحد يدفع، والمجموعة كلها تستفيد.',
+    storeSoon: 'الشراء من داخل التطبيق لسه مش متوصّل. فريق Circle بيفعّل الباقات حاليًا.', restore: 'استرجاع المشتريات', youHavePlus: 'معاك Circle بلس',
+  },
   kids: {
-    title: 'الأطفال', add: 'إضافة طفل', name: 'اسم الطفل', pin: 'رمز PIN (٤–٦ أرقام)', onDevice: 'الأطفال على هذا الجهاز', switchTo: 'التبديل إلى {{name}}',
-    enterPin: 'أدخل الرمز', wrongPin: 'رمز خاطئ', locked: 'محاولات كثيرة. انتظر ١٥ دقيقة.', resetPin: 'رمز جديد', hint: 'يدخل الأطفال برمز PIN على هذا الموبايل. بدون بريد ولا فلوس ولا روابط خارج العائلة.',
+    title: 'الأطفال', add: 'إضافة طفل', name: 'اسم الطفل', pin: 'رمز PIN (4–6 أرقام)', onDevice: 'الأطفال على هذا الجهاز', switchTo: 'التبديل إلى {{name}}',
+    enterPin: 'أدخل الرمز', wrongPin: 'رمز خاطئ', locked: 'محاولات كثيرة. انتظر 15 دقيقة.', resetPin: 'رمز جديد', hint: 'يدخل الأطفال برمز PIN على هذا الموبايل. بدون بريد ولا فلوس ولا روابط خارج العائلة.',
   },
 };

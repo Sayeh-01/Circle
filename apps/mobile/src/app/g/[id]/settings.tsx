@@ -1,4 +1,4 @@
-import type { Role } from '@circle/shared';
+import { PLANS, type PlanId, type Role } from '@circle/shared';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import { useQuery } from '@tanstack/react-query';
@@ -10,6 +10,7 @@ import { Avatar, Button, Card, Chip, Field, HScroll, Loading, Muted, Row, Screen
 import { authHeaders, del, fileUrl, get, patch, post, put, uploadFile } from '@/lib/api';
 import { confirmAsk, useAct, useGroup } from '@/lib/hooks';
 import { availableModules } from '@/lib/modules';
+import { usePrefs } from '@/lib/prefs';
 
 export default function GroupSettings() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -22,6 +23,8 @@ export default function GroupSettings() {
   const kidSheet = useSheet();
   const [kid, setKid] = useState({ name: '', pin: '' });
   const links = useQuery({ queryKey: ['group', id, 'guest-links'], queryFn: () => get(`/groups/${id}/guest-links`), enabled: g.can('items.create') });
+  const plan = useQuery({ queryKey: ['group', id, 'plan'], queryFn: () => get(`/groups/${id}/plan`) });
+  const { lang } = usePrefs();
   useEffect(() => {
     if (g.group) setName(g.group.name);
     if (g.me) setMyName(g.me.displayName);
@@ -60,6 +63,12 @@ export default function GroupSettings() {
           <Toggle label={t('settings.membersCanInvite')} value={g.group.settings.membersCanInvite !== false} onChange={(v) => run(() => patch(`/groups/${id}`, { membersCanInvite: v }))} />
         </Card>
       )}
+      <Card onPress={() => router.push(`/paywall?plan=group_pro&groupId=${id}`)} testID="settings-plan">
+        <Row
+          title={`${t('plans.current')}: ${plan.data ? PLANS[plan.data.plan as PlanId]?.name[lang] ?? plan.data.plan : '…'}`}
+          subtitle={plan.data ? t('plans.seats', { members: plan.data.members, limit: plan.data.limit }) : undefined}
+        />
+      </Card>
       {admin && (
         <Section title={t('settings.modules')}>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>

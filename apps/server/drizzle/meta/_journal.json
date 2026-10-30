@@ -57,6 +57,13 @@
       "when": 1793352327549,
       "tag": "0007_v2_2_gameya",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1793353586947,
+      "tag": "0008_v2_4_entitlements",
+      "breakpoints": true
     }
   ]
 }

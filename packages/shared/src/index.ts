@@ -10,4 +10,5 @@ export * from './recurrence';
 export * from './permissions';
 export * from './templates';
 export * from './gameya';
+export * from './plans';
 export * as schemas from './schemas';

@@ -216,3 +216,27 @@ Decisions made while the owner is away (SPEC B0/B8). Newest at the bottom of eac
   month if that's past).
 - No new dependencies.
 
+## v2.4 plan
+1. Plans as data in shared (`PLANS`, `memberLimit`, `isActive`) with unit tests.
+2. `entitlements` table; `grantEntitlement`/`revokeEntitlement` called only by the admin CLI (`scripts/grant-entitlement.ts`).
+3. One seat check (`assertSeat`) inside every transaction that adds a member (join, child accounts), with a row lock.
+4. Read-only routes (`/plans`, `/me/plan`, `/groups/:id/plan`); paywall screens behind a fake purchases adapter.
+5. Tests: 16th member → 402, Group Pro lifts it, expiry, and a sweep of every route proving none grants a plan.
+
+## v2.4 decisions
+- What's enforced now is exactly B9's limit: Free groups hold 15 members (children count), Group Pro 100. Feature gates for
+  Plus / Group Pro features (AI, vault, dues, exports…) are listed on the paywall but NOT enforced: A16 says to validate
+  prices with interviews before building a paywall, and gating shipped features would break existing groups. Owner decides
+  (open question).
+- The cap error is HTTP 402 `upgrade_required` with `{ plan, limit, members, upgradeTo }`. The invite preview says `full`,
+  so the join screen shows the message instead of a Join button; organizers get a "couldn't join" notification that opens
+  the Group Pro paywall.
+- When Group Pro lapses nobody is removed; new joins stop until the group is back under the cap or renews.
+- No HTTP route writes entitlements, not even a store webhook yet. RevenueCat will come as a server-to-server webhook with its
+  own secret; the phone never tells the server "I paid". Until then the app's purchase adapter reports "not connected yet".
+- The CLI refuses to run against an in-memory database (it would forget the grant) and refuses child accounts.
+- Business / Property / Community plans exist as data (not sold) for their phases.
+- Fixed in passing: some Arabic strings had hard-coded Arabic-Indic digits that ignored the Digits setting; strings now use
+  Western digits and the digits post-processor converts them (plan data goes through the same `localDigits`).
+- No new dependencies (`node:util` parseArgs for the CLI).
+

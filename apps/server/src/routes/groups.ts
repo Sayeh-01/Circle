@@ -4,9 +4,10 @@ import { z } from 'zod';
 import type { DbOrTx } from '../db/client';
 import { files, groupMembers, groups, invites, messages, tasks, users } from '../db/schema';
 import type { Deps } from '../deps';
-import { logActivity } from '../effects';
-import { badRequest, conflict, forbidden, notFound } from '../errors';
+import { logActivity, notify } from '../effects';
+import { HttpError, badRequest, conflict, forbidden, notFound } from '../errors';
 import { actorCan, emit, emitUser, type Router } from '../http';
+import { assertSeat, groupPlanInfo } from '../entitlements';
 import { newCode, newId } from '../ids';
 import { createStarterContent } from './starters';
 
@@ -52,8 +53,6 @@ function inviteLinks(deps: Deps, code: string) {
   return { code, deepLink: `circleapp://join/${code}`, webLink: `https://${deps.env.linkDomain}/join/${code}` };
 }
 
-/** Hook for later versions (plan limits). Throws to reject a join. */
-export const joinGuards: ((db: DbOrTx, group: typeof groups.$inferSelect, memberCount: number) => Promise<void>)[] = [];
 /** Hook for later versions: extra work when someone joins (e.g. add to rotations). */
 export const onJoinHooks: ((db: DbOrTx, groupId: string, userId: string) => Promise<void>)[] = [];
 
@@ -63,9 +62,9 @@ export async function addMember(
   userId: string,
   role: Role,
   displayName: string,
+  now: Date,
 ) {
-  const [{ n }] = await db.select({ n: count() }).from(groupMembers).where(eq(groupMembers.groupId, group.id));
-  for (const guard of joinGuards) await guard(db, group, n);
+  await assertSeat(db, group.id, now); // plan member cap (v2.4)
   await db.insert(groupMembers).values({ groupId: group.id, userId, role, displayName });
   // rotation chores include new members automatically
   await db
@@ -316,7 +315,8 @@ export function registerGroupRoutes(r: Router, deps: Deps) {
     const [inviter] = await db.select({ name: groupMembers.displayName }).from(groupMembers).where(and(eq(groupMembers.groupId, group.id), eq(groupMembers.userId, invite.createdBy)));
     const [{ n }] = await db.select({ n: count() }).from(groupMembers).where(eq(groupMembers.groupId, group.id));
     const [mine] = await db.select().from(groupMembers).where(and(eq(groupMembers.groupId, group.id), eq(groupMembers.userId, c.get('user').id)));
-    return { groupId: group.id, name: group.name, emoji: group.emoji, color: group.color, type: group.type, inviter: inviter?.name ?? null, memberCount: n, alreadyMember: !!mine };
+    const { limit } = await groupPlanInfo(db, group.id, deps.clock());
+    return { groupId: group.id, name: group.name, emoji: group.emoji, color: group.color, type: group.type, inviter: inviter?.name ?? null, memberCount: n, alreadyMember: !!mine, memberLimit: limit, full: !mine && n >= limit };
   });
 
   r.post('/invites/:code/join', { summary: 'Join with a code', body: z.object({ displayName: z.string().trim().max(60).optional() }), tags: ['groups'] }, async (c, { body }) => {
@@ -326,11 +326,20 @@ export function registerGroupRoutes(r: Router, deps: Deps) {
     const [mine] = await db.select().from(groupMembers).where(and(eq(groupMembers.groupId, group.id), eq(groupMembers.userId, user.id)));
     if (mine) return { groupId: group.id, alreadyMember: true };
     const displayName = body.displayName || user.name;
-    await db.transaction(async (tx) => {
-      await addMember(tx, group, user.id, 'member', displayName);
-      await tx.update(invites).set({ uses: sql`${invites.uses} + 1` }).where(eq(invites.id, invite.id));
-      await logActivity(tx, { groupId: group.id, actorId: user.id, verb: 'joined', entity: 'member', entityId: user.id, summary: displayName });
-    });
+    try {
+      await db.transaction(async (tx) => {
+        await addMember(tx, group, user.id, 'member', displayName, deps.clock());
+        await tx.update(invites).set({ uses: sql`${invites.uses} + 1` }).where(eq(invites.id, invite.id));
+        await logActivity(tx, { groupId: group.id, actorId: user.id, verb: 'joined', entity: 'member', entityId: user.id, summary: displayName });
+      });
+    } catch (e) {
+      if (e instanceof HttpError && e.code === 'upgrade_required') {
+        // tell the organizers someone is waiting at the door (the app opens the Group Pro paywall from this)
+        const admins = (await db.select({ u: groupMembers.userId, role: groupMembers.role }).from(groupMembers).where(eq(groupMembers.groupId, group.id))).filter((m) => m.role === 'owner' || m.role === 'admin');
+        await notify(db, { userIds: admins.map((m) => m.u), groupId: group.id, kind: 'group_full', title: `${group.emoji} ${group.name}`, body: `${displayName} couldn't join: the group is full`, data: { href: `/paywall?plan=group_pro&groupId=${group.id}` }, now: deps.clock() });
+      }
+      throw e;
+    }
     emit(c, { type: 'invalidate', groupId: group.id, entity: 'members' });
     emitUser(c, user.id, { type: 'membership', groupId: group.id });
     return { groupId: group.id, alreadyMember: false };

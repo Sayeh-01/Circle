@@ -10,6 +10,7 @@ import type { Deps } from '../deps';
 import { logActivity } from '../effects';
 import { forbidden, notFound } from '../errors';
 import { emit, type Ctx, type Router } from '../http';
+import { assertSeat } from '../entitlements';
 import { newId } from '../ids';
 
 export function hashPin(pin: string): string {
@@ -71,6 +72,7 @@ export function registerChildRoutes(r: Router, deps: Deps) {
     const parent = c.get('user');
     const id = newId();
     await db.transaction(async (tx) => {
+      await assertSeat(tx, group.id, deps.clock()); // children take a seat too (v2.4)
       await tx.insert(users).values({
         id,
         name: body.name,

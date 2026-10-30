@@ -8,11 +8,14 @@ export function setArabicDigits(on: boolean) {
   arabicDigits = on;
 }
 
+/** Text that doesn't go through t() (e.g. plan data from @circle/shared) uses the same digits setting. */
+export const localDigits = (value: string) => (arabicDigits ? value.replace(/[0-9]/g, (d) => String.fromCharCode(0x0660 + Number(d))) : value);
+
 i18n
   .use({
     type: 'postProcessor',
     name: 'digits',
-    process: (value: string) => (arabicDigits ? value.replace(/[0-9]/g, (d) => String.fromCharCode(0x0660 + Number(d))) : value),
+    process: (value: string) => localDigits(value),
   })
   .use(initReactI18next)
   .init({

@@ -1000,3 +1000,28 @@ export const gameyaSwaps = pgTable('gameya_swaps', {
   createdAt: createdAt(),
   doneAt: ts('done_at'),
 });
+
+/**
+ * v2.4 plans. Rows are written only by the admin CLI (scripts/grant-entitlement.ts) — no HTTP route inserts or updates
+ * them (B4, B9 v2.4). Store purchases (RevenueCat) will write here through a verified server-to-server webhook later.
+ */
+export const entitlements = pgTable(
+  'entitlements',
+  {
+    id: text('id').primaryKey(),
+    /** user | group */
+    scope: text('scope').notNull(),
+    /** a user id or a group id */
+    subjectId: text('subject_id').notNull(),
+    plan: text('plan').notNull(),
+    /** admin | revenuecat | referral */
+    source: text('source').notNull(),
+    note: text('note'),
+    grantedBy: text('granted_by').notNull(),
+    startsAt: ts('starts_at').notNull(),
+    expiresAt: ts('expires_at'),
+    revokedAt: ts('revoked_at'),
+    createdAt: createdAt(),
+  },
+  (t) => [index('entitlements_subject_idx').on(t.scope, t.subjectId)],
+);

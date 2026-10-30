@@ -191,3 +191,16 @@ export const contactCreate = z.object({ name: z.string().trim().min(1).max(80), 
 export const guestCreate = z.object({ name: z.string().trim().min(1).max(80), phone: z.string().max(30).optional(), maxPlusOnes: z.number().int().min(0).max(10).default(0) });
 export const guestRsvp = z.object({ status: z.enum(['going', 'maybe', 'no']), plusOnes: z.number().int().min(0).max(10).default(0), dietary: z.string().max(200).optional() });
 export const aiReceipt = z.object({ fileId: id });
+
+// v2.2 gam'eya
+const month = z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/);
+export const gameyaCreate = z.object({
+  title: z.string().trim().min(1).max(80),
+  amount: minor.positive(),
+  startMonth: month,
+  dueDay: z.number().int().min(1).max(28).default(1),
+  orderMode: z.enum(['agreed', 'drawn']),
+  /** for 'agreed', this is the payout order */
+  memberIds: z.array(id).min(2).max(60),
+});
+export const gameyaSwapCreate = z.object({ otherId: id });

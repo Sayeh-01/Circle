@@ -26,6 +26,7 @@ export const MODULES = {
   budgets: { emoji: '🎯', name: { en: 'Budgets', ar: 'الميزانيات' }, phase: '2.0' },
   contacts: { emoji: '📇', name: { en: 'Contacts', ar: 'جهات الاتصال' }, phase: '2.0' },
   guests: { emoji: '💌', name: { en: 'Guest list', ar: 'قائمة الضيوف' }, phase: '2.0' },
+  gameya: { emoji: '💰', name: { en: 'Gam’eya', ar: 'الجمعية' }, phase: '2.2' },
 } as const satisfies Record<string, { emoji: string; name: L10n; phase: string }>;
 
 export type ModuleId = keyof typeof MODULES;
@@ -230,6 +231,19 @@ export const TEMPLATES: Template[] = [
     starters: {
       tasks: [{ title: { en: 'Book the venue', ar: 'احجز المكان' } }, { title: { en: 'Send invitations', ar: 'ابعت الدعوات' } }],
     },
+  },
+  {
+    id: 'savings',
+    emoji: '💰',
+    color: '#C08A1E',
+    phase: '2',
+    name: { en: 'Savings Circle', ar: 'جمعية' },
+    tagline: { en: 'Who pays, who receives, when', ar: 'مين يدفع، ومين يقبض، وإمتى' },
+    modules: ['gameya', 'chat', 'polls'],
+    roles: { owner: { en: 'Organizer', ar: 'المنظّم' }, admin: { en: 'Organizer', ar: 'المنظّم' }, member: { en: 'Member', ar: 'عضو' } },
+    vocab: {},
+    defaults: {},
+    starters: {},
   },
   {
     id: 'custom',

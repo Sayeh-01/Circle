@@ -86,6 +86,9 @@ Make a development build first (Expo Go can't do remote push on Android, B7 #6):
     without the app, picks plus-ones and taps Going → the host's headcount updates live.
 28. **v2.0 contacts:** the 📞 Call button opens the phone dialer with the number.
 
+29. **v2.2 gam'eya reminders:** start a round with a due day of tomorrow → at 09:00 the members who haven't paid get
+    "💰 … due tomorrow" and the receiver gets "You receive the pot this month"; tapping opens the board.
+
 (Later versions add their own device checks in their sections below.)
 
 ## Accounts and keys needed (priority order)
@@ -397,4 +400,41 @@ budgets, dues, the guest RSVP page) — reviewed, no clipped text.
 **Seen red:** `money2.test.ts` (headcount assertion; and the roll-over test with the roll-over job removed).
 
 **Device checks:** owner checklist items 26–28.
+
+## v2.2 Gam'eya — [x] done
+
+**Built:** Gam'eya module and Savings Circle template (Organizer/Member). An organizer starts a round: amount per member,
+first month, pay-by day, members, payout order agreed (tap order) or drawn by lot on the server. Payment board per month
+(paid / says paid / late / due); members tap "I paid", that month's receiver confirms each share; the last share marks the
+pot received; the round closes when every month is received. Turn swaps: request → other member accepts → organizer
+approves. Reminders the day before the due day at 09:00 group time. Trust record (on time / late per member across rounds).
+Today card ("month 2 of 3 · 2,000 due Sat · your turn: month 3 (Dec 2026)"). Next round with the same members.
+Tracking only — the app never holds the pot (A12).
+
+**Faked:** nothing (no outside service).
+
+**Skipped:** nothing.
+
+**`pnpm check`:** shared 39/39 (8 files) · server 127/127 (15 files) · E2E 11/11.
+
+| B9 v2.2 check | Evidence |
+|---|---|
+| Each member receives the pot exactly once per round | `packages/shared/test/gameya.test.ts` (schedule has one month per member; duplicates refused) + `apps/server/test/gameya.test.ts` — a 4-member round run to the end with a swap: 4 distinct receivers, every month received; the database refuses a second slot for the same member (unique index) |
+| Total paid in equals total paid out each month | `gameya.test.ts` — every month `paidIn = paidOut = expected = 4 × 2,000.00`; every member's confirmed payments minus what they received = 0; shared test checks the plan the same way |
+| A swap needs both members plus the organizer | `gameya.test.ts` — a bystander accepting → 403, a member approving → 403, the other member alone → still pending, the organizer alone → still pending, a decline changes nothing, both + organizer → turns swapped (own-share confirmation moved); started turns → 409. E2E: B asks C, C accepts → "Waiting for an organizer", Amal approves → month 2 shows Carla |
+| Route sweep 404 | `sweep.test.ts` picks up the 9 new routes automatically |
+| Cross-group per new entity | `gameya.test.ts` "cross-group" — round, payment (report/confirm), swap approve, next round with another group's ids → 404 |
+
+**Also tested:** only the payer reports and only the receiver confirms (403s), reminders reach only members who haven't paid
+or reported (jobs run twice, no duplicates), late status after the due day, Today card fields, trust record counts, drawn
+order is a permutation, non-adult / duplicate members and past start months refused, next round by organizers only. The
+Child money sweep (v1.2) covers the gam'eya routes too (403).
+
+**Arabic screenshots:** `apps/mobile/e2e/screenshots/v2.2/` (board, list, start sheet with numbered order chips, Today card)
+— reviewed, no clipped text. The E2E caught a real bug: members who joined while the organizer's screen was open weren't
+preselected; fixed.
+
+**Seen red:** `packages/shared/test/gameya.test.ts`, `apps/server/test/gameya.test.ts`.
+
+**Device checks:** owner checklist item 29.
 

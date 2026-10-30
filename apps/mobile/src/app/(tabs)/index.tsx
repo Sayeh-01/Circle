@@ -34,7 +34,7 @@ function Today() {
   const overdue = d.tasks.filter((x: any) => x.overdue);
   const todayTasks = d.tasks.filter((x: any) => !x.overdue && new Date(x.dueAt) <= endOfToday);
   const weekTasks = d.tasks.filter((x: any) => !x.overdue && new Date(x.dueAt) > endOfToday);
-  const nothing = !d.tasks.length && !d.events.length && !d.money.length && !d.toConfirm.length && !d.announcements.length && !(d.extra?.length);
+  const nothing = !d.tasks.length && !d.events.length && !d.money.length && !d.toConfirm.length && !d.announcements.length && !(d.extra?.length) && !(d.gameya?.length);
 
   const taskRow = (x: any) => (
     <Card key={x.id} accent={x.groupColor} testID={`today-task-${x.id}`} style={{ paddingVertical: 4 }}>
@@ -121,6 +121,21 @@ function Today() {
                   />
                 ))}
               </View>
+            </Card>
+          ))}
+        </Section>
+      )}
+
+      {d.gameya?.length > 0 && (
+        <Section title={t('gameya.title')}>
+          {d.gameya.map((x: any) => (
+            <Card key={x.gameyaId} accent={x.color} testID={`today-gameya-${x.gameyaId}`} onPress={() => router.push(`/g/${x.groupId}/gameya/${x.gameyaId}`)}>
+              <GroupTag emoji={x.emoji} name={x.groupName} color={x.color} />
+              <Txt style={{ marginTop: 6, fontWeight: '600' }}>{`💰 ${x.title} · ${t('gameya.monthOf', { n: fmt.number(x.month), total: fmt.number(x.months) })}`}</Txt>
+              {x.due && (
+                <Txt style={{ marginTop: 4, color: x.due.late ? colors.danger : colors.text, fontWeight: '600' }}>{t('gameya.dueBy', { amount: fmt.money(x.due.amount, x.currency), date: fmt.date(x.due.dueAt) })}</Txt>
+              )}
+              <Muted style={{ marginTop: 4 }}>{t('gameya.yourTurn', { n: fmt.number(x.myTurn), month: fmt.monthTitle(new Date(`${x.myTurnMonth}-15T12:00:00Z`), 'UTC') })}</Muted>
             </Card>
           ))}
         </Section>

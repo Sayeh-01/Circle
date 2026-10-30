@@ -27,6 +27,7 @@ export const MODULE_ROUTES: Record<string, string> = {
   budgets: 'budgets',
   contacts: 'contacts',
   guests: 'guests',
+  gameya: 'gameya',
 };
 
 const PINNED = 5;

@@ -923,3 +923,80 @@ export const invitees = pgTable('invitees', {
   createdBy: text('created_by').notNull(),
   createdAt: createdAt(),
 });
+
+// ── v2.2 Gam'eya (rotating savings). Tracking only: the app never holds the pot (A12). ─────────────
+export const gameyas = pgTable('gameyas', {
+  id: text('id').primaryKey(),
+  groupId: text('group_id')
+    .notNull()
+    .references(() => groups.id, { onDelete: 'cascade' }),
+  title: text('title').notNull(),
+  /** each member pays this every month; the pot is amount × members */
+  amountMinor: money('amount_minor').notNull(),
+  /** 'YYYY-MM' of the first payout */
+  startMonth: text('start_month').notNull(),
+  dueDay: integer('due_day').notNull().default(1),
+  /** agreed | drawn */
+  orderMode: text('order_mode').notNull(),
+  /** active | done | cancelled */
+  status: text('status').notNull().default('active'),
+  /** a group can run the same circle again: round 2 is a new gameya with previousId set */
+  round: integer('round').notNull().default(1),
+  previousId: text('previous_id'),
+  createdBy: text('created_by').notNull(),
+  createdAt: createdAt(),
+});
+
+/** One slot per month. A member holds exactly one slot per round (unique index), so they receive the pot exactly once. */
+export const gameyaSlots = pgTable(
+  'gameya_slots',
+  {
+    gameyaId: text('gameya_id')
+      .notNull()
+      .references(() => gameyas.id, { onDelete: 'cascade' }),
+    groupId: text('group_id').notNull(),
+    /** 1-based month number in the round */
+    position: integer('position').notNull(),
+    userId: text('user_id').notNull(),
+    /** the receiver confirmed they got the whole pot */
+    receivedAt: ts('received_at'),
+  },
+  (t) => [primaryKey({ columns: [t.gameyaId, t.position] }), uniqueIndex('gameya_slots_user_uq').on(t.gameyaId, t.userId)],
+);
+
+export const gameyaPayments = pgTable(
+  'gameya_payments',
+  {
+    id: text('id').primaryKey(),
+    gameyaId: text('gameya_id')
+      .notNull()
+      .references(() => gameyas.id, { onDelete: 'cascade' }),
+    groupId: text('group_id').notNull(),
+    position: integer('position').notNull(),
+    payerId: text('payer_id').notNull(),
+    amountMinor: money('amount_minor').notNull(),
+    dueAt: ts('due_at').notNull(),
+    reportedAt: ts('reported_at'),
+    /** set by that month's receiver (their own share is confirmed at once: it never leaves their hands) */
+    confirmedAt: ts('confirmed_at'),
+    confirmedBy: text('confirmed_by'),
+  },
+  (t) => [uniqueIndex('gameya_payments_uq').on(t.gameyaId, t.position, t.payerId)],
+);
+
+export const gameyaSwaps = pgTable('gameya_swaps', {
+  id: text('id').primaryKey(),
+  gameyaId: text('gameya_id')
+    .notNull()
+    .references(() => gameyas.id, { onDelete: 'cascade' }),
+  groupId: text('group_id').notNull(),
+  requesterId: text('requester_id').notNull(),
+  otherId: text('other_id').notNull(),
+  otherAcceptedAt: ts('other_accepted_at'),
+  organizerId: text('organizer_id'),
+  organizerApprovedAt: ts('organizer_approved_at'),
+  /** pending | done | rejected | cancelled */
+  status: text('status').notNull().default('pending'),
+  createdAt: createdAt(),
+  doneAt: ts('done_at'),
+});

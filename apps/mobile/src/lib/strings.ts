@@ -141,6 +141,16 @@ export const en = {
     invited: 'Invited', going: 'Going', maybe: 'Maybe', no: "Can't", pending: 'No reply yet', sendInvite: 'Send invite', copyLink: 'Copy link', plus: '+{{count}}',
     inviteText: 'You are invited to {{name}}. Please reply here: {{url}}',
   },
+  gameya: {
+    title: "Gam'eya", start: 'Start a round', name: 'Name', amount: 'Each member pays (per month)', startMonth: 'First month (YYYY-MM)', dueDay: 'Pay by day (1–28)',
+    order: 'Payout order', agreed: 'Agreed order', drawn: 'Draw by lot', orderHint: 'Tap members in the order they receive the pot.', members: 'Members',
+    pot: 'Pot', monthOf: 'Month {{n}} of {{total}}', yourTurn: 'Your turn: month {{n}} ({{month}})', myTurn: 'Your turn: month {{n}}', receiver: 'Receives', round: 'Round {{n}}',
+    board: 'Payment board', paid: 'Paid', reported: 'Says paid', late: 'Late', due: 'Due', iPaid: 'I paid', confirm: 'Confirm', received: 'Pot received ✓',
+    paidOf: '{{paid}} of {{total}} paid', swap: 'Swap my turn', swapWith: 'Swap my turn with…', swaps: 'Swap requests', swapAsk: '{{from}} ↔ {{to}}',
+    accept: 'Accept', approve: 'Approve', reject: 'Decline', withdraw: 'Withdraw', waitingOther: 'Waiting for {{name}}', waitingOrganizer: 'Waiting for an organizer',
+    trust: 'Trust record', onTime: '{{n}} on time', lateCount: '{{n}} late', nextRound: 'Start the next round', done: 'Round finished 🎉',
+    tracking: 'Circle only records the payments. The money moves between you directly.', empty: 'Start a round when everyone has joined.', dueBy: '{{amount}} due {{date}}',
+  },
   kids: {
     title: 'Kids', add: 'Add a child', name: "Child's name", pin: 'PIN (4–6 digits)', onDevice: 'Kids on this device', switchTo: 'Switch to {{name}}',
     enterPin: 'Enter PIN', wrongPin: 'Wrong PIN', locked: 'Too many tries. Wait 15 minutes.', resetPin: 'New PIN', hint: 'Kids sign in with a PIN on this phone. No email, no money, no links outside the family.',
@@ -295,6 +305,16 @@ export const ar: Shape<typeof en> = {
     guests: 'قائمة الضيوف', addGuest: 'ادعُ ضيفًا', guestName: 'اسم الضيف', maxPlus: 'يقدر يجيب معاه (مرافقين)', headcount: 'الحضور مع المرافقين',
     invited: 'مدعوين', going: 'جايين', maybe: 'يمكن', no: 'مش هيقدروا', pending: 'لسه ماردّوش', sendInvite: 'ابعت الدعوة', copyLink: 'انسخ الرابط', plus: '+{{count}}',
     inviteText: 'أنت مدعو إلى {{name}}. من فضلك رُد هنا: {{url}}',
+  },
+  gameya: {
+    title: 'الجمعية', start: 'ابدأ دورة', name: 'الاسم', amount: 'كل عضو يدفع (شهريًا)', startMonth: 'أول شهر (YYYY-MM)', dueDay: 'الدفع لحد يوم (١–٢٨)',
+    order: 'ترتيب القبض', agreed: 'ترتيب متفق عليه', drawn: 'قرعة', orderHint: 'اضغط على الأعضاء بترتيب القبض.', members: 'الأعضاء',
+    pot: 'القبضة', monthOf: 'الشهر {{n}} من {{total}}', yourTurn: 'دورك: الشهر {{n}} ({{month}})', myTurn: 'دورك: الشهر {{n}}', receiver: 'يقبض', round: 'الدورة {{n}}',
+    board: 'لوحة الدفع', paid: 'دفع', reported: 'بيقول دفع', late: 'متأخر', due: 'مستحق', iPaid: 'دفعت', confirm: 'تأكيد', received: 'استلم القبضة ✓',
+    paidOf: 'دفع {{paid}} من {{total}}', swap: 'بدّل دوري', swapWith: 'بدّل دوري مع…', swaps: 'طلبات التبديل', swapAsk: '{{from}} ↔ {{to}}',
+    accept: 'موافق', approve: 'اعتماد', reject: 'رفض', withdraw: 'سحب الطلب', waitingOther: 'في انتظار {{name}}', waitingOrganizer: 'في انتظار المنظّم',
+    trust: 'سجل الالتزام', onTime: '{{n}} في الميعاد', lateCount: '{{n}} متأخر', nextRound: 'ابدأ الدورة الجاية', done: 'الدورة خلصت 🎉',
+    tracking: 'Circle بيسجّل الدفع بس. الفلوس بتتنقل بينكم مباشرة.', empty: 'ابدأ دورة لما الكل ينضم.', dueBy: '{{amount}} مستحق {{date}}',
   },
   kids: {
     title: 'الأطفال', add: 'إضافة طفل', name: 'اسم الطفل', pin: 'رمز PIN (٤–٦ أرقام)', onDevice: 'الأطفال على هذا الجهاز', switchTo: 'التبديل إلى {{name}}',

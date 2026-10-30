@@ -9,4 +9,5 @@ export * from './time';
 export * from './recurrence';
 export * from './permissions';
 export * from './templates';
+export * from './gameya';
 export * as schemas from './schemas';

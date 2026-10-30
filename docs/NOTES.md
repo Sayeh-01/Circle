@@ -191,3 +191,28 @@ Decisions made while the owner is away (SPEC B0/B8). Newest at the bottom of eac
   currency null → the group currency. The phone pre-fills the expense sheet; the person picks who shares it and saves.
 - No new dependencies.
 
+## v2.2 plan
+1. Pure helpers in shared (`gameyaSchedule`, `drawOrder`, `swapTurns`, month maths) with unit tests.
+2. Tables: round, one slot per month (PK round+position, unique round+member → a member can't receive twice), one payment
+   row per payer per month, swaps with the other member's and an organizer's approval timestamps.
+3. Routes behind `requireMember` (module `gameya`, `money.read`; starting a round and approving swaps need `approve`).
+4. Reminder job per month (day before the due day, 09:00 group time), Today card, board + trust record on the phone.
+
+## v2.2 decisions
+- Everyone pays every month, the receiver too; the receiver's own share is confirmed at once (it never leaves their hands)
+  and moves with the turn on a swap. Paid in = expected = amount × members every month; the pot counts as paid out when
+  the receiver has confirmed every share.
+- Only that month's receiver confirms a share (A6 "the receiver confirms"); payers can report "I paid" any time (paying
+  early is allowed).
+- Swaps: only turns that haven't started (both months after the current one, nothing confirmed to either receiver). The
+  requester asks; the other member accepts; an organizer (owner/admin, `approve`) approves, in any order. An organizer who
+  is one of the two members covers the organizer approval with their own consent. One open request per requester.
+- Drawn order uses `crypto.randomInt` on the server, shown to everyone at once; agreed order is the order the organizer taps.
+- One share per member per round (no half or double shares, "سهمين") — keeps "receives exactly once" literal; owner can ask.
+- Trust record = every share that fell due (or was settled early) across all rounds in the group, on time if reported or
+  confirmed by the due day; the receiver's own share isn't counted.
+- A member leaving the group mid-round keeps their slot and payments (history matters); the organizer settles it in chat.
+- Next round: same members still in the group, drawn again if it was drawn, starts the month after the last round (or this
+  month if that's past).
+- No new dependencies.
+

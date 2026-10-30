@@ -13,6 +13,10 @@ export const MODULES = {
   polls: { emoji: '📊', name: { en: 'Polls', ar: 'التصويتات' }, phase: '1.0' },
   chat: { emoji: '💬', name: { en: 'Chat', ar: 'الدردشة' }, phase: '1.0' },
   points: { emoji: '⭐', name: { en: 'Points & Rewards', ar: 'النقاط والمكافآت' }, phase: '1.2' },
+  teams: { emoji: '🏆', name: { en: 'Team tools', ar: 'أدوات الفريق' }, phase: '1.3' },
+  focus: { emoji: '⏱️', name: { en: 'Focus', ar: 'التركيز' }, phase: '1.3' },
+  flashcards: { emoji: '🃏', name: { en: 'Flashcards', ar: 'بطاقات المراجعة' }, phase: '1.3' },
+  notes: { emoji: '📒', name: { en: 'Notes & Wiki', ar: 'الملاحظات' }, phase: '1.3' },
 } as const satisfies Record<string, { emoji: string; name: L10n; phase: string }>;
 
 export type ModuleId = keyof typeof MODULES;
@@ -99,7 +103,7 @@ export const TEMPLATES: Template[] = [
     phase: '1',
     name: { en: 'Friends & Roommates', ar: 'أصدقاء وزملاء سكن' },
     tagline: { en: 'Plan outings, split costs, share chores', ar: 'خطّطوا للخروجات وقسّموا المصاريف والمهام' },
-    modules: ['expenses', 'tasks', 'lists', 'events', 'chat', 'polls'],
+    modules: ['expenses', 'tasks', 'lists', 'events', 'chat', 'polls', 'notes'],
     roles: { owner: { en: 'Organizer', ar: 'المنظّم' }, admin: { en: 'Organizer', ar: 'المنظّم' }, member: { en: 'Friend', ar: 'صديق' } },
     vocab: { task: { en: 'Chore', ar: 'مهمة منزلية' }, tasks: { en: 'Chores', ar: 'المهام المنزلية' } },
     defaults: {},
@@ -115,7 +119,7 @@ export const TEMPLATES: Template[] = [
     phase: '1',
     name: { en: 'Study Group', ar: 'مجموعة مذاكرة' },
     tagline: { en: 'Study together, stay accountable', ar: 'ذاكروا سوا والتزموا' },
-    modules: ['events', 'tasks', 'chat', 'polls', 'lists'],
+    modules: ['events', 'tasks', 'chat', 'polls', 'lists', 'focus', 'flashcards', 'notes'],
     roles: { owner: { en: 'Lead', ar: 'القائد' }, admin: { en: 'Lead', ar: 'القائد' } },
     vocab: {
       task: { en: 'Assignment', ar: 'تكليف' },
@@ -136,7 +140,7 @@ export const TEMPLATES: Template[] = [
     phase: '1',
     name: { en: 'Sport Team', ar: 'فريق رياضي' },
     tagline: { en: 'Fill matches, collect fees, track attendance', ar: 'كمّلوا الماتشات واجمعوا الاشتراكات' },
-    modules: ['events', 'expenses', 'chat', 'polls', 'lists', 'tasks'],
+    modules: ['events', 'expenses', 'chat', 'polls', 'lists', 'tasks', 'teams'],
     roles: {
       owner: { en: 'Captain', ar: 'الكابتن' },
       admin: { en: 'Coach', ar: 'المدرّب' },
@@ -161,7 +165,7 @@ export const TEMPLATES: Template[] = [
     phase: '1',
     name: { en: 'Work Team', ar: 'فريق عمل' },
     tagline: { en: 'Coordinate tasks and meetings', ar: 'نسّقوا المهام والاجتماعات' },
-    modules: ['tasks', 'events', 'chat', 'polls'],
+    modules: ['tasks', 'events', 'chat', 'polls', 'notes'],
     roles: { owner: { en: 'Lead', ar: 'القائد' }, admin: { en: 'Lead', ar: 'القائد' } },
     vocab: { event: { en: 'Meeting', ar: 'اجتماع' }, events: { en: 'Meetings', ar: 'الاجتماعات' } },
     defaults: {},

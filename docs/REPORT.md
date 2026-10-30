@@ -64,6 +64,9 @@ Make a development build first (Expo Go can't do remote push on Android, B7 #6):
     force-quit and reopen → still the child's session; the "+" tab is hidden; Expenses can't be opened.
 18. **v1.2 haptics:** completing a chore in Kids home gives a success tap.
 
+19. **v1.3 focus room:** two phones open the same study group's Focus tab; one taps Start → the other sees 🟢 within a
+    second; backgrounding the app for a while and returning reconnects (the socket reconnects on foreground).
+
 (Later versions add their own device checks in their sections below.)
 
 ## Accounts and keys needed (priority order)
@@ -230,3 +233,36 @@ for real first and found three app bugs (below).
 3. Kids home only listed dated chores (it used Today's 7-day window); it now lists all of the child's open chores.
 
 **Device checks:** owner checklist items 16–18.
+
+## v1.3 Sport & Study — [x] done
+
+**Built:** Sport pack (module `teams`, on in the Sport template): captain/coach skill ratings 1–10, "make two fair teams"
+for the players Going (exact DP balancer, unrated = 5), man-of-the-match vote (opens at kick-off; only players vote, only for
+players, not for themselves; one vote per player per match enforced by the primary key), attendance stats and season
+leaderboard (MOTM wins, matches played, attendance rate), carpool board (offer seats, take/leave a seat; seat count locked
+per car, one car per rider per match). Study pack (modules `focus`, `flashcards`, `notes`, on in the Study template): live
+focus room (presence over the WebSocket + focus sessions for minutes today and group/personal streaks), 25/5 Pomodoro,
+exam countdowns (also pinned on the group home), flashcard decks with a per-member SM-2 schedule and a study mode
+(Again/Hard/Good/Easy), notes/wiki pages (Work and Roommates templates also get `notes`).
+
+**Faked:** nothing. **Skipped:** home-screen widgets (B5 Skip — native widget extensions, owner's list).
+
+**`pnpm check`:** shared 28/28 (6 files) · server 90/90 (11 files) · E2E 7/7.
+
+| B9 v1.3 check | Evidence |
+|---|---|
+| Team balancer matches a brute-force optimum for 10–16 players | `packages/shared/test/balancer.test.ts` — 42 random squads (6 per size 10…16) compared with an independent bitmask brute force |
+| MOTM allows one vote per player per match | `apps/server/test/packs.test.ts` — second vote 409, two concurrent votes from one player → exactly one 200, plus non-player 403, nominee-didn't-play 400, self-vote 400, before kick-off 409 |
+| Spaced-repetition intervals are unit-tested | `packages/shared/test/srs.test.ts` (1 → 6 → 15 → 39 days, hard/again, ease floor 1.3); per-member schedules over the API in `packs.test.ts` |
+| Focus room presence (join/leave) reaches a second socket client | `apps/server/test/realtime.test.ts` "focus room presence" — real server, two members' sockets + an outsider's: join → the other member receives `users: [a]`; leave → `[]`; closing the socket also leaves; the outsider's join is ignored. E2E: B sees 🟢 when A starts focusing |
+
+**Also tested:** carpool overbooking under 3 concurrent joins (exactly 2 of 2 seats), attendance/leaderboard numbers, focus
+minutes and streaks across days, wiki edit/delete rules, cross-group 404 for decks, cards, pages, MOTM and carpool.
+
+**Arabic screenshots:** `apps/mobile/e2e/screenshots/v1.3/` (event with sport pack, flashcards, focus room, study home with
+countdown, team tools) — reviewed by eye; first run had two blank shots taken before render, fixed by waiting for the
+screen.
+
+**Seen red:** `balancer.test.ts`, `srs.test.ts`, `packs.test.ts`, and the new presence test in `realtime.test.ts`.
+
+**Device checks:** owner checklist item 19.

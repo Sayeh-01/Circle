@@ -14,6 +14,10 @@ export const MODULE_ROUTES: Record<string, string> = {
   polls: 'polls',
   chat: 'chat',
   points: 'points',
+  teams: 'teams',
+  focus: 'focus',
+  flashcards: 'flashcards',
+  notes: 'notes',
 };
 
 const PINNED = 5;

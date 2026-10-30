@@ -15,6 +15,8 @@ import { attachRealtime, signTicket } from './realtime';
 import { registerChatRoutes } from './routes/chat';
 import { registerChildRoutes } from './routes/children';
 import { registerMotivationRoutes } from './routes/motivation';
+import { registerSportRoutes } from './routes/sport';
+import { registerStudyRoutes } from './routes/study';
 import { registerGuestRoutes } from './routes/guest';
 import { registerIcsRoutes, registerWellKnown } from './routes/ics';
 import { registerEventRoutes } from './routes/events';
@@ -63,6 +65,9 @@ export const features: FeatureModule[] = [
   // v1.2 Motivation
   (r, d) => registerMotivationRoutes(r, d),
   (r, d) => registerChildRoutes(r, d),
+  // v1.3 Sport & Study
+  (r, d) => registerSportRoutes(r, d),
+  (r, d) => registerStudyRoutes(r, d),
 ];
 
 export function createApp(opts: AppOptions) {

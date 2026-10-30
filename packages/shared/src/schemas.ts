@@ -139,3 +139,12 @@ export const rewardCreate = z.object({ title: z.string().trim().min(1).max(120),
 export const pointsAdjust = z.object({ userId: id, delta: z.number().int().min(-100000).max(100000), note: z.string().max(200).optional() });
 export const childCreate = z.object({ name: z.string().trim().min(1).max(60), pin: z.string().regex(/^\d{4,6}$/) });
 export const childPin = z.object({ pin: z.string().regex(/^\d{4,6}$/) });
+
+export const skillSet = z.object({ skill: z.number().min(0).max(10) });
+export const motmVote = z.object({ nomineeId: id });
+export const carpoolOffer = z.object({ seats: z.number().int().min(1).max(12), note: z.string().max(200).optional() });
+export const countdownCreate = z.object({ title: z.string().trim().min(1).max(120), at: isoDate });
+export const deckCreate = z.object({ title: z.string().trim().min(1).max(120) });
+export const cardCreate = z.object({ front: z.string().trim().min(1).max(1000), back: z.string().trim().min(1).max(2000) });
+export const cardReview = z.object({ grade: z.number().int().min(0).max(5) });
+export const pageUpsert = z.object({ title: z.string().trim().min(1).max(200), body: z.string().max(50_000).default('') });

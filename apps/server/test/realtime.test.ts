@@ -114,3 +114,36 @@ describe('realtime after creating a group', () => {
     sa.ws.close();
   });
 });
+
+describe('focus room presence (B9 v1.3)', () => {
+  it('join/leave reaches a second socket client; outsiders can’t join', async () => {
+    const a = await signIn('focus-a@example.com');
+    const b = await signIn('focus-b@example.com');
+    const o = await signIn('focus-o@example.com');
+    const g = await a.call('POST', '/groups', { templateId: 'study', name: 'Study', lang: 'en' });
+    await b.call('POST', `/invites/${g.invite.code}/join`, {});
+    const aMe = await a.call('GET', '/me');
+    const sa = socket((await a.call('POST', '/ws-ticket')).ticket);
+    const sb = socket((await b.call('POST', '/ws-ticket')).ticket);
+    const so = socket((await o.call('POST', '/ws-ticket')).ticket);
+    await Promise.all([sa.next((m) => m.type === 'ready'), sb.next((m) => m.type === 'ready'), so.next((m) => m.type === 'ready')]);
+    sa.ws.send(JSON.stringify({ type: 'presence', groupId: g.group.id, room: 'focus', action: 'join' }));
+    const joined = await sb.next((m) => m.type === 'presence' && m.users.length === 1);
+    expect(joined).toMatchObject({ groupId: g.group.id, room: 'focus', users: [aMe.id] });
+    // an outsider's join is ignored
+    so.ws.send(JSON.stringify({ type: 'presence', groupId: g.group.id, room: 'focus', action: 'join' }));
+    await new Promise((r) => setTimeout(r, 200));
+    expect(sb.messages.filter((m) => m.type === 'presence' && m.users.length > 1)).toEqual([]);
+    sa.ws.send(JSON.stringify({ type: 'presence', groupId: g.group.id, room: 'focus', action: 'leave' }));
+    const left = await sb.next((m) => m.type === 'presence' && m.users.length === 0);
+    expect(left.users).toEqual([]);
+    // closing the socket also leaves the room
+    sa.ws.send(JSON.stringify({ type: 'presence', groupId: g.group.id, room: 'focus', action: 'join' }));
+    await sb.next((m) => m.type === 'presence' && m.users.length === 1 && sb.messages.indexOf(m) > sb.messages.indexOf(left));
+    const before = sb.messages.length;
+    sa.ws.close();
+    await sb.next((m) => m.type === 'presence' && m.users.length === 0 && sb.messages.indexOf(m) >= before);
+    sb.ws.close();
+    so.ws.close();
+  });
+});

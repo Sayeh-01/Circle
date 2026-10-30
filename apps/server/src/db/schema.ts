@@ -567,3 +567,138 @@ export const redemptions = pgTable('redemptions', {
   resolvedAt: ts('resolved_at'),
   resolvedBy: text('resolved_by'),
 });
+
+// ── v1.3 Sport & Study ────────────────────────────────────────────────────────
+export const memberSkills = pgTable(
+  'member_skills',
+  {
+    groupId: text('group_id')
+      .notNull()
+      .references(() => groups.id, { onDelete: 'cascade' }),
+    userId: text('user_id').notNull(),
+    skill: doublePrecision('skill').notNull(),
+    updatedBy: text('updated_by').notNull(),
+    updatedAt: ts('updated_at').notNull().defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.groupId, t.userId] })],
+);
+
+/** One vote per player per match: the primary key is (event, voter). */
+export const matchVotes = pgTable(
+  'match_votes',
+  {
+    eventId: text('event_id')
+      .notNull()
+      .references(() => events.id, { onDelete: 'cascade' }),
+    groupId: text('group_id').notNull(),
+    voterId: text('voter_id').notNull(),
+    nomineeId: text('nominee_id').notNull(),
+    createdAt: createdAt(),
+  },
+  (t) => [primaryKey({ columns: [t.eventId, t.voterId] })],
+);
+
+export const carpoolOffers = pgTable('carpool_offers', {
+  id: text('id').primaryKey(),
+  groupId: text('group_id')
+    .notNull()
+    .references(() => groups.id, { onDelete: 'cascade' }),
+  eventId: text('event_id')
+    .notNull()
+    .references(() => events.id, { onDelete: 'cascade' }),
+  driverId: text('driver_id').notNull(),
+  seats: integer('seats').notNull(),
+  note: text('note'),
+  createdAt: createdAt(),
+});
+
+export const carpoolRiders = pgTable(
+  'carpool_riders',
+  {
+    offerId: text('offer_id')
+      .notNull()
+      .references(() => carpoolOffers.id, { onDelete: 'cascade' }),
+    groupId: text('group_id').notNull(),
+    eventId: text('event_id').notNull(),
+    userId: text('user_id').notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.offerId, t.userId] }), uniqueIndex('carpool_rider_event_uq').on(t.eventId, t.userId)],
+);
+
+export const focusSessions = pgTable(
+  'focus_sessions',
+  {
+    id: text('id').primaryKey(),
+    groupId: text('group_id')
+      .notNull()
+      .references(() => groups.id, { onDelete: 'cascade' }),
+    userId: text('user_id').notNull(),
+    startedAt: ts('started_at').notNull(),
+    endedAt: ts('ended_at'),
+  },
+  (t) => [index('focus_group_idx').on(t.groupId, t.startedAt)],
+);
+
+export const countdowns = pgTable('countdowns', {
+  id: text('id').primaryKey(),
+  groupId: text('group_id')
+    .notNull()
+    .references(() => groups.id, { onDelete: 'cascade' }),
+  title: text('title').notNull(),
+  at: ts('at').notNull(),
+  createdBy: text('created_by').notNull(),
+  createdAt: createdAt(),
+});
+
+export const decks = pgTable('decks', {
+  id: text('id').primaryKey(),
+  groupId: text('group_id')
+    .notNull()
+    .references(() => groups.id, { onDelete: 'cascade' }),
+  title: text('title').notNull(),
+  createdBy: text('created_by').notNull(),
+  createdAt: createdAt(),
+});
+
+export const cards = pgTable('cards', {
+  id: text('id').primaryKey(),
+  deckId: text('deck_id')
+    .notNull()
+    .references(() => decks.id, { onDelete: 'cascade' }),
+  groupId: text('group_id').notNull(),
+  front: text('front').notNull(),
+  back: text('back').notNull(),
+  createdBy: text('created_by').notNull(),
+  createdAt: createdAt(),
+});
+
+/** Each member has their own SM-2 schedule per card. */
+export const cardReviews = pgTable(
+  'card_reviews',
+  {
+    cardId: text('card_id')
+      .notNull()
+      .references(() => cards.id, { onDelete: 'cascade' }),
+    userId: text('user_id').notNull(),
+    groupId: text('group_id').notNull(),
+    ease: doublePrecision('ease').notNull(),
+    interval: integer('interval').notNull(),
+    reps: integer('reps').notNull(),
+    dueAt: ts('due_at').notNull(),
+    reviewedAt: ts('reviewed_at').notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.cardId, t.userId] })],
+);
+
+export const pages = pgTable('pages', {
+  id: text('id').primaryKey(),
+  groupId: text('group_id')
+    .notNull()
+    .references(() => groups.id, { onDelete: 'cascade' }),
+  title: text('title').notNull(),
+  body: text('body').notNull().default(''),
+  createdBy: text('created_by').notNull(),
+  updatedBy: text('updated_by').notNull(),
+  createdAt: createdAt(),
+  updatedAt: ts('updated_at').notNull().defaultNow(),
+});

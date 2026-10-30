@@ -5,6 +5,7 @@ import { useState } from 'react';
 import * as Clipboard from 'expo-clipboard';
 import { Linking, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { EventExtras } from '@/components/EventExtras';
 import { Button, Card, Chip, ErrorView, Field, Loading, Muted, Row, Screen, Section, Sheet, Txt, colors, useSheet } from '@/components/ui';
 import { del, get, post } from '@/lib/api';
 import { confirmAsk, useAct, useGroup } from '@/lib/hooks';
@@ -83,6 +84,8 @@ export default function EventDetail() {
           </Card>
         )}
       </Section>
+
+      {g.has('teams') && g.me && <EventExtras groupId={id} event={e} going={going} memberName={(u) => going.find((x: any) => x.userId === u)?.displayName ?? g.memberName(u)} me={g.me.userId} color={g.group?.color ?? colors.primary} members={g.members} />}
 
       <View style={{ gap: 10 }}>
         {g.has('expenses') && g.can('money.write') && going.length > 0 && (

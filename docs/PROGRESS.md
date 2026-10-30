@@ -6,7 +6,7 @@ Source of truth for where the build is (SPEC B1). One line per version in B5.
 - [x] v1.0 MVP
 - [x] v1.1 Reach
 - [x] v1.2 Motivation
-- [ ] v1.3 Sport & Study
+- [x] v1.3 Sport & Study (widgets skipped per B5)
 - [ ] v1.4 Life + AI
 - [ ] v1.5 Care & Safety
 - [ ] v2.0 Dues, budgets, multi-currency, contacts, Trip + Event
@@ -24,4 +24,4 @@ Source of truth for where the build is (SPEC B1). One line per version in B5.
 - [ ] v7.0 Cross-group AI assistant
 
 ## Current
-v1.2 done. Next: v1.3 Sport & Study.
+v1.3 done. Next: v1.4 Life + AI.

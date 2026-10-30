@@ -118,3 +118,17 @@ Decisions made while the owner is away (SPEC B0/B8). Newest at the bottom of eac
   beyond "this month".
 - `expo-audio` — voice notes record/play (v1.2, B3 Expo SDK module).
 - `expo-haptics` — success haptic on completing a chore (A13 design).
+
+## v1.3 plan
+1. Pure logic first: exact balancer (DP over size × skill sum) + SM-2, each checked against independent tests.
+2. Sport tables: skills, match votes (PK event+voter), carpool offers/riders. Study tables: focus sessions, countdowns,
+   decks/cards/per-member reviews, pages.
+3. Presence reuses the v1.0 WebSocket rooms; REST focus sessions give minutes/streaks.
+
+## v1.3 decisions
+- Sport features (balancer, MOTM, attendance, carpool) live in one module `teams` ("Team builder" in A7) so a template
+  switches them on with one entry. Exam countdowns live in the `focus` module.
+- MOTM votes can't be changed (strict reading of "one vote per player per match"); voting opens at kick-off.
+- Attendance = RSVP "going" for past, non-cancelled events (no separate check-in); a no-show marker can be added later.
+- A focus session counts at most 3 hours if the app never sent "stop".
+- Home-screen widgets: Skip per B5 (owner's list in REPORT).

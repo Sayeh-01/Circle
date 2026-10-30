@@ -23,6 +23,7 @@ export default function GroupHome() {
   const tasks = useQuery({ queryKey: ['group', id, 'tasks', 'mine'], queryFn: () => get(`/groups/${id}/tasks?mine=1`), enabled: has('tasks') });
   const balances = useQuery({ queryKey: ['group', id, 'balances'], queryFn: () => get(`/groups/${id}/balances`), enabled: has('expenses') && g.can('money.read') });
   const anns = useQuery({ queryKey: ['group', id, 'announcements'], queryFn: () => get(`/groups/${id}/announcements`), enabled: has('chat') });
+  const countdowns = useQuery({ queryKey: ['group', id, 'countdowns'], queryFn: () => get(`/groups/${id}/countdowns`), enabled: has('focus') });
   const next = events.data?.find((e: any) => new Date(e.startsAt).getTime() > Date.now() - 3 * 3600_000);
   const myNet = g.me ? balances.data?.balances?.[g.me.userId] ?? 0 : 0;
   const tpl = g.group ? getTemplate(g.group.type) : null;
@@ -37,6 +38,15 @@ export default function GroupHome() {
           <Muted style={{ marginStart: 8, flex: 1 }}>{t('common.members', { count: g.members.length })}</Muted>
           <Button small kind="secondary" title={t('group.invite')} onPress={() => router.push(`/g/${id}/invite`)} testID="open-invite" />
         </View>
+      )}
+
+      {countdowns.data?.[0] && (
+        <Card accent={g.group?.color} onPress={() => router.push(`/g/${id}/focus`)} testID="home-countdown">
+          <Txt style={{ fontWeight: '700' }}>⏳ {countdowns.data[0].title}</Txt>
+          <Txt style={{ fontSize: 24, fontWeight: '800', color: g.group?.color }}>
+            {t('study.daysLeft', { count: Math.max(0, Math.ceil((new Date(countdowns.data[0].at).getTime() - Date.now()) / 86_400_000)) })}
+          </Txt>
+        </Card>
       )}
 
       {has('events') && (

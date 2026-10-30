@@ -99,6 +99,19 @@ export const en = {
     rewardTitle: 'Reward', approvals: 'Waiting for approval', approve: 'Approve', reject: 'Not yet', redemptions: 'Rewards to give', given: 'Given', myRewards: 'My rewards',
     pending: 'Waiting', adjust: 'Give points', kidsHello: 'Hi {{name}}!', myChores: 'My chores', allDone: 'All done! 🎉', waitingParent: 'Waiting for a parent ✓',
   },
+  sport: {
+    skills: 'Player ratings (1–10)', balance: 'Make two fair teams', teamA: 'Team A', teamB: 'Team B', diff: 'Difference: {{diff}}', leaderboard: 'Season leaderboard',
+    attended: 'Played', rate: 'Rate', motm: 'MOTM', matches_one: '{{count}} match', matches_other: '{{count}} matches', motmTitle: 'Man of the match', vote: 'Vote',
+    voted: 'You voted', notStarted: 'Voting opens at kick-off', carpool: 'Carpool', offerSeats: 'Offer seats', seats: 'Seats', takeSeat: 'Take a seat', leaveSeat: 'Leave', full: 'Full',
+    from: 'Note (e.g. from Dokki)', driver: 'Driver', winner: '🏆 {{name}}',
+  },
+  study: {
+    focus: 'Focus together', start: 'Start 25 min', stop: 'Stop', break: 'Break', studyingNow_one: '{{count}} studying now', studyingNow_other: '{{count}} studying now',
+    minutesToday: 'Minutes today', groupStreak: 'Group streak: {{count}} days 🔥', countdowns: 'Countdowns', daysLeft_one: '{{count}} day left', daysLeft_other: '{{count}} days left',
+    newCountdown: 'New countdown', decks: 'Decks', newDeck: 'New deck', cards_one: '{{count}} card', cards_other: '{{count}} cards', due_one: '{{count}} due', due_other: '{{count}} due',
+    study: 'Study', front: 'Question', back: 'Answer', addCard: 'Add card', show: 'Show answer', again: 'Again', hard: 'Hard', good: 'Good', easy: 'Easy', doneForNow: 'Nothing due. Come back later! 🎉',
+    pages: 'Pages', newPage: 'New page', pageTitle: 'Title', pageBody: 'Text', edited: 'Edited by {{name}}',
+  },
   kids: {
     title: 'Kids', add: 'Add a child', name: "Child's name", pin: 'PIN (4–6 digits)', onDevice: 'Kids on this device', switchTo: 'Switch to {{name}}',
     enterPin: 'Enter PIN', wrongPin: 'Wrong PIN', locked: 'Too many tries. Wait 15 minutes.', resetPin: 'New PIN', hint: 'Kids sign in with a PIN on this phone. No email, no money, no links outside the family.',
@@ -207,6 +220,22 @@ export const ar: Shape<typeof en> = {
     notEnough: 'النقاط مش كفاية', newReward: 'مكافأة جديدة', rewardTitle: 'المكافأة', approvals: 'في انتظار الموافقة', approve: 'موافقة', reject: 'لسه',
     redemptions: 'مكافآت لازم تتسلّم', given: 'اتسلّمت', myRewards: 'مكافآتي', pending: 'في الانتظار', adjust: 'إعطاء نقاط', kidsHello: 'أهلًا يا {{name}}!',
     myChores: 'مهامي', allDone: 'خلّصت كله! 🎉', waitingParent: 'في انتظار موافقة بابا أو ماما ✓',
+  },
+  sport: {
+    skills: 'تقييم اللاعبين (١–١٠)', balance: 'اعمل فريقين متوازنين', teamA: 'فريق أ', teamB: 'فريق ب', diff: 'الفرق: {{diff}}', leaderboard: 'ترتيب الموسم',
+    attended: 'لعب', rate: 'النسبة', motm: 'الأفضل', matches_zero: 'لا ماتشات', matches_one: 'ماتش واحد', matches_two: 'ماتشين', matches_few: '{{count}} ماتشات', matches_many: '{{count}} ماتش', matches_other: '{{count}} ماتش',
+    motmTitle: 'أفضل لاعب', vote: 'صوّت', voted: 'صوّتت', notStarted: 'التصويت يفتح مع بداية الماتش', carpool: 'مشاركة العربية', offerSeats: 'اعرض أماكن', seats: 'الأماكن',
+    takeSeat: 'خُد مكان', leaveSeat: 'انزل', full: 'مليانة', from: 'ملاحظة (مثلًا من الدقي)', driver: 'السواق', winner: '🏆 {{name}}',
+  },
+  study: {
+    focus: 'ذاكروا سوا', start: 'ابدأ ٢٥ دقيقة', stop: 'إيقاف', break: 'استراحة', studyingNow_zero: 'محدش بيذاكر دلوقتي', studyingNow_one: 'واحد بيذاكر دلوقتي', studyingNow_two: 'اتنين بيذاكروا دلوقتي',
+    studyingNow_few: '{{count}} بيذاكروا دلوقتي', studyingNow_many: '{{count}} بيذاكروا دلوقتي', studyingNow_other: '{{count}} بيذاكروا دلوقتي',
+    minutesToday: 'دقائق النهارده', groupStreak: 'سلسلة المجموعة: {{count}} يوم 🔥', countdowns: 'العد التنازلي',
+    daysLeft_zero: 'النهارده', daysLeft_one: 'باقي يوم', daysLeft_two: 'باقي يومين', daysLeft_few: 'باقي {{count}} أيام', daysLeft_many: 'باقي {{count}} يومًا', daysLeft_other: 'باقي {{count}} يوم',
+    newCountdown: 'عد تنازلي جديد', decks: 'المجموعات', newDeck: 'مجموعة بطاقات جديدة', cards_zero: 'لا بطاقات', cards_one: 'بطاقة واحدة', cards_two: 'بطاقتان', cards_few: '{{count}} بطاقات', cards_many: '{{count}} بطاقة', cards_other: '{{count}} بطاقة',
+    due_zero: 'لا شيء مستحق', due_one: 'واحدة مستحقة', due_two: 'اثنتان مستحقتان', due_few: '{{count}} مستحقة', due_many: '{{count}} مستحقة', due_other: '{{count}} مستحقة',
+    study: 'راجع', front: 'السؤال', back: 'الإجابة', addCard: 'أضف بطاقة', show: 'اعرض الإجابة', again: 'تاني', hard: 'صعب', good: 'كويس', easy: 'سهل', doneForNow: 'مفيش حاجة مستحقة. ارجع بعدين! 🎉',
+    pages: 'الصفحات', newPage: 'صفحة جديدة', pageTitle: 'العنوان', pageBody: 'النص', edited: 'آخر تعديل: {{name}}',
   },
   kids: {
     title: 'الأطفال', add: 'إضافة طفل', name: 'اسم الطفل', pin: 'رمز PIN (٤–٦ أرقام)', onDevice: 'الأطفال على هذا الجهاز', switchTo: 'التبديل إلى {{name}}',
